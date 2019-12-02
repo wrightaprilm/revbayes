@@ -1336,6 +1336,9 @@ const TopologyNode& TopologyNode::getParent(void) const
 }
 
 
+// At the moment, the 'Taxon' class only offers a species name which is
+// returned. In the future, an individual name may be added to 'Taxon'; or, we
+// could remove the classifier (species_name -> name).
 std::string TopologyNode::getIndividualName() const
 {
     std::string name = taxon.getSpeciesName();
@@ -1759,11 +1762,14 @@ void TopologyNode::setIndex( size_t idx)
 }
 
 
-void TopologyNode::setName(std::string const &n)
+void TopologyNode::setName(std::string const &n, bool same_species_name)
 {
     
     taxon.setName( n );
-    taxon.setSpeciesName( n );
+    if ( same_species_name == true )
+    {
+        taxon.setSpeciesName( n );
+    }
     
 }
 
@@ -1895,3 +1901,24 @@ void TopologyNode::setTree(Tree *t)
     
 }
 
+void TopologyNode::removeDegreeTwoNodes()
+{
+  if (this->getNumberOfChildren() == 1)
+    {
+      TopologyNode *ch = *getChildren().begin();
+      double bl_this = this->branch_length;
+      double bl_child = ch->getBranchLength();
+      ch->setBranchLength(bl_this + bl_child);
+      if (! this->isRoot()) {
+        TopologyNode &pa = this->getParent();
+        ch->setParent(&pa);
+        }
+      else {
+        ch->setNodeType(ch->isTip(), true, ch->isInternal());
+      }
+    }
+  std::vector<TopologyNode*> chs = this->children;
+  for (std::vector<TopologyNode*>::iterator it = chs.begin(); it != chs.end(); ++it) {
+    (*it)->removeDegreeTwoNodes();
+  }
+}

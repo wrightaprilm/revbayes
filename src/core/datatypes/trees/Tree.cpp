@@ -270,10 +270,11 @@ void Tree::dropTipNode( size_t index )
         node.setNodeType(false, true, false);
         return;
     }
+    
     TopologyNode &parent        = node.getParent();
-    TopologyNode &grand_parent  = parent.getParent();
     if (parent.isRoot() == false)
     {
+        TopologyNode &grand_parent  = parent.getParent();
         TopologyNode *sibling = &parent.getChild( 0 );
         if ( sibling == &node )
         {
@@ -623,6 +624,16 @@ std::vector<Taxon> Tree::getFossilTaxa() const
     return taxa;
 }
 
+std::vector<size_t> Tree::getFossilLeavesIdxs() {
+  std::vector<size_t> fossilized_leaves_idxs;
+  for (size_t i = 0; i < getNumberOfTips(); ++i)
+    {
+      TopologyNode *n = &getTipNode(i);
+      if (n->isFossil())
+        fossilized_leaves_idxs.push_back(n->getIndex());
+    }
+  return fossilized_leaves_idxs;
+}
 
 /** We provide this function to allow a caller to randomly pick one of the interior nodes.
  This version assumes that the root is always the last and the tips the first in the nodes vector. */
@@ -1380,6 +1391,17 @@ bool Tree::recursivelyPruneTaxa( TopologyNode* n, const RbBitSet& prune_map )
 }
 
 
+void Tree::reindex( void )
+{
+    
+    for (unsigned int i = 0; i < nodes.size(); ++i)
+    {
+        nodes[i]->setIndex(i);
+    }
+    
+}
+
+
 void Tree::removeDuplicateTaxa( void )
 {
     
@@ -1533,6 +1555,19 @@ TopologyNode& Tree::reverseParentChild(TopologyNode &n)
 void Tree::setNegativeConstraint(bool tf)
 {
     is_negative_constraint = tf;
+}
+
+
+
+
+void Tree::setDefaultTipNames(const std::string &name, bool use_same_species_name )
+{
+    
+    for (size_t i = 0; i < num_tips; ++i)
+    {
+        nodes[i]->setName( name + i, use_same_species_name );
+    }
+    
 }
 
 
