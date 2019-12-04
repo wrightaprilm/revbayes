@@ -151,6 +151,7 @@ script: |
   set -ev
 
   # Build
+  cd projects/cmake
   ./build.sh -travis true -mpi ${USE_MPI} -help true -exec_name rb
 
   # Run tests

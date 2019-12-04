@@ -6,6 +6,7 @@ projects/cmake/*
 
 # ----------------------------------------------
 src/revlanguage/constants.h
+src/revlanguage/utils/GitVersion.cpp
 src/ui/constants.h
 projects/xcode/revbayes.xcodeproj
 .DS_Store

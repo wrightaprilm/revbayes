@@ -57,7 +57,6 @@ fi
     echo "const char *build_date = \"$(date)\";" >> GitVersion.cpp
     echo "const char *build_git_branch = \"$(git name-rev --name-only HEAD)\";" >> GitVersion.cpp
     
-    cp ../../src/revlanguage/utils/GitVersion.cpp GitVersion.cpp.bak
     mv GitVersion.cpp ../../src/revlanguage/utils/
 
 	./regenerate.sh ${all_args}
@@ -65,7 +64,4 @@ fi
 	CC=gcc CXX=g++ cmake .
 	make -j 4
 	cd ..
-
-    cp GitVersion.cpp.bak ../../src/revlanguage/utils/GitVersion.cpp
-    rm GitVersion.cpp.bak
 fi
