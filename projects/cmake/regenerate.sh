@@ -4,11 +4,9 @@
 # command line options
 # set default values
 debug="false"
-mac="false"
 travis="false"
 win="false"
 mpi="false"
-gentoo="false"
 help="false"
 jupyter="false"
 boost_root=""
@@ -17,26 +15,6 @@ exec_name=""
 
 # parse command line arguments
 while echo $1 | grep ^- > /dev/null; do
-    # intercept help while parsing "-key value" pairs
-    if [ "$1" = "--help" ] || [ "$1" = "-h" ]
-    then
-        echo '
-The minimum steps to build RevBayes after running this script is:
-cmake .
-make
-
-Command line options are:
--h                              : print this help and exit.
--mac            <true|false>    : set to true if you are building for a OS X - compatible with 10.6 and higher. Defaults to false.
--win            <true|false>    : set to true if you are building on a Windows system. Defaults to false.
--mpi            <true|false>    : set to true if you want to build the MPI version. Defaults to false.
--help           <true|false>    : Update the help database and build the YAML help generator. Defaults to false.
-'
-# secret test option
-# -jupyter        <true|false>    : set to true if you want ot buikd the jupyter version. Defaults to false.
-        exit
-    fi
-
     # parse pairs
     eval $( echo $1 | sed 's/-//g' | tr -d '\012')=$2
     shift
@@ -108,16 +86,33 @@ echo '
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -Wall -msse -msse2 -msse3")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O0 -Wall")
 '  >> "$BUILD_DIR/CMakeLists.txt"
-elif [ "$mac" = "true" ]
-then
-echo '
-set(CMAKE_OSX_DEPLOYMENT_TARGET "10.6")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -msse -msse2 -msse3")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
-'  >> "$BUILD_DIR/CMakeLists.txt"
 elif [ "$win" = "true" ]
 then
+# Adapted from https://gist.github.com/peterspackman/8cf73f7f12ba270aa8192d6911972fe8
 echo '
+set(CMAKE_SYSTEM_NAME Windows)
+set(TOOLCHAIN_PREFIX x86_64-w64-mingw32)
+
+set(CMAKE_C_COMPILER ${TOOLCHAIN_PREFIX}-gcc)
+set(CMAKE_CXX_COMPILER ${TOOLCHAIN_PREFIX}-g++)
+set(CMAKE_RC_COMPILER ${TOOLCHAIN_PREFIX}-windres)
+
+# without this you get errors about that RbRegister_VectorType has "too many sections (33681)"
+set(CMAKE_CXX_FLAGS "-Wa,-mbig-obj")
+# location of static boost libraries intalled via cygwin
+set(Boost_INCLUDE_DIR "/usr/${TOOLCHAIN_PREFIX}/sys-root/mingw/include/")
+set(Boost_LIBRARY_DIRS "/usr/${TOOLCHAIN_PREFIX}/sys-root/mingw/lib/")
+# required for pkgconfig to successfully find gtk+2.0
+set(ENV{PKG_CONFIG_PATH} "/usr/${TOOLCHAIN_PREFIX}/sys-root/mingw/lib/pkgconfig")
+
+# target environment on the build host system
+set(CMAKE_FIND_ROOT_PATH "/usr/${TOOLCHAIN_PREFIX}")
+
+# modify default behavior of FIND_XXX() commands
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -msse -msse2 -msse3")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
 '  >> "$BUILD_DIR/CMakeLists.txt"

@@ -7,7 +7,6 @@ projects/cmake/*
 # ----------------------------------------------
 src/revlanguage/constants.h
 src/ui/constants.h
-src/revlanguage/utils/GitVersion.cpp
 projects/xcode/revbayes.xcodeproj
 .DS_Store
 .history
@@ -19,11 +18,6 @@ history.txt
 /GTAGS
 # generated files
 validation/output/*
-src/meson.build
-src/core/meson.build
-src/libs/meson.build
-src/revlanguage/meson.build
-src/revstudio/meson.build
 doxygen/html/*
 doxygen/latex/*
 doxygen/DoxygenWarningLog.txt
