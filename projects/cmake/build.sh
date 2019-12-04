@@ -10,7 +10,6 @@ win="false"
 help="false"
 jupyter="false"
 travis="false"
-version="false"
 
 all_args=$@
 # parse command line arguments
