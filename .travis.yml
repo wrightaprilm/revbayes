@@ -148,12 +148,10 @@ before_install:
   - if [ -n "${CXX_COMPILER}" ]; then sudo update-alternatives --install /usr/bin/g++  g++ "${CXX_COMPILER}"  90; fi
 
 script: |
-  set -ev
-
   # Build
   cd projects/cmake
-  ./build.sh -travis true -mpi ${USE_MPI} -help true -exec_name rb
-
+  sh build.sh -travis true -mpi ${USE_MPI} -help true -exec_name rb
+  
   # Run tests
   if [ ${TRAVIS_BUILD_STAGE_NAME} = "Test" ]
   then
