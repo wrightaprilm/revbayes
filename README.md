@@ -12,3 +12,15 @@ For more information, see our [website](http://www.RevBayes.com) and [tutorials.
 
 New or returning contributors should check out the [developer section](https://https://revbayes.github.io/developer/) of the website, in particular the [git workflow](https://revbayes.github.io/developer/git-flow.html) and the recommended [best practices](https://revbayes.github.io/developer/best_practices/).
 
+# Building RevBayes with cmake
+
+You can build RevBayes by running the build script
+
+Example for a Linux system:
+$ ./build.sh
+
+The build script produces the RevBayes console executable 'rb'
+
+
+
+

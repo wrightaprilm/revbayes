@@ -1,42 +1,90 @@
 #!/bin/sh
 
+scriptpath="$( cd "$(dirname "$0")" ; pwd -P )"
+
+# make sure we are in the cmake directory
+cwd=`pwd`
+
+if [ $cwd != $scriptpath ]
+then
+    echo "Error: build.sh must be run from repository root"
+    exit 1
+fi
+
 #################
-# command line options
-# set default values
+# parse command line arguments
+#################
+
+# set defaults
 debug="false"
-travis="false"
-win="false"
 mpi="false"
+win="false"
+
 help="false"
 jupyter="false"
-boost_root=""
-boost_lib=""
-exec_name=""
+travis="false"
 
-# parse command line arguments
+all_args=$@
+
+# parse the arguments
 while echo $1 | grep ^- > /dev/null; do
+    # intercept help while parsing "-key value" pairs
+    if [ "$1" = "--help" ] || [ "$1" = "-h" ]
+    then
+        echo '
+Command line options are:
+-h                              : print this help and exit.
+-debug          <true|false>    : set to true to compile with debugging symbols. Defaults to false.
+-mpi            <true|false>    : set to true if you want to build the MPI version. Defaults to false.
+-win            <true|false>    : set to true if you are building on a Windows system. Defaults to false.
+'
+        exit
+    fi
+
     # parse pairs
     eval $( echo $1 | sed 's/-//g' | tr -d '\012')=$2
     shift
     shift
 done
 
+#################
+# create build directory
+#################
 
+# determine the build directory name
+if [ "$mpi" = "true" ] && [ "$travis" = "false" ]; then
+    BUILD_DIR="$(pwd)/build-mpi"
+else
+    BUILD_DIR="$(pwd)/build"
+fi
+
+# clean the build directory?
+if [ "$1" = "clean" ]
+then
+	rm -rf ${BUILD_DIR}
+    exit 0
+fi
+
+# create the build directory
+if [ ! -d ${BUILD_DIR} ]; then
+	mkdir ${BUILD_DIR}
+fi
+
+#################
+# generate version number
+#################
+
+echo "Generating version numbers in src/revlanguage/utils/GitVersion.cpp"
+echo "#include \"GitVersion.h\"" > src/revlanguage/utils/GitVersion.cpp
+echo "const char *build_git_sha = \"$(git describe --abbrev=6 --always)\";" >> src/revlanguage/utils/GitVersion.cpp
+echo "const char *build_date = \"$(date)\";" >> src/revlanguage/utils/GitVersion.cpp
+echo "const char *build_git_branch = \"$(git name-rev --name-only HEAD)\";" >> src/revlanguage/utils/GitVersion.cpp
 
 #################
 # generate cmake configuration
+#################
 
-if [ "${mpi}" = "true" ] && [ "${travis}" = "false" ]; then
-    BUILD_DIR="$(pwd)/build-mpi"
-    mkdir -p "${BUILD_DIR}"
-    echo $BUILD_DIR
-else
-    BUILD_DIR="$(pwd)/build"
-    mkdir -p "${BUILD_DIR}"
-    echo $BUILD_DIR
-fi
-
-cd "$BUILD_DIR"/../../../src
+cd src
 
 echo 'cmake_minimum_required(VERSION 2.6)
 project(RevBayes)
@@ -53,21 +101,21 @@ project(RevBayes)
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 if(NOT (${CMAKE_VERSION} VERSION_LESS "2.8.0"))
-  find_program(CCACHE_PROGRAM ccache)
-  if(CCACHE_PROGRAM)
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
-  endif()
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
+endif()
 endif()
 
 ' > "$BUILD_DIR/CMakeLists.txt"
 
 
 if [ "${exec_name}" = "" ]; then
-    if [ "${mpi}" = "true" ]; then
-        exec_name="rb-mpi"
-    else
-        exec_name="rb"
-    fi
+if [ "${mpi}" = "true" ]; then
+exec_name="rb-mpi"
+else
+exec_name="rb"
+fi
 fi
 
 echo "Building ${exec_name}"
@@ -119,10 +167,10 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
 else
 echo '
 if (CMAKE_SYSTEM_PROCESSOR MATCHES "^arm*|aarch64")
-   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
-   add_definitions(-DRB_ARM)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+add_definitions(-DRB_ARM)
 else()
-   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -msse -msse2 -msse3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -msse -msse2 -msse3")
 endif()
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
 '  >> "$BUILD_DIR/CMakeLists.txt"
@@ -159,7 +207,7 @@ fi
 
 if [ "$travis" = "true" ]
 then
-    echo 'set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g0 -O2")
+echo 'set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g0 -O2")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g0 -O2")
 ' >> "$BUILD_DIR/CMakeLists.txt"
 fi
@@ -169,16 +217,16 @@ echo '
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake ${CMAKE_MODULE_PATH})
 
 # Set source root relate to project file
-set(PROJECT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/../../../src)
+set(PROJECT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/../src)
 
 MESSAGE("My Boost information:")
 MESSAGE("  Boost_INCLUDE_DIRS: ${LOCAL_BOOST_ROOT}")
 MESSAGE("  Boost_LIBRARIES: ${LOCAL_BOOST_LIBRARY}")
 
 if ( NOT ${LOCAL_BOOST_ROOT} STREQUAL "" AND NOT ${LOCAL_BOOST_LIBRARY} STREQUAL "" )
-   SET(BOOST_ROOT ${LOCAL_BOOST_ROOT})
-   SET(BOOST_LIBRARY ${LOCAL_BOOST_LIBRARY})
-   SET(Boost_REALPATH ON)
+SET(BOOST_ROOT ${LOCAL_BOOST_ROOT})
+SET(BOOST_LIBRARY ${LOCAL_BOOST_LIBRARY})
+SET(Boost_REALPATH ON)
 #   SET(Boost_NO_SYSTEM_PATHS ON)
 #   SET(Boost_USE_STATIC_RUNTIME ON)
 #   SET(Boost_USE_STATIC_LIBS ON)
@@ -224,7 +272,7 @@ then
 #################
 # generate help database
 echo "Generating help database"
-perl ../help/md2help.pl ../help/md/* > core/help/RbHelpDatabase.cpp
+perl help/md2help.pl help/md/* > core/help/RbHelpDatabase.cpp
 
 echo '
 add_subdirectory(help2yml)
@@ -246,7 +294,7 @@ echo ')
 add_library(rb-help ${HELP_FILES})'  >> "$BUILD_DIR/help2yml/CMakeLists.txt"
 
 if [ "$mpi" = "true" ] ; then
-    echo 'target_link_libraries(${RB_EXEC_NAME}-help2yml ${MPI_LIBRARIES})
+echo 'target_link_libraries(${RB_EXEC_NAME}-help2yml ${MPI_LIBRARIES})
 ' >> $BUILD_DIR/CMakeLists.txt
 fi
 fi
@@ -313,7 +361,7 @@ target_link_libraries(${RB_EXEC_NAME} rb-parser rb-core rb-libs ${Boost_LIBRARIE
 set_target_properties(${RB_EXEC_NAME} PROPERTIES PREFIX "../")
 ' >> $BUILD_DIR/CMakeLists.txt
 if [ "$mpi" = "true" ] ; then
-    echo 'target_link_libraries(${RB_EXEC_NAME} ${MPI_LIBRARIES})
+echo 'target_link_libraries(${RB_EXEC_NAME} ${MPI_LIBRARIES})
 ' >> $BUILD_DIR/CMakeLists.txt
 fi
 fi
@@ -341,3 +389,8 @@ echo 'set(PARSER_FILES' > "$BUILD_DIR/revlanguage/CMakeLists.txt"
 find revlanguage | grep -v "svn" | sed 's|^|${PROJECT_SOURCE_DIR}/|g' >> "$BUILD_DIR/revlanguage/CMakeLists.txt"
 echo ')
 add_library(rb-parser ${PARSER_FILES})'  >> "$BUILD_DIR/revlanguage/CMakeLists.txt"
+
+cd ${BUILD_DIR} 
+CC=gcc CXX=g++ cmake .
+make -j 4
+cd ..
