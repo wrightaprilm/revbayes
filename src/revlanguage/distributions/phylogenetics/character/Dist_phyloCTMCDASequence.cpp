@@ -100,6 +100,12 @@ RevBayesCore::TypedDistribution< RevBayesCore::AbstractHomologousDiscreteCharact
     
     bool internal = static_cast<const RlBoolean &>( storeInternalNodes->getRevObject() ).getDagNode();
     
+    RevBayesCore::TypedDagNode< RevBayesCore::RbVector< RevBayesCore::RbVector< double > > >* measurementProbsNode = NULL;
+    if ( measurement_probs->getRevObject() != RevNullObject::getInstance() )
+    {
+        measurementProbsNode = static_cast<const ModelVector<ModelVector<Probability> >& >( measurement_probs->getRevObject() ).getDagNode();
+    }
+    
     if ( dt == "DNA" )
     {
         RevBayesCore::GeneralTreeHistoryCtmc<RevBayesCore::DnaState> *dist =
@@ -591,6 +597,9 @@ const MemberRules& Dist_phyloCTMCDASequence::getParameterRules(void) const
 //        cladoMtxTypes.push_back( ModelVector<CladogeneticProbabilityMatrix>::getClassTypeSpec() );
         distMemberRules.push_back( new ArgumentRule( "cladoProbs", cladoMtxTypes, "", ArgumentRule::BY_CONSTANT_REFERENCE, ArgumentRule::ANY, NULL) );
 
+        // measurement error probabilities
+        distMemberRules.push_back( new ArgumentRule( "measurementProbs", ModelVector<ModelVector<Probability> >::getClassTypeSpec(), "The 2d-vector of probabilities for observing a particular state conditional on the true state value.", ArgumentRule::BY_CONSTANT_REFERENCE, ArgumentRule::ANY, NULL ) );
+        
         // optional argument for the root frequencies
         distMemberRules.push_back( new ArgumentRule( "rootFrequencies", Simplex::getClassTypeSpec(), "The root specific frequencies of the characters, if applicable.", ArgumentRule::BY_CONSTANT_REFERENCE, ArgumentRule::ANY, NULL ) );
         
@@ -694,6 +703,10 @@ void Dist_phyloCTMCDASequence::setConstParameter(const std::string& name, const 
     else if ( name == "Q" )
     {
         q = var;
+    }
+    else if ( name == "measurementProbs" )
+    {
+        measurement_probs = var;
     }
     else if ( name == "cladoProbs" )
     {

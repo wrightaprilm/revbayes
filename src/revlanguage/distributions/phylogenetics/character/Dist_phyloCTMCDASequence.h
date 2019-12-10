@@ -57,6 +57,7 @@ class TypeSpec;
         
         RevPtr<const RevVariable>                       tree;
         RevPtr<const RevVariable>                       q;
+        RevPtr<const RevVariable>                       measurement_probs;
         RevPtr<const RevVariable>                       clado_probs;
         RevPtr<const RevVariable>                       rate;
         RevPtr<const RevVariable>                       siteRates;
