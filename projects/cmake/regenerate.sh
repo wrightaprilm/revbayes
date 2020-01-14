@@ -11,6 +11,8 @@ mpi="false"
 gentoo="false"
 help="false"
 jupyter="false"
+beagle="false"
+#beagle_root="/usr/local"
 boost_root=""
 boost_lib=""
 exec_name=""
@@ -167,6 +169,18 @@ then
     echo 'set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g0 -O2")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g0 -O2")
 ' >> "$BUILD_DIR/CMakeLists.txt"
+fi
+
+if [ "$beagle" = "true" ]
+then
+echo '
+add_definitions(-DRB_BEAGLE)
+# Require BEAGLE for this project:
+#find_package(BEAGLE REQUIRED)
+include_directories(/usr/local/include/libhmsbeagle-1)
+#set(CMAKE_CXX_COMPILE_FLAGS "${CMAKE_CXX_COMPILE_FLAGS} -I${beagle_root}/include/libhmsbeagle-1")
+set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} -L/usr/local/lib -lhmsbeagle")
+'  >> "$BUILD_DIR/CMakeLists.txt"
 fi
 
 echo '
