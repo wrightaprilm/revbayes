@@ -131,6 +131,7 @@
 #include "Dist_WeightedSample.h"
 
 /* Character evolution models (in folder "distributions/phylogenetics/character") */
+#include "Dist_CTMC.h"
 #include "Dist_phyloCTMC.h"
 #include "Dist_phyloCTMCDASequence.h"
 #include "Dist_phyloCTMCDASiteIID.h"
@@ -160,6 +161,7 @@
 #include "Dist_bdp.h"
 #include "Dist_bdp_complete.h"
 #include "Dist_BirthDeathBurstProcess.h"
+#include "Dist_BranchRateTree.h"
 // #include "Dist_BDSTP.h"
 #include "Dist_CharacterDependentBirthDeathProcess.h"
 #include "Dist_Coalescent.h"
@@ -289,9 +291,9 @@ void RevLanguage::Workspace::initializeDistGlobalWorkspace(void)
         AddDistribution< ModelVector<RealPos>       >( new Dist_PhyloWhiteNoise()          );
 
         /* trait evolution (in folder "distributions/phylogenetics/branchrate") */
-        
+
         AddDistribution< ModelVector<RealPos>       >( new Dist_PhyloBranchRateBM()                             );
-        
+
         // brownian motion
         AddDistribution< ModelVector<Real>          >( new Dist_PhyloBrownian()                                 );
         AddDistribution< ContinuousCharacterData    >( new Dist_PhyloBrownianREML()                             );
@@ -315,6 +317,7 @@ void RevLanguage::Workspace::initializeDistGlobalWorkspace(void)
 //        AddDistribution< AbstractHomologousDiscreteCharacterData >( new Dist_phyloCTMC() );
 //        AddDistribution< AbstractHomologousDiscreteCharacterData >( new Dist_phyloDACTMC() );
 //        AddDistribution< AbstractHomologousDiscreteCharacterData >( new Dist_phyloCTMCClado() );
+        addDistribution( new Dist_CTMC() );
         addDistribution( new Dist_phyloCTMC() );
         addDistribution( new Dist_phyloCTMCDASequence() );
         addDistribution( new Dist_phyloCTMCDASiteIID() );
@@ -403,6 +406,9 @@ void RevLanguage::Workspace::initializeDistGlobalWorkspace(void)
 
         // ultrametric tree distributions
         AddDistribution< TimeTree                   >( new Dist_UltrametricTree() );
+
+        // branch rate tree distributions
+        AddDistribution< BranchLengthTree           >( new Dist_BranchRateTree() );
 
 		// Distance Matrix Gamma distribution
 		AddDistribution< DistanceMatrix             >( new Dist_phyloDistanceGamma() );
@@ -540,7 +546,7 @@ void RevLanguage::Workspace::initializeDistGlobalWorkspace(void)
 
         // Exponential error distribution for matrix distance from average distance matrix
         AddDistribution< AverageDistanceMatrix      >( new Dist_exponentialError());
-        
+
         /* Empirical sample distributions (in folder "distributions/mixture") */
         AddDistribution< ModelVector<Natural>       >( new Dist_EmpiricalSample<Natural>());
         AddDistribution< ModelVector<Real>          >( new Dist_EmpiricalSample<Real>());
@@ -566,7 +572,7 @@ void RevLanguage::Workspace::initializeDistGlobalWorkspace(void)
         AddDistribution< ModelVector<Integer>       >( new Dist_event<Integer>()      );
         AddDistribution< ModelVector<Probability>   >( new Dist_event<Probability>()  );
         AddDistribution< MultiValueEvent            >( new Dist_MultiValueEvent()     );
-        
+
         // IID distribution
         AddDistribution< ModelVector<Real>          >( new Dist_IID<Real>()         );
         AddDistribution< ModelVector<RealPos>       >( new Dist_IID<RealPos>()      );
@@ -589,8 +595,8 @@ void RevLanguage::Workspace::initializeDistGlobalWorkspace(void)
 //        AddDistribution< RateGenerator              >( new Dist_mixture<RateGenerator>() );
         addDistribution( new Dist_mixture<RateGenerator>() );
         AddDistribution< TimeTree                   >( new Dist_mixture<TimeTree>() );
-        
-        
+
+
         // analytical mixture distribution
         AddDistribution< Real                       >( new Dist_mixtureAnalytical<Real>() );
         AddDistribution< RealPos                    >( new Dist_mixtureAnalytical<RealPos>() );
@@ -601,7 +607,7 @@ void RevLanguage::Workspace::initializeDistGlobalWorkspace(void)
         AddDistribution< ModelVector<Real>          >( new Dist_mixtureAnalytical< ModelVector<Real> >() );
         AddDistribution< ModelVector<RealPos>       >( new Dist_mixtureAnalytical< ModelVector<RealPos> >() );
         AddDistribution< TimeTree                   >( new Dist_mixtureAnalytical<TimeTree>() );
-        
+
         AddDistribution< ModelVector<Real>          >( new Dist_mixtureVector<Real>() );
         AddDistribution< ModelVector<RealPos>       >( new Dist_mixtureVector<RealPos>() );
 

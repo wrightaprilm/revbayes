@@ -6,7 +6,7 @@
 
 #include "ArgumentRule.h"
 #include "ArgumentRules.h"
-#include "Dist_UltrametricTree.h"
+#include "Dist_BranchRateTree.h"
 #include "Probability.h"
 #include "RealPos.h"
 #include "RlBoolean.h"
@@ -15,7 +15,7 @@
 #include "RlTimeTree.h"
 #include "RlTrace.h"
 #include "RlTraceTree.h"
-#include "UltrametricTreeDistribution.h"
+#include "BranchRateTreeDistribution.h"
 #include "ConstantNode.h"
 #include "DagMemberFunction.h"
 #include "DagNode.h"
@@ -59,9 +59,9 @@ using namespace RevLanguage;
  *
  * The default constructor does nothing except allocating the object.
  */
-Dist_UltrametricTree::Dist_UltrametricTree() : TypedDistribution<TimeTree>()
+Dist_BranchRateTree::Dist_BranchRateTree() : TypedDistribution<BranchLengthTree>()
 {
-    
+
 }
 
 
@@ -71,10 +71,10 @@ Dist_UltrametricTree::Dist_UltrametricTree() : TypedDistribution<TimeTree>()
  *
  * \return A new copy of the process.
  */
-Dist_UltrametricTree* Dist_UltrametricTree::clone( void ) const
+Dist_BranchRateTree* Dist_BranchRateTree::clone( void ) const
 {
-    
-    return new Dist_UltrametricTree(*this);
+
+    return new Dist_BranchRateTree(*this);
 }
 
 
@@ -88,36 +88,25 @@ Dist_UltrametricTree* Dist_UltrametricTree::clone( void ) const
  *
  * \return A new internal distribution object.
  */
-RevBayesCore::UltrametricTreeDistribution* Dist_UltrametricTree::createDistribution( void ) const
+RevBayesCore::BranchRateTreeDistribution* Dist_BranchRateTree::createDistribution( void ) const
 {
-    
+
     // get the parameters
-    const Distribution& rl_tree_prior                           = static_cast<const Distribution &>( tree_prior->getRevObject() );
-    RevBayesCore::TypedDistribution<RevBayesCore::Tree>* tp     = dynamic_cast<RevBayesCore::TypedDistribution<RevBayesCore::Tree>* >( rl_tree_prior.createDistribution() );
-    
-    const Distribution& rl_rate_prior                           = static_cast<const Distribution &>( rate_prior->getRevObject() );
-    RevBayesCore::TypedDistribution<double>* rp                 = dynamic_cast<RevBayesCore::TypedDistribution<double>* >( rl_rate_prior.createDistribution() );
-    
-    RevBayesCore::TypedDagNode<double>* ra                      = static_cast<const RealPos &>( root_age->getRevObject() ).getDagNode();
-    
+    const Distribution& rl_rate_prior                           = static_cast<const Distribution &>( branch_rate_prior->getRevObject() );
+    RevBayesCore::TypedDistribution<double>* brp                = dynamic_cast<RevBayesCore::TypedDistribution<double>* >( rl_rate_prior.createDistribution() );
+
+    RevBayesCore::TypedDagNode<RevBayesCore::Tree>* tt          = static_cast<const Tree &>( time_tree->getRevObject() ).getDagNode();
+
     RevBayesCore::TypedDagNode<double>* rbf = NULL;
     if( root_branch_fraction->getRevObject() != RevNullObject::getInstance() )
     {
         rbf = static_cast<const Probability &>( root_branch_fraction->getRevObject() ).getDagNode();
     }
 
-    const RevBayesCore::TraceTree& tt                           = static_cast<const TraceTree &>( trees->getRevObject() ).getValue();
-
-    RevBayesCore::Trace<double>* sample_prior = NULL;
-    if( density->getRevObject() != RevNullObject::getInstance() )
-    {
-        sample_prior = static_cast<const Trace &>( density->getRevObject() ).getValue().clone();
-    }
-
     // create the internal distribution object
-    RevBayesCore::UltrametricTreeDistribution* dist = new RevBayesCore::UltrametricTreeDistribution(tp, rp, ra, rbf, tt, sample_prior);
-    
-    
+    RevBayesCore::BranchRateTreeDistribution* dist              = new RevBayesCore::BranchRateTreeDistribution(tt, brp, rbf);
+
+
     return dist;
 }
 
@@ -127,11 +116,11 @@ RevBayesCore::UltrametricTreeDistribution* Dist_UltrametricTree::createDistribut
  *
  * \return The class' name.
  */
-const std::string& Dist_UltrametricTree::getClassType( void )
+const std::string& Dist_BranchRateTree::getClassType( void )
 {
-    
-    static std::string rev_type = "Dist_UltrametricTree";
-    
+
+    static std::string rev_type = "Dist_BranchRateTree";
+
     return rev_type;
 }
 
@@ -141,10 +130,10 @@ const std::string& Dist_UltrametricTree::getClassType( void )
  *
  * \return TypeSpec of this class.
  */
-const TypeSpec& Dist_UltrametricTree::getClassTypeSpec( void )
+const TypeSpec& Dist_BranchRateTree::getClassTypeSpec( void )
 {
-    
-    static TypeSpec rev_type_spec = TypeSpec( getClassType(), new TypeSpec( TypedDistribution<TimeTree>::getClassTypeSpec() ) );
+
+    static TypeSpec rev_type_spec = TypeSpec( getClassType(), new TypeSpec( TypedDistribution<Tree>::getClassTypeSpec() ) );
     return rev_type_spec;
 }
 
@@ -154,9 +143,9 @@ const TypeSpec& Dist_UltrametricTree::getClassTypeSpec( void )
  *
  * \return Rev aliases of constructor function.
  */
-std::vector<std::string> Dist_UltrametricTree::getDistributionFunctionAliases( void ) const
+std::vector<std::string> Dist_BranchRateTree::getDistributionFunctionAliases( void ) const
 {
-    
+
     // create alternative constructor function names variable that is the same for all instance of this class
     std::vector<std::string> a_names;
     return a_names;
@@ -170,31 +159,31 @@ std::vector<std::string> Dist_UltrametricTree::getDistributionFunctionAliases( v
  *
  * \return Rev name of constructor function.
  */
-std::string Dist_UltrametricTree::getDistributionFunctionName( void ) const
+std::string Dist_BranchRateTree::getDistributionFunctionName( void ) const
 {
-    
+
     // create a distribution name variable that is the same for all instance of this class
-    std::string d_name = "UltrametricTree";
+    std::string d_name = "BranchRateTree";
     return d_name;
 }
 
 
-MethodTable Dist_UltrametricTree::getDistributionMethods( void ) const
+MethodTable Dist_BranchRateTree::getDistributionMethods( void ) const
 {
-    
+
 //    const Distribution& rlDistribution = static_cast<const Distribution &>( baseDistribution->getRevObject() );
-    
-    MethodTable methods = TypedDistribution<TimeTree>::getDistributionMethods();
-    
+
+    MethodTable methods = TypedDistribution<BranchLengthTree>::getDistributionMethods();
+
     // member functions
-    ArgumentRules* sample_prob_arg_rules = new ArgumentRules();
-    sample_prob_arg_rules->push_back( new ArgumentRule( "log", RlBoolean::getClassTypeSpec(), "If we should return the log-transformed probability.", ArgumentRule::BY_CONSTANT_REFERENCE, ArgumentRule::ANY, new RlBoolean( false ) ) );
-    methods.addFunction( new DistributionMemberFunction<Dist_UltrametricTree, ModelVector<Real> >( "getSampleProbabilities", this->variable, sample_prob_arg_rules   ) );
-    
-    // member functions
-    ArgumentRules* branch_rates_arg_rules = new ArgumentRules();
-    branch_rates_arg_rules->push_back( new ArgumentRule( "index", Natural::getClassTypeSpec(), "The index of the tree in the trace for which we want to get the branch rates.", ArgumentRule::BY_CONSTANT_REFERENCE, ArgumentRule::ANY ) );
-    methods.addFunction( new DistributionMemberFunction<Dist_UltrametricTree, ModelVector<RealPos> >( "getBranchRates", this->variable, branch_rates_arg_rules   ) );
+    // ArgumentRules* sample_prob_arg_rules = new ArgumentRules();
+    // sample_prob_arg_rules->push_back( new ArgumentRule( "log", RlBoolean::getClassTypeSpec(), "If we should return the log-transformed probability.", ArgumentRule::BY_CONSTANT_REFERENCE, ArgumentRule::ANY, new RlBoolean( false ) ) );
+    // methods.addFunction( new DistributionMemberFunction<Dist_BranchRateTree, ModelVector<Real> >( "getSampleProbabilities", this->variable, sample_prob_arg_rules   ) );
+    //
+    // // member functions
+    // ArgumentRules* branch_rates_arg_rules = new ArgumentRules();
+    // branch_rates_arg_rules->push_back( new ArgumentRule( "index", Natural::getClassTypeSpec(), "The index of the tree in the trace for which we want to get the branch rates.", ArgumentRule::BY_CONSTANT_REFERENCE, ArgumentRule::ANY ) );
+    // methods.addFunction( new DistributionMemberFunction<Dist_BranchRateTree, ModelVector<RealPos> >( "getBranchRates", this->variable, branch_rates_arg_rules   ) );
 
     return methods;
 }
@@ -209,20 +198,17 @@ MethodTable Dist_UltrametricTree::getDistributionMethods( void ) const
  *
  * \return The member rules.
  */
-const MemberRules& Dist_UltrametricTree::getParameterRules(void) const
+const MemberRules& Dist_BranchRateTree::getParameterRules(void) const
 {
-    
+
     static MemberRules member_rules;
     static bool rules_set = false;
-    
+
     if ( rules_set == false )
     {
-        member_rules.push_back( new ArgumentRule( "treePrior", TypedDistribution<TimeTree>::getClassTypeSpec(), "The prior distribution for the time tree (divergence times).",   ArgumentRule::BY_VALUE, ArgumentRule::ANY ) );
-        member_rules.push_back( new ArgumentRule( "ratePrior", TypedDistribution<RealPos>::getClassTypeSpec(), "The prior distribution for the branch rates.",   ArgumentRule::BY_VALUE, ArgumentRule::ANY ) );
-        member_rules.push_back( new ArgumentRule( "rootAge", RealPos::getClassTypeSpec(), "The root age variable.",   ArgumentRule::BY_REFERENCE, ArgumentRule::ANY ) );
+        member_rules.push_back( new ArgumentRule( "branchRatePrior", TypedDistribution<RealPos>::getClassTypeSpec(), "The prior distribution for the branch rates.",   ArgumentRule::BY_VALUE, ArgumentRule::ANY ) );
+        member_rules.push_back( new ArgumentRule( "timeTree", Tree::getClassTypeSpec(), "The time tree",   ArgumentRule::BY_VALUE, ArgumentRule::ANY ) );
         member_rules.push_back( new ArgumentRule( "rootBranchFraction", Probability::getClassTypeSpec(), "The fraction of how much of the root branch is assigned to the left subtree.", ArgumentRule::BY_REFERENCE, ArgumentRule::ANY, NULL ) );
-        member_rules.push_back( new ArgumentRule( "trees", TraceTree::getClassTypeSpec(), "The trace of tree samples.",   ArgumentRule::BY_VALUE, ArgumentRule::ANY ) );
-        member_rules.push_back( new ArgumentRule( "density", Trace::getClassTypeSpec(), "Optional trace of probability density values for each tree.", ArgumentRule::BY_REFERENCE, ArgumentRule::ANY, NULL ) );
 
         rules_set = true;
     }
@@ -235,9 +221,9 @@ const MemberRules& Dist_UltrametricTree::getParameterRules(void) const
  *
  * \return The type spec of this object.
  */
-const TypeSpec& Dist_UltrametricTree::getTypeSpec( void ) const
+const TypeSpec& Dist_BranchRateTree::getTypeSpec( void ) const
 {
-    
+
     static TypeSpec ts = getClassTypeSpec();
     return ts;
 }
@@ -253,36 +239,23 @@ const TypeSpec& Dist_UltrametricTree::getTypeSpec( void ) const
  * \param[in]    name     Name of the member variable.
  * \param[in]    var      Pointer to the variable.
  */
-void Dist_UltrametricTree::setConstParameter(const std::string& name, const RevPtr<const RevVariable>& var)
+void Dist_BranchRateTree::setConstParameter(const std::string& name, const RevPtr<const RevVariable>& var)
 {
-    
-    if ( name == "treePrior" )
+
+    if ( name == "branchRatePrior" )
     {
-        tree_prior = var;
+        branch_rate_prior = var;
     }
-    else if ( name == "ratePrior" )
+    else if ( name == "timeTree" )
     {
-        rate_prior = var;
-    }
-    else if ( name == "trees" )
-    {
-        trees = var;
-    }
-    else if ( name == "rootAge" )
-    {
-        root_age = var;
+        time_tree = var;
     }
     else if ( name == "rootBranchFraction" )
     {
         root_branch_fraction = var;
     }
-    else if ( name == "density" )
-    {
-        density = var;
-    }
     else
     {
-        TypedDistribution<TimeTree>::setConstParameter(name, var);
+        TypedDistribution<BranchLengthTree>::setConstParameter(name, var);
     }
 }
-
