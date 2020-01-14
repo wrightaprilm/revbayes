@@ -644,7 +644,7 @@ void RevBayesCore::PhyloCTMCSiteHomogeneousNucleotide<charType>::computeTipLikel
     const std::vector<RbBitSet> &amb_char_node = this->ambiguous_char_matrix[data_tip_index];
     
     // compute the transition probabilities
-    this->updateTransitionProbabilities( node_index, node.getBranchLength() );
+    this->updateTransitionProbabilities( node_index );
 
 #   if defined( RB_BEAGLE )
     if ( RbSettings::userSettings().getUseBeagle() == true && this->num_site_mixtures == 1 )
