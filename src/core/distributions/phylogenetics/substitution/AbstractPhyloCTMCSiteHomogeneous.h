@@ -913,6 +913,7 @@ double RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::computeLnProbab
 
 #       if defined ( RB_BEAGLE_DEBUG )
         std::stringstream ss;
+        ss <<  std::setprecision(100);
         ss << "RevBayes likelihood = " << this->lnProb << std::endl << std::endl;
         RBOUT( ss.str() );
 #       endif /* RB_BEAGLE_DEBUG */

@@ -205,6 +205,7 @@ void RevBayesCore::PhyloCTMCSiteHomogeneousNucleotide<charType>::computeRootLike
  
 #       if defined ( RB_BEAGLE_DEBUG )
         std::stringstream ss;
+        ss <<  std::setprecision(100);
         ss << "BEAGLE   likelihood = " << b_outSumLogLikelihood << std::endl;
         RBOUT( ss.str() );
 #       endif /* RB_BEAGLE_DEBUG */       
