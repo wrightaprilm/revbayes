@@ -3024,12 +3024,12 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::setMcmcMode(bool 
             int b_resource = (int) RbSettings::userSettings().getBeagleResource();
             
             int  b_tipCount            = (int) tau->getValue().getNumberOfTips();
-            int  b_partialsBufferCount = (int) num_nodes;
+            int  b_partialsBufferCount = (int) num_nodes * 2;
             int  b_compactBufferCount  = (int) tau->getValue().getNumberOfTips();
             int  b_stateCount          = (int) num_chars;
             int  b_patternCount        = (int) pattern_block_size;
             int  b_eigenBufferCount    = (int) num_site_mixtures;
-            int  b_matrixBufferCount   = (int) num_nodes;
+            int  b_matrixBufferCount   = (int) num_nodes * 2;
             int  b_categoryCount       = (int) num_site_rates;
             int  b_scaleBufferCount    =       0;
             int* b_resourceList        =       &b_resource;

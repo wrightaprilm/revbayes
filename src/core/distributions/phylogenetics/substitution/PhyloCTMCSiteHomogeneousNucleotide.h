@@ -255,18 +255,18 @@ void RevBayesCore::PhyloCTMCSiteHomogeneousNucleotide<charType>::computeInternal
     {
         BeagleOperation b_operation;
 
-        b_operation.destinationPartials    = (int) node_index;
+        b_operation.destinationPartials    = (int) node_index + this->activeLikelihood[node_index]*this->num_nodes;
         b_operation.destinationScaleWrite  = BEAGLE_OP_NONE;
         b_operation.destinationScaleRead   = BEAGLE_OP_NONE;
-        b_operation.child1Partials         = (int) left;
-        b_operation.child1TransitionMatrix = (int) left;
-        b_operation.child2Partials         = (int) right;
-        b_operation.child2TransitionMatrix = (int) right;
+        b_operation.child1Partials         = (int) left       + this->activeLikelihood[left]*this->num_nodes;
+        b_operation.child1TransitionMatrix = (int) left       + this->activeLikelihood[left]*this->num_nodes;
+        b_operation.child2Partials         = (int) right      + this->activeLikelihood[right]*this->num_nodes;
+        b_operation.child2TransitionMatrix = (int) right      + this->activeLikelihood[right]*this->num_nodes;
 
         beagleUpdatePartials(this->beagle_instance, &b_operation, 1, BEAGLE_OP_NONE);
 
         const double* b_tp_begin = this->transition_prob_matrices[0].theMatrix;
-        beagleSetTransitionMatrix(this->beagle_instance, (int) node_index, b_tp_begin, (double) 1.0);
+        beagleSetTransitionMatrix(this->beagle_instance, (int) node_index + this->activeLikelihood[node_index]*this->num_nodes, b_tp_begin, (double) 1.0);
 
         // return;
     }    
@@ -648,7 +648,7 @@ void RevBayesCore::PhyloCTMCSiteHomogeneousNucleotide<charType>::computeTipLikel
     if ( RbSettings::userSettings().getUseBeagle() == true && this->num_site_mixtures == 1 )
     {
         const double* b_tp_begin = this->transition_prob_matrices[0].theMatrix;
-        beagleSetTransitionMatrix(this->beagle_instance, node_index, b_tp_begin, (double) 1.0);
+        beagleSetTransitionMatrix(this->beagle_instance, node_index + this->activeLikelihood[node_index]*this->num_nodes, b_tp_begin, (double) 1.0);
         // return;
     }    
 #   endif /* RB_BEAGLE */
