@@ -156,15 +156,32 @@ void RevBayesCore::PhyloCTMCSiteHomogeneousNucleotide<charType>::computeRootLike
 #   if defined( RB_BEAGLE )
    if ( RbSettings::userSettings().getUseBeagle() == true && this->num_site_mixtures == 1 )
    {
+       
+       size_t num_taxa = (this->num_nodes + 2)/2;
+       
         BeagleOperation b_operation;
 
-        b_operation.destinationPartials    = (int) root;
+        b_operation.destinationPartials    = (int) root + this->activeLikelihood[root]*this->num_nodes;
         b_operation.destinationScaleWrite  = BEAGLE_OP_NONE;
         b_operation.destinationScaleRead   = BEAGLE_OP_NONE;
-        b_operation.child1Partials         = (int) left;
         b_operation.child1TransitionMatrix = (int) left;
-        b_operation.child2Partials         = (int) right;
         b_operation.child2TransitionMatrix = (int) right;
+        if ( left < num_taxa )
+        {
+            b_operation.child1Partials         = (int) left;
+        }
+        else
+        {
+            b_operation.child1Partials         = (int) left       + this->activeLikelihood[left]*this->num_nodes;
+        }
+        if ( right < num_taxa )
+        {
+            b_operation.child2Partials         = (int) right;
+        }
+        else
+        {
+            b_operation.child2Partials         = (int) right       + this->activeLikelihood[right]*this->num_nodes;
+        }
 
         beagleUpdatePartials(this->beagle_instance, &b_operation, 1, BEAGLE_OP_NONE);
 
@@ -176,9 +193,10 @@ void RevBayesCore::PhyloCTMCSiteHomogeneousNucleotide<charType>::computeRootLike
                                   b_stateFrequenciesIndex,
                                   b_inStateFrequencies);
 
-        int     b_parentBufferIndices     = (int) root;
-        int     b_childBufferIndices      = (int) middle;
-        int     b_probabilityIndices      = (int) middle;
+        int     b_parentBufferIndices     = (int) root + this->activeLikelihood[root]*this->num_nodes;
+        int     b_childBufferIndices      = (int) middle + this->activeLikelihood[root]*this->num_nodes;
+        if ( middle < num_taxa )  b_childBufferIndices      = (int) middle;
+        int     b_probabilityIndices      = (int) middle + this->activeLikelihood[root]*this->num_nodes;
         int*    b_firstDerivativeIndices  = NULL;
         int*    b_secondDerivativeIndices = NULL;
         int     b_categoryWeightsIndices  = 0;
@@ -258,9 +276,23 @@ void RevBayesCore::PhyloCTMCSiteHomogeneousNucleotide<charType>::computeInternal
         b_operation.destinationPartials    = (int) node_index + this->activeLikelihood[node_index]*this->num_nodes;
         b_operation.destinationScaleWrite  = BEAGLE_OP_NONE;
         b_operation.destinationScaleRead   = BEAGLE_OP_NONE;
-        b_operation.child1Partials         = (int) left       + this->activeLikelihood[left]*this->num_nodes;
+        if ( node.getChild( 0 ).isTip() == true )
+        {
+            b_operation.child1Partials         = (int) left;
+        }
+        else
+        {
+            b_operation.child1Partials         = (int) left       + this->activeLikelihood[left]*this->num_nodes;
+        }
+        if ( node.getChild( 1 ).isTip() == true )
+        {
+            b_operation.child2Partials         = (int) right;
+        }
+        else
+        {
+            b_operation.child2Partials         = (int) right       + this->activeLikelihood[right]*this->num_nodes;
+        }
         b_operation.child1TransitionMatrix = (int) left       + this->activeLikelihood[left]*this->num_nodes;
-        b_operation.child2Partials         = (int) right      + this->activeLikelihood[right]*this->num_nodes;
         b_operation.child2TransitionMatrix = (int) right      + this->activeLikelihood[right]*this->num_nodes;
 
         beagleUpdatePartials(this->beagle_instance, &b_operation, 1, BEAGLE_OP_NONE);
