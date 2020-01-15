@@ -249,6 +249,8 @@ namespace RevBayesCore {
 
 #       if defined( RB_BEAGLE )
         int                                                                 beagle_instance;
+        double
+            beagle_last_likelihood;
 #       endif /* RB_BEAGLE */
 
 
@@ -912,10 +914,14 @@ double RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::computeLnProbab
         this->lnProb = sumRootLikelihood();
 
 #       if defined ( RB_BEAGLE_DEBUG )
-        std::stringstream ss;
-        ss <<  std::setprecision(100);
-        ss << "RevBayes likelihood = " << this->lnProb << std::endl << std::endl;
-        RBOUT( ss.str() );
+        if (this->lnProb != beagle_last_likelihood)
+        {
+            std::stringstream ss;
+            ss <<  std::setprecision(100);
+            ss << std::endl << "RevBayes likelihood = " << this->lnProb << std::endl;
+            ss << "BEAGLE   likelihood = " << beagle_last_likelihood << std::endl << std::endl;
+            RBOUT( ss.str() );
+        }
 #       endif /* RB_BEAGLE_DEBUG */
         
     }

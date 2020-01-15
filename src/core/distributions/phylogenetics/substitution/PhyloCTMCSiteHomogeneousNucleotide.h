@@ -204,10 +204,7 @@ void RevBayesCore::PhyloCTMCSiteHomogeneousNucleotide<charType>::computeRootLike
                                           b_outSumSecondDerivative);
  
 #       if defined ( RB_BEAGLE_DEBUG )
-        std::stringstream ss;
-        ss <<  std::setprecision(100);
-        ss << "BEAGLE   likelihood = " << b_outSumLogLikelihood << std::endl;
-        RBOUT( ss.str() );
+        this->beagle_last_likelihood = b_outSumLogLikelihood;
 #       endif /* RB_BEAGLE_DEBUG */       
 
         // return;
