@@ -164,8 +164,8 @@ void RevBayesCore::PhyloCTMCSiteHomogeneousNucleotide<charType>::computeRootLike
         b_operation.destinationPartials    = (int) root + this->activeLikelihood[root]*this->num_nodes;
         b_operation.destinationScaleWrite  = BEAGLE_OP_NONE;
         b_operation.destinationScaleRead   = BEAGLE_OP_NONE;
-        b_operation.child1TransitionMatrix = (int) left;
-        b_operation.child2TransitionMatrix = (int) right;
+        b_operation.child1TransitionMatrix = (int) left       + this->activeLikelihood[left]*this->num_nodes;
+        b_operation.child2TransitionMatrix = (int) right      + this->activeLikelihood[right]*this->num_nodes;
         if ( left < num_taxa )
         {
             b_operation.child1Partials         = (int) left;
@@ -194,9 +194,9 @@ void RevBayesCore::PhyloCTMCSiteHomogeneousNucleotide<charType>::computeRootLike
                                   b_inStateFrequencies);
 
         int     b_parentBufferIndices     = (int) root + this->activeLikelihood[root]*this->num_nodes;
-        int     b_childBufferIndices      = (int) middle + this->activeLikelihood[root]*this->num_nodes;
+        int     b_childBufferIndices      = (int) middle + this->activeLikelihood[middle]*this->num_nodes;
         if ( middle < num_taxa )  b_childBufferIndices      = (int) middle;
-        int     b_probabilityIndices      = (int) middle + this->activeLikelihood[root]*this->num_nodes;
+        int     b_probabilityIndices      = (int) middle + this->activeLikelihood[middle]*this->num_nodes;
         int*    b_firstDerivativeIndices  = NULL;
         int*    b_secondDerivativeIndices = NULL;
         int     b_categoryWeightsIndices  = 0;
