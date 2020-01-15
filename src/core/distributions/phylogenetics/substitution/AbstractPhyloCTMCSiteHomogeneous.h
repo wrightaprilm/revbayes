@@ -914,7 +914,7 @@ double RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::computeLnProbab
         this->lnProb = sumRootLikelihood();
 
 #       if defined ( RB_BEAGLE_DEBUG )
-        if (this->lnProb != beagle_last_likelihood)
+        if (fabs(this->lnProb - beagle_last_likelihood) > 0.00000001)
         {
             std::stringstream ss;
             ss <<  std::setprecision(100);
