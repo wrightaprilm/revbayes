@@ -3065,7 +3065,7 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::setMcmcMode(bool 
             int  b_scaleBufferCount    =       0;
             int* b_resourceList        =       &b_resource;
             int  b_resourceCount       =       1;
-            long b_preferenceFlags     =       BEAGLE_FLAG_PRECISION_DOUBLE;
+            long b_preferenceFlags     =       BEAGLE_FLAG_PRECISION_DOUBLE | BEAGLE_FLAG_THREADING_CPP;
             long b_requirementFlags    =       0;
 
             BeagleInstanceDetails b_return_info;
