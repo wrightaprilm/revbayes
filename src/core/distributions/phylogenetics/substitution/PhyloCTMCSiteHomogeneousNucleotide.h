@@ -182,7 +182,8 @@ void RevBayesCore::PhyloCTMCSiteHomogeneousNucleotide<charType>::computeRootLike
         {
             b_operation.child2Partials         = (int) right       + this->activeLikelihood[right]*this->num_nodes;
         }
-
+       
+       // @Daniel/Sebastian/Killian: Collect calls to BEAGLE here into global vector
         beagleUpdatePartials(this->beagle_instance, &b_operation, 1, BEAGLE_OP_NONE);
 
         const std::vector<double> &b_f = ff[0];
@@ -295,9 +296,11 @@ void RevBayesCore::PhyloCTMCSiteHomogeneousNucleotide<charType>::computeInternal
         b_operation.child1TransitionMatrix = (int) left       + this->activeLikelihood[left]*this->num_nodes;
         b_operation.child2TransitionMatrix = (int) right      + this->activeLikelihood[right]*this->num_nodes;
 
+        // @Daniel/Sebastian/Killian: Collect calls to BEAGLE here into global vector
         beagleUpdatePartials(this->beagle_instance, &b_operation, 1, BEAGLE_OP_NONE);
 
         const double* b_tp_begin = this->transition_prob_matrices[0].theMatrix;
+        // @Daniel/Sebastian/Killian: Collect calls to BEAGLE here into global vector (separate)
         beagleSetTransitionMatrix(this->beagle_instance, (int) node_index + this->activeLikelihood[node_index]*this->num_nodes, b_tp_begin, (double) 1.0);
 
         // return;

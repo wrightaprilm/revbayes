@@ -248,6 +248,10 @@ namespace RevBayesCore {
         size_t                                                              sampled_site_matrix_component;
 
 #       if defined( RB_BEAGLE )
+        std::vector<BeagleOperation>                                        b_ops;
+        std::vector<size_t>                                                 b_model_indices;
+        std::vector<size_t>                                                 b_node_indices;
+        std::vector<double>                                                 b_branch_lengths;
         int                                                                 beagle_instance;
         double
             beagle_last_likelihood;
