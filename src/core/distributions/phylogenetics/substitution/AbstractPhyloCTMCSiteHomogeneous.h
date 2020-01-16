@@ -146,7 +146,6 @@ namespace RevBayesCore {
 
         // pure virtual methods
         virtual void                                                        computeInternalNodeLikelihood(const TopologyNode &n, size_t nIdx, size_t l, size_t r) = 0;
-        virtual void                                                        computeInternalNodeLikelihood(const TopologyNode &n, size_t nIdx, size_t l, size_t r, size_t m) = 0;
         virtual void                                                        computeTipLikelihood(const TopologyNode &node, size_t nIdx) = 0;
         virtual void                                                        computeRootLikelihood( size_t root, size_t left, size_t right) = 0;
         virtual void                                                        computeRootLikelihood( size_t root, size_t left, size_t right, size_t middle) = 0;
@@ -248,13 +247,21 @@ namespace RevBayesCore {
         size_t                                                              sampled_site_matrix_component;
 
 #       if defined( RB_BEAGLE )
+        
+        struct BeagleTransitionProbabilityOp {
+            size_t                                                          b_model_index;
+            size_t                                                          b_node_index;
+            double                                                          b_branch_length;
+        };
+        
         std::vector<BeagleOperation>                                        b_ops;
-        std::vector<size_t>                                                 b_model_indices;
-        std::vector<size_t>                                                 b_node_indices;
-        std::vector<double>                                                 b_branch_lengths;
+        std::vector<BeagleTransitionProbabilityOp>                          b_tp_ops;
+//        std::vector<size_t>                                                 b_model_indices;
+//        std::vector<size_t>                                                 b_node_indices;
+//        std::vector<double>                                                 b_branch_lengths;
         int                                                                 beagle_instance;
-        double
-            beagle_last_likelihood;
+#       if defined( RB_BEAGLE_DEBUG )
+#       endif /* RB_BEAGLE_DEBUG */
 #       endif /* RB_BEAGLE */
 
 
@@ -866,6 +873,7 @@ double RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::computeLnProbab
     // if we are not in MCMC mode, then we need to (temporarily) allocate memory
     if ( in_mcmc_mode == false )
     {
+        // @TODO: We don't need this memory if we use BEAGLE!
         partialLikelihoods = new double[2*activeLikelihoodOffset];
     }
 
@@ -916,23 +924,13 @@ double RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::computeLnProbab
 
         // sum the partials up
         this->lnProb = sumRootLikelihood();
-
-#       if defined ( RB_BEAGLE_DEBUG )
-        if (fabs(this->lnProb - beagle_last_likelihood) > 0.00000001)
-        {
-            std::stringstream ss;
-            ss <<  std::setprecision(100);
-            ss << std::endl << "RevBayes likelihood = " << this->lnProb << std::endl;
-            ss << "BEAGLE   likelihood = " << beagle_last_likelihood << std::endl << std::endl;
-            RBOUT( ss.str() );
-        }
-#       endif /* RB_BEAGLE_DEBUG */
         
     }
 
     // if we are not in MCMC mode, then we need to (temporarily) free memory
     if ( in_mcmc_mode == false )
     {
+        // TODO: We cannot free the memory when we use BEAGLE because we didn't allocate it!
         // free the partial likelihoods
         delete [] partialLikelihoods;
         partialLikelihoods = NULL;
@@ -3571,6 +3569,8 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::computeRootLikeli
             double tmp = 0.0;
             // get the pointers to the likelihoods for this site and mixture category
             double* p_site_j   = p_site_mixture;
+            
+            // TODO: This computation of the sum of partial likelihoods over all states might be better done already in computeRootLikelihood
             // iterate over all starting states
             for (size_t i=0; i<num_chars; ++i)
             {
@@ -3984,6 +3984,8 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::computeRootLikeli
 template<class charType>
 double RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::sumRootLikelihood( void )
 {
+    
+    // TODO: Decide here where to get the likelihood: either from BEAGLE directly or as site likelihoods
 
 
     std::vector<double> site_likelihoods = std::vector<double>(pattern_block_size,0.0);

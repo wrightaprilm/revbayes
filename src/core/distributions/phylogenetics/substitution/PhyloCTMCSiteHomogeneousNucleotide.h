@@ -25,8 +25,8 @@ namespace RevBayesCore {
         
         void                                                computeInternalNodeLikelihood(const TopologyNode &n, size_t nIdx, size_t l, size_t r);
         void                                                computeInternalNodeLikelihood(const TopologyNode &n, size_t nIdx, size_t l, size_t r,  size_t m);
-        void                                                computeRootLikelihood( size_t root, size_t left, size_t right);
-        void                                                computeRootLikelihood( size_t root, size_t left, size_t right, size_t middle);
+        void                                                computeRootLikelihood(size_t root, size_t left, size_t right);
+        void                                                computeRootLikelihood(size_t root, size_t l, size_t r, size_t m);
         void                                                computeTipLikelihood(const TopologyNode &node, size_t nIdx);
         
         
@@ -153,82 +153,6 @@ void RevBayesCore::PhyloCTMCSiteHomogeneousNucleotide<charType>::computeRootLike
     const double*   p_mixture_right    = p_right;
     const double*   p_mixture_middle   = p_middle;
 
-#   if defined( RB_BEAGLE )
-   if ( RbSettings::userSettings().getUseBeagle() == true && this->num_site_mixtures == 1 )
-   {
-       
-       size_t num_taxa = (this->num_nodes + 2)/2;
-       
-        BeagleOperation b_operation;
-
-        b_operation.destinationPartials    = (int) root + this->activeLikelihood[root]*this->num_nodes;
-        b_operation.destinationScaleWrite  = BEAGLE_OP_NONE;
-        b_operation.destinationScaleRead   = BEAGLE_OP_NONE;
-        b_operation.child1TransitionMatrix = (int) left       + this->activeLikelihood[left]*this->num_nodes;
-        b_operation.child2TransitionMatrix = (int) right      + this->activeLikelihood[right]*this->num_nodes;
-        if ( left < num_taxa )
-        {
-            b_operation.child1Partials         = (int) left;
-        }
-        else
-        {
-            b_operation.child1Partials         = (int) left       + this->activeLikelihood[left]*this->num_nodes;
-        }
-        if ( right < num_taxa )
-        {
-            b_operation.child2Partials         = (int) right;
-        }
-        else
-        {
-            b_operation.child2Partials         = (int) right       + this->activeLikelihood[right]*this->num_nodes;
-        }
-       
-       // @Daniel/Sebastian/Killian: Collect calls to BEAGLE here into global vector
-        beagleUpdatePartials(this->beagle_instance, &b_operation, 1, BEAGLE_OP_NONE);
-
-        const std::vector<double> &b_f = ff[0];
-        const double* b_inStateFrequencies     = &b_f[0];
-              int     b_stateFrequenciesIndex  = 0;
-
-        beagleSetStateFrequencies(this->beagle_instance,
-                                  b_stateFrequenciesIndex,
-                                  b_inStateFrequencies);
-
-        int     b_parentBufferIndices     = (int) root + this->activeLikelihood[root]*this->num_nodes;
-        int     b_childBufferIndices      = (int) middle + this->activeLikelihood[middle]*this->num_nodes;
-        if ( middle < num_taxa )  b_childBufferIndices      = (int) middle;
-        int     b_probabilityIndices      = (int) middle + this->activeLikelihood[middle]*this->num_nodes;
-        int*    b_firstDerivativeIndices  = NULL;
-        int*    b_secondDerivativeIndices = NULL;
-        int     b_categoryWeightsIndices  = 0;
-        int     b_stateFrequenciesIndices = b_stateFrequenciesIndex;
-        int     b_cumulativeScaleIndices  = BEAGLE_OP_NONE;
-        int     b_count                   = 1;
-        double  b_outSumLogLikelihood;
-        double* b_outSumFirstDerivative   = NULL;
-        double* b_outSumSecondDerivative  = NULL;
- 
-        beagleCalculateEdgeLogLikelihoods(this->beagle_instance,
-                                          &b_parentBufferIndices,
-                                          &b_childBufferIndices,
-                                          &b_probabilityIndices,
-                                          b_firstDerivativeIndices,
-                                          b_secondDerivativeIndices,
-                                          &b_categoryWeightsIndices,
-                                          &b_stateFrequenciesIndices,
-                                          &b_cumulativeScaleIndices,
-                                          b_count,
-                                          &b_outSumLogLikelihood,
-                                          b_outSumFirstDerivative,
-                                          b_outSumSecondDerivative);
- 
-#       if defined ( RB_BEAGLE_DEBUG )
-        this->beagle_last_likelihood = b_outSumLogLikelihood;
-#       endif /* RB_BEAGLE_DEBUG */       
-
-        // return;
-   }
-#   endif /* RB_BEAGLE */
 
     // iterate over all mixture categories
     for (size_t mixture = 0; mixture < this->num_site_mixtures; ++mixture)
@@ -268,44 +192,6 @@ void RevBayesCore::PhyloCTMCSiteHomogeneousNucleotide<charType>::computeInternal
     
     // compute the transition probability matrix
     this->updateTransitionProbabilities( node_index );
-    
-#   if defined( RB_BEAGLE )
-    if ( RbSettings::userSettings().getUseBeagle() == true && this->num_site_mixtures == 1 )
-    {
-        BeagleOperation b_operation;
-
-        b_operation.destinationPartials    = (int) node_index + this->activeLikelihood[node_index]*this->num_nodes;
-        b_operation.destinationScaleWrite  = BEAGLE_OP_NONE;
-        b_operation.destinationScaleRead   = BEAGLE_OP_NONE;
-        if ( node.getChild( 0 ).isTip() == true )
-        {
-            b_operation.child1Partials         = (int) left;
-        }
-        else
-        {
-            b_operation.child1Partials         = (int) left       + this->activeLikelihood[left]*this->num_nodes;
-        }
-        if ( node.getChild( 1 ).isTip() == true )
-        {
-            b_operation.child2Partials         = (int) right;
-        }
-        else
-        {
-            b_operation.child2Partials         = (int) right       + this->activeLikelihood[right]*this->num_nodes;
-        }
-        b_operation.child1TransitionMatrix = (int) left       + this->activeLikelihood[left]*this->num_nodes;
-        b_operation.child2TransitionMatrix = (int) right      + this->activeLikelihood[right]*this->num_nodes;
-
-        // @Daniel/Sebastian/Killian: Collect calls to BEAGLE here into global vector
-        beagleUpdatePartials(this->beagle_instance, &b_operation, 1, BEAGLE_OP_NONE);
-
-        const double* b_tp_begin = this->transition_prob_matrices[0].theMatrix;
-        // @Daniel/Sebastian/Killian: Collect calls to BEAGLE here into global vector (separate)
-        beagleSetTransitionMatrix(this->beagle_instance, (int) node_index + this->activeLikelihood[node_index]*this->num_nodes, b_tp_begin, (double) 1.0);
-
-        // return;
-    }    
-#   endif /* RB_BEAGLE */
 
 #   if defined ( SSE_ENABLED )
     
@@ -494,175 +380,6 @@ void RevBayesCore::PhyloCTMCSiteHomogeneousNucleotide<charType>::computeInternal
 }
 
 
-template<class charType>
-void RevBayesCore::PhyloCTMCSiteHomogeneousNucleotide<charType>::computeInternalNodeLikelihood(const TopologyNode &node, size_t node_index, size_t left, size_t right, size_t middle)
-{
-    
-    // compute the transition probability matrix
-    this->updateTransitionProbabilities( node_index );
-    
-    
-    // get the pointers to the partial likelihoods for this node and the two descendant subtrees
-    const double*   p_left      = this->partialLikelihoods + this->activeLikelihood[left]*this->activeLikelihoodOffset + left*this->nodeOffset;
-    const double*   p_middle    = this->partialLikelihoods + this->activeLikelihood[middle]*this->activeLikelihoodOffset + middle*this->nodeOffset;
-    const double*   p_right     = this->partialLikelihoods + this->activeLikelihood[right]*this->activeLikelihoodOffset + right*this->nodeOffset;
-    double*         p_node      = this->partialLikelihoods + this->activeLikelihood[node_index]*this->activeLikelihoodOffset + node_index*this->nodeOffset;
-    
-    // iterate over all mixture categories
-    for (size_t mixture = 0; mixture < this->num_site_mixtures; ++mixture)
-    {
-        // the transition probability matrix for this mixture category
-        const double* tp_begin = this->transition_prob_matrices[mixture].theMatrix;
-        
-        // get the pointers to the likelihood for this mixture category
-        size_t offset = mixture*this->mixtureOffset;
-        
-#       if defined ( SSE_ENABLED )
-        
-        double*          p_site_mixture          = p_node + offset;
-        const double*    p_site_mixture_left     = p_left + offset;
-        const double*    p_site_mixture_middle   = p_middle + offset;
-        const double*    p_site_mixture_right    = p_right + offset;
-        
-        __m128d tp_a_ac = _mm_load_pd(tp_begin);
-        __m128d tp_a_gt = _mm_load_pd(tp_begin+2);
-        __m128d tp_c_ac = _mm_load_pd(tp_begin+4);
-        __m128d tp_c_gt = _mm_load_pd(tp_begin+6);
-        __m128d tp_g_ac = _mm_load_pd(tp_begin+8);
-        __m128d tp_g_gt = _mm_load_pd(tp_begin+10);
-        __m128d tp_t_ac = _mm_load_pd(tp_begin+12);
-        __m128d tp_t_gt = _mm_load_pd(tp_begin+14);
-        
-#       elif defined ( AVX_ENABLED )
-        
-        double*          p_site_mixture          = p_node + offset;
-        const double*    p_site_mixture_left     = p_left + offset;
-        const double*    p_site_mixture_right    = p_right + offset;
-        
-        __m256d tp_a = _mm256_load_pd(tp_begin);
-        __m256d tp_c = _mm256_load_pd(tp_begin+4);
-        __m256d tp_g = _mm256_load_pd(tp_begin+8);
-        __m256d tp_t = _mm256_load_pd(tp_begin+12);
-        
-#       else
-        
-        double*          p_site_mixture          = p_node + offset;
-        const double*    p_site_mixture_left     = p_left + offset;
-        const double*    p_site_mixture_middle   = p_middle + offset;
-        const double*    p_site_mixture_right    = p_right + offset;
-        
-#       endif
-        
-        // compute the per site probabilities
-        for (size_t site = 0; site < this->pattern_block_size ; ++site)
-        {
-            
-#           if defined ( SSE_ENABLED )
-            
-            __m128d a01 = _mm_load_pd(p_site_mixture_left);
-            __m128d a23 = _mm_load_pd(p_site_mixture_left+2);
-            
-            __m128d b01 = _mm_load_pd(p_site_mixture_middle);
-            __m128d b23 = _mm_load_pd(p_site_mixture_middle+2);
-            
-            __m128d c01 = _mm_load_pd(p_site_mixture_right);
-            __m128d c23 = _mm_load_pd(p_site_mixture_right+2);
-            
-            __m128d tmp_p01 = _mm_mul_pd(a01,b01);
-            __m128d p01 = _mm_mul_pd(tmp_p01,c01);
-            __m128d tmp_p23 = _mm_mul_pd(a23,b23);
-            __m128d p23 = _mm_mul_pd(tmp_p23,c23);
-            
-            __m128d a_ac = _mm_mul_pd(p01, tp_a_ac   );
-            __m128d a_gt = _mm_mul_pd(p23, tp_a_gt );
-            __m128d a_acgt = _mm_hadd_pd(a_ac,a_gt);
-            
-            __m128d c_ac = _mm_mul_pd(p01, tp_c_ac );
-            __m128d c_gt = _mm_mul_pd(p23, tp_c_gt );
-            __m128d c_acgt = _mm_hadd_pd(c_ac,c_gt);
-            
-
-            //            *p_site_mixture = _mm_hadd_pd(a_acgt,c_acgt);
-            __m128d ac = _mm_hadd_pd(a_acgt,c_acgt);
-            _mm_store_pd(p_site_mixture,ac);
-            
-            
-            __m128d g_ac = _mm_mul_pd(p01, tp_g_ac  );
-            __m128d g_gt = _mm_mul_pd(p23, tp_g_gt );
-            __m128d g_acgt = _mm_hadd_pd(g_ac,g_gt);
-            
-            __m128d t_ac = _mm_mul_pd(p01, tp_t_ac );
-            __m128d t_gt = _mm_mul_pd(p23, tp_t_gt );
-            __m128d t_acgt = _mm_hadd_pd(t_ac,t_gt);
-            
-            //            p_site_mixture[2] = _mm_hadd_pd(g_acgt,t_acgt);
-            __m128d gt = _mm_hadd_pd(g_acgt,t_acgt);
-            _mm_store_pd(p_site_mixture+2,gt);
-            
-#           elif defined ( AVX_ENABLED )
-            
-            __m256d a = _mm256_load_pd(p_site_mixture_left);
-            __m256d b = _mm256_load_pd(p_site_mixture_right);
-            __m256d p = _mm_mul_pd(a,b);
-            
-            __m256d a_acgt = _mm256_mul_pd(p, tp_a );
-            __m256d c_acgt = _mm256_mul_pd(p, tp_c );
-            __m256d g_acgt = _mm256_mul_pd(p, tp_g );
-            __m256d t_acgt = _mm256_mul_pd(p, tp_t );
-            
-            __m256d ac   = _mm256_hadd_pd(a_acgt,c_acgt);
-            __m256d gt   = _mm256_hadd_pd(g_acgt,t_acgt)
-            
-            __m256d acgt = _mm256_hadd_pd(ac,gt);
-            
-            _mm256_store_pd(p_site_mixture,acgt);
-            
-#           else
-            
-            double p0 = p_site_mixture_left[0] * p_site_mixture_middle[0] * p_site_mixture_right[0];
-            double p1 = p_site_mixture_left[1] * p_site_mixture_middle[1] * p_site_mixture_right[1];
-            double p2 = p_site_mixture_left[2] * p_site_mixture_middle[2] * p_site_mixture_right[2];
-            double p3 = p_site_mixture_left[3] * p_site_mixture_middle[3] * p_site_mixture_right[3];
-            
-            double sum = p0 * tp_begin[0];
-            sum += p1 * tp_begin[1];
-            sum += p2 * tp_begin[2];
-            sum += p3 * tp_begin[3];
-            
-            p_site_mixture[0] = sum;
-            
-            sum = p0 * tp_begin[4];
-            sum += p1 * tp_begin[5];
-            sum += p2 * tp_begin[6];
-            sum += p3 * tp_begin[7];
-            
-            p_site_mixture[1] = sum;
-            
-            sum = p0 * tp_begin[8];
-            sum += p1 * tp_begin[9];
-            sum += p2 * tp_begin[10];
-            sum += p3 * tp_begin[11];
-            
-            p_site_mixture[2] = sum;
-            
-            sum = p0 * tp_begin[12];
-            sum += p1 * tp_begin[13];
-            sum += p2 * tp_begin[14];
-            sum += p3 * tp_begin[15];
-            
-            p_site_mixture[3] = sum;
-            
-#           endif
-            
-            // increment the pointers to the next site
-            p_site_mixture_left+=this->siteOffset; p_site_mixture_middle+=this->siteOffset; p_site_mixture_right+=this->siteOffset; p_site_mixture+=this->siteOffset;
-            
-            
-        } // end-for over all sites (=patterns)
-        
-    } // end-for over all mixtures (=rate-categories)
-    
-}
 
 
 template<class charType>
@@ -678,15 +395,6 @@ void RevBayesCore::PhyloCTMCSiteHomogeneousNucleotide<charType>::computeTipLikel
     
     // compute the transition probabilities
     this->updateTransitionProbabilities( node_index );
-
-#   if defined( RB_BEAGLE )
-    if ( RbSettings::userSettings().getUseBeagle() == true && this->num_site_mixtures == 1 )
-    {
-        const double* b_tp_begin = this->transition_prob_matrices[0].theMatrix;
-        beagleSetTransitionMatrix(this->beagle_instance, node_index + this->activeLikelihood[node_index]*this->num_nodes, b_tp_begin, (double) 1.0);
-        // return;
-    }    
-#   endif /* RB_BEAGLE */
 
     double*   p_mixture      = p_node;
     

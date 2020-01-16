@@ -27,7 +27,6 @@ namespace RevBayesCore {
         virtual void                                        computeRootLikelihood(size_t root, size_t l, size_t r);
         virtual void                                        computeRootLikelihood(size_t root, size_t l, size_t r, size_t m);
         virtual void                                        computeInternalNodeLikelihood(const TopologyNode &n, size_t nIdx, size_t l, size_t r);
-        virtual void                                        computeInternalNodeLikelihood(const TopologyNode &n, size_t nIdx, size_t l, size_t r, size_t m);
         virtual void                                        computeTipLikelihood(const TopologyNode &node, size_t nIdx);
 
 
@@ -259,68 +258,6 @@ void RevBayesCore::PhyloCTMCSiteHomogeneous<charType>::computeInternalNodeLikeli
 
             // increment the pointers to the next site
             p_site_mixture_left+=this->siteOffset; p_site_mixture_right+=this->siteOffset; p_site_mixture+=this->siteOffset;
-
-        } // end-for over all sites (=patterns)
-
-    } // end-for over all mixtures (=rate-categories)
-
-}
-
-
-template<class charType>
-void RevBayesCore::PhyloCTMCSiteHomogeneous<charType>::computeInternalNodeLikelihood(const TopologyNode &node, size_t node_index, size_t left, size_t right, size_t middle)
-{
-
-    // compute the transition probability matrix
-    this->updateTransitionProbabilities( node_index );
-
-    // get the pointers to the partial likelihoods for this node and the two descendant subtrees
-    const double*   p_left      = this->partialLikelihoods + this->activeLikelihood[left]*this->activeLikelihoodOffset + left*this->nodeOffset;
-    const double*   p_middle    = this->partialLikelihoods + this->activeLikelihood[middle]*this->activeLikelihoodOffset + middle*this->nodeOffset;
-    const double*   p_right     = this->partialLikelihoods + this->activeLikelihood[right]*this->activeLikelihoodOffset + right*this->nodeOffset;
-    double*         p_node      = this->partialLikelihoods + this->activeLikelihood[node_index]*this->activeLikelihoodOffset + node_index*this->nodeOffset;
-
-    // iterate over all mixture categories
-    for (size_t mixture = 0; mixture < this->num_site_mixtures; ++mixture)
-    {
-        // the transition probability matrix for this mixture category
-        const double*    tp_begin                = this->transition_prob_matrices[mixture].theMatrix;
-
-        // get the pointers to the likelihood for this mixture category
-        size_t offset = mixture*this->mixtureOffset;
-        double*          p_site_mixture          = p_node + offset;
-        const double*    p_site_mixture_left     = p_left + offset;
-        const double*    p_site_mixture_middle   = p_middle + offset;
-        const double*    p_site_mixture_right    = p_right + offset;
-        // compute the per site probabilities
-        for (size_t site = 0; site < this->pattern_block_size ; ++site)
-        {
-
-            // get the pointers for this mixture category and this site
-            const double*       tp_a    = tp_begin;
-            // iterate over the possible starting states
-            for (size_t c1 = 0; c1 < this->num_chars; ++c1)
-            {
-                // temporary variable
-                double sum = 0.0;
-
-                // iterate over all possible terminal states
-                for (size_t c2 = 0; c2 < this->num_chars; ++c2 )
-                {
-                    sum += p_site_mixture_left[c2] * p_site_mixture_middle[c2] * p_site_mixture_right[c2] * tp_a[c2];
-
-                } // end-for over all distination character
-                
-                // store the likelihood for this starting state
-                p_site_mixture[c1] = sum;
-
-                // increment the pointers to the next starting state
-                tp_a+=this->num_chars;
-
-            } // end-for over all initial characters
-
-            // increment the pointers to the next site
-            p_site_mixture_left+=this->siteOffset; p_site_mixture_middle+=this->siteOffset; p_site_mixture_right+=this->siteOffset; p_site_mixture+=this->siteOffset;
 
         } // end-for over all sites (=patterns)
 

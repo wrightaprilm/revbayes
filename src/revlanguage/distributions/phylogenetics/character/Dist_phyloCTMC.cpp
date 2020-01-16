@@ -4,9 +4,6 @@
 #include <ostream>
 
 #include "RlDistributionMemberFunction.h"
-#include "PhyloCTMCSiteHomogeneous.h"
-#include "PhyloCTMCSiteHomogeneousNucleotide.h"
-#include "PhyloCTMCSiteHomogeneousBinary.h"
 #include "OptionRule.h"
 #include "Probability.h"
 #include "RevNullObject.h"
@@ -35,7 +32,13 @@
 #include "ModelObject.h"
 #include "ModelVector.h"
 #include "Natural.h"
+#include "PhyloCTMCSiteHomogeneous.h"
+#include "PhyloCTMCSiteHomogeneousBinary.h"
 #include "PhyloCTMCSiteHomogeneousConditional.h"
+#include "PhyloCTMCSiteHomogeneousNucleotide.h"
+#ifdef RB_BEAGLE
+#include "PhyloCTMCSiteHomogeneousBEAGLE.h"
+#endif
 #include "RateGenerator.h"
 #include "RbBoolean.h"
 #include "RbException.h"
@@ -159,8 +162,20 @@ RevBayesCore::TypedDistribution< RevBayesCore::AbstractHomologousDiscreteCharact
 
     if ( dt == "DNA" )
     {
-        RevBayesCore::PhyloCTMCSiteHomogeneousNucleotide<RevBayesCore::DnaState> *dist =
-        new RevBayesCore::PhyloCTMCSiteHomogeneousNucleotide<RevBayesCore::DnaState>(tau, true, n, ambig, internal, gapmatch);
+
+        RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<RevBayesCore::DnaState> *dist = NULL;
+#ifdef RB_BEAGLE
+        if ( RbSettings::userSettings().getUseBeagle() == true && use_site_matrices == false && site_ratesNode->getValue().size() <= 1 )
+        {
+            dist = new RevBayesCore::PhyloCTMCSiteHomogeneousBEAGLE<RevBayesCore::DnaState>(tau, 4, true, n, ambig, internal, gapmatch);
+        }
+        else
+        {
+#endif
+        dist = new RevBayesCore::PhyloCTMCSiteHomogeneousNucleotide<RevBayesCore::DnaState>(tau, true, n, ambig, internal, gapmatch);
+#ifdef RB_BEAGLE
+        }
+#endif
 
         // set the root frequencies (by default these are NULL so this is OK)
         dist->setRootFrequencies( rf );
