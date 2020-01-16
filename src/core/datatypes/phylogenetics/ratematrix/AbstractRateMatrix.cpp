@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cstddef>
 
+#include "EigenSystem.h"
 #include "MatrixReal.h"
 #include "RandomNumberGenerator.h"
 #include "RandomNumberFactory.h"
@@ -22,6 +23,7 @@ using namespace RevBayesCore;
 /** Construct rate matrix with n states */
 AbstractRateMatrix::AbstractRateMatrix(size_t n) : RateMatrix(n),
     the_rate_matrix( new MatrixReal(num_states, num_states, 1.0) ),
+    the_eigen_system( new EigenSystem(the_rate_matrix) ),
     needs_update( true )
 {
 
@@ -34,6 +36,7 @@ AbstractRateMatrix::AbstractRateMatrix(size_t n) : RateMatrix(n),
 /** Copy constructor */
 AbstractRateMatrix::AbstractRateMatrix(const AbstractRateMatrix& m) : RateMatrix(m),
     the_rate_matrix( new MatrixReal(*m.the_rate_matrix) ),
+    the_eigen_system( new EigenSystem(the_rate_matrix) ),
     needs_update( true )
 {
 
@@ -58,8 +61,9 @@ AbstractRateMatrix& AbstractRateMatrix::operator=(const AbstractRateMatrix &r)
 
         delete the_rate_matrix;
 
-        the_rate_matrix       = new MatrixReal( *r.the_rate_matrix );
-        needs_update         = true;
+        the_rate_matrix     = new MatrixReal( *r.the_rate_matrix );
+        the_eigen_system    = new EigenSystem(the_rate_matrix);
+        needs_update        = true;
 
     }
 
@@ -250,6 +254,15 @@ void AbstractRateMatrix::computeDominatingRate(void)
         }
     }
 }
+
+EigenSystem* AbstractRateMatrix::getEigenSystem(void) const
+{
+    // TODO: we might not want to always update the eigensystem
+    // only do so if dirty
+    the_eigen_system->update();
+    return the_eigen_system;
+}
+
 
 double AbstractRateMatrix::getRate(size_t from, size_t to, double rate) const
 {

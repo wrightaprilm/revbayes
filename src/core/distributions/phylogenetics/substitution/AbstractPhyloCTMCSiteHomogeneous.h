@@ -5,6 +5,7 @@
 #include "ConstantNode.h"
 #include "DiscreteTaxonData.h"
 #include "DnaState.h"
+#include "EigenSystem.h"
 #include "MatrixReal.h"
 #include "MemberObject.h"
 #include "RbConstants.h"
@@ -196,6 +197,8 @@ namespace RevBayesCore {
         bool                                                                touched;
         std::vector<bool>                                                   changed_nodes;
         mutable std::vector<bool>                                           dirty_nodes;
+        mutable std::vector<int>                                            active_eigen_system;
+        mutable std::vector<bool>                                           touched_eigen_system;
 
         // offsets for nodes
         size_t                                                              activeLikelihoodOffset;
@@ -329,6 +332,8 @@ taxon_name_2_tip_index_map(),
 touched( false ),
 changed_nodes( std::vector<bool>(num_nodes, false) ),
 dirty_nodes( std::vector<bool>(num_nodes, true) ),
+active_eigen_system( std::vector<int>(1, 0) ),
+touched_eigen_system( std::vector<bool>(1, false) ),
 using_ambiguous_characters( amb ),
 treatUnknownAsGap( true ),
 treatAmbiguousAsGaps( false ),
@@ -424,6 +429,8 @@ taxon_name_2_tip_index_map( n.taxon_name_2_tip_index_map ),
 touched( false ),
 changed_nodes( n.changed_nodes ),
 dirty_nodes( n.dirty_nodes ),
+active_eigen_system( n.active_eigen_system ),
+touched_eigen_system( n.touched_eigen_system ),
 using_ambiguous_characters( n.using_ambiguous_characters ),
 treatUnknownAsGap( n.treatUnknownAsGap ),
 treatAmbiguousAsGaps( n.treatAmbiguousAsGaps ),
@@ -2218,7 +2225,13 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::keepSpecializatio
 
     // reset flags for likelihood computation
     touched = false;
-
+    
+    // reset all flags
+    for (std::vector<bool>::iterator it = this->touched_eigen_system.begin(); it != this->touched_eigen_system.end(); ++it)
+    {
+        (*it) = false;
+    }
+    
     // reset the ln probability
     this->storedLnProb = this->lnProb;
 
@@ -2564,6 +2577,22 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::restoreSpecializa
 
     // reset flags for likelihood computation
     touched = false;
+    
+    // flip back the active eigen system indices
+    for ( size_t i=0; i<active_eigen_system.size(); ++i)
+    {
+        if ( touched_eigen_system[i] == true )
+        {
+            active_eigen_system[i] = (active_eigen_system[i] == 0 ? 1 : 0);
+        }
+    }
+    
+    
+    // reset the flags
+    for (std::vector<bool>::iterator it = touched_eigen_system.begin(); it != touched_eigen_system.end(); ++it)
+    {
+        (*it) = false;
+    }
 
     // reset the ln probability
     this->lnProb = this->storedLnProb;
@@ -3030,7 +3059,7 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::setMcmcMode(bool 
             int  b_compactBufferCount  = (int) tau->getValue().getNumberOfTips();
             int  b_stateCount          = (int) num_chars;
             int  b_patternCount        = (int) pattern_block_size;
-            int  b_eigenBufferCount    = (int) num_site_mixtures;
+            int  b_eigenBufferCount    = (int) num_site_mixtures * 2;
             int  b_matrixBufferCount   = (int) num_nodes * 2;
             int  b_categoryCount       = (int) num_site_rates;
             int  b_scaleBufferCount    =       0;
@@ -4140,6 +4169,39 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::touchSpecializati
                 this->recursivelyFlagNodeDirty( *nodes[*it] );
             }
         }
+    }
+    else if ( affecter == homogeneous_rate_matrix )
+    {
+# ifdef RB_BEAGLE
+        if ( touched_eigen_system[0] == false )
+        {
+            touched_eigen_system[0] = true;
+            active_eigen_system[0] = (active_eigen_system[0] == 0 ? 1 : 0);
+        }
+        EigenSystem *my_eigen_system = homogeneous_rate_matrix->getValue().getEigenSystem();
+        const MatrixReal&               my_eigen_vectors        = my_eigen_system->getEigenvectors();
+        const MatrixReal&               my_inv_eigen_vectors    = my_eigen_system->getInverseEigenvectors();
+        const std::vector<double>&      my_eigen_values         = my_eigen_system->getRealEigenvalues();
+        
+        double *flat_eigen_vectors = new double[ my_eigen_vectors.getNumberOfRows() * my_eigen_vectors.getNumberOfColumns() ];
+        double *tmp_flat_eigen_vectors = flat_eigen_vectors;
+        for ( size_t i=0; i<my_eigen_vectors.getNumberOfRows(); ++i )
+        {
+            std::copy(my_eigen_vectors[i].begin(), my_eigen_vectors[i].end(), tmp_flat_eigen_vectors);
+            tmp_flat_eigen_vectors += my_eigen_vectors.getNumberOfColumns();
+        }
+        
+        double *flat_inv_eigen_vectors = new double[ my_inv_eigen_vectors.getNumberOfRows() * my_inv_eigen_vectors.getNumberOfColumns() ];
+        double *tmp_flat_inv_eigen_vectors = flat_inv_eigen_vectors;
+        for ( size_t i=0; i<my_inv_eigen_vectors.getNumberOfRows(); ++i )
+        {
+            std::copy(my_inv_eigen_vectors[i].begin(), my_inv_eigen_vectors[i].end(), tmp_flat_inv_eigen_vectors);
+            tmp_flat_inv_eigen_vectors += my_inv_eigen_vectors.getNumberOfColumns();
+        }
+        
+        // TODO: Perhaps we only want to set the eigen decomposition when we start to evaluate the likelihoods instead of for every touch call.
+        beagleSetEigenDecomposition(beagle_instance, active_eigen_system[0], flat_eigen_vectors, flat_inv_eigen_vectors, &my_eigen_values[0]);
+# endif
     }
     else if ( affecter == heterogeneous_rate_matrices && branch_heterogeneous_substitution_matrices == true)
     {

@@ -53,6 +53,12 @@ void RateGenerator::calculateTransitionProbabilities(double t, TransitionProbabi
     calculateTransitionProbabilities(t, 0.0, 1.0, P);
 }
 
+EigenSystem* RateGenerator::getEigenSystem(void) const
+{
+    throw RbException("Rate generators don't have EigenSystems, only rate matrices. You might have used a rate generator where a rate matrix was needed.");
+}
+
+
 size_t RateGenerator::getNumberOfStates( void ) const
 {
     return num_states;

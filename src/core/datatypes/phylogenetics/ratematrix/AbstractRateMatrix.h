@@ -48,6 +48,9 @@ namespace RevBayesCore {
         void                                setDiagonal(void);                                                                          //!< Set the diagonal such that each row sums to zero
         virtual std::vector<int>            get_emitted_letters() const;                                                                //!<Find out what alphet letter each state emits        
 
+        // virtual methods that you may want to overwrite
+        virtual EigenSystem*                getEigenSystem(void) const;
+
         // pure virtual methods you have to overwrite
         virtual double                      averageRate(void) const = 0;                                                                //!< Calculate the average rate
         virtual void                        calculateTransitionProbabilities(double startAge, double endAge, double rate, TransitionProbabilityMatrix& P) const = 0;   //!< Calculate the transition matrix
@@ -76,6 +79,7 @@ namespace RevBayesCore {
         
         // protected members available for derived classes
         MatrixReal*                         the_rate_matrix;                                                                            //!< Holds the rate matrix
+        EigenSystem*                        the_eigen_system;
         bool                                needs_update;
         
         // stochastic matrix

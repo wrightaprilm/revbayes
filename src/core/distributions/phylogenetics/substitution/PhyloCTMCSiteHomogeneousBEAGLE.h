@@ -76,45 +76,60 @@ void RevBayesCore::PhyloCTMCSiteHomogeneousBEAGLE<charType>::computeInternalNode
 {
 
     // compute the transition probability matrix
-    this->updateTransitionProbabilities( node_index );
-        
-#   if defined( RB_BEAGLE )
-    if ( RbSettings::userSettings().getUseBeagle() == true && this->num_site_mixtures == 1 )
+//    this->updateTransitionProbabilities( node_index );
+      
+    BeagleOperation b_operation;
+
+    b_operation.destinationPartials    = (int) node_index + this->activeLikelihood[node_index]*this->num_nodes;
+    b_operation.destinationScaleWrite  = BEAGLE_OP_NONE;
+    b_operation.destinationScaleRead   = BEAGLE_OP_NONE;
+    if ( node.getChild( 0 ).isTip() == true )
     {
-        BeagleOperation b_operation;
-
-        b_operation.destinationPartials    = (int) node_index + this->activeLikelihood[node_index]*this->num_nodes;
-        b_operation.destinationScaleWrite  = BEAGLE_OP_NONE;
-        b_operation.destinationScaleRead   = BEAGLE_OP_NONE;
-        if ( node.getChild( 0 ).isTip() == true )
-        {
-            b_operation.child1Partials         = (int) left;
-        }
-        else
-        {
-            b_operation.child1Partials         = (int) left       + this->activeLikelihood[left]*this->num_nodes;
-        }
-        if ( node.getChild( 1 ).isTip() == true )
-        {
-            b_operation.child2Partials         = (int) right;
-        }
-        else
-        {
-            b_operation.child2Partials         = (int) right       + this->activeLikelihood[right]*this->num_nodes;
-        }
-        b_operation.child1TransitionMatrix = (int) left       + this->activeLikelihood[left]*this->num_nodes;
-        b_operation.child2TransitionMatrix = (int) right      + this->activeLikelihood[right]*this->num_nodes;
-
-        // @Daniel/Sebastian/Killian: Collect calls to BEAGLE here into global vector
-        beagleUpdatePartials(this->beagle_instance, &b_operation, 1, BEAGLE_OP_NONE);
-
-        const double* b_tp_begin = this->transition_prob_matrices[0].theMatrix;
-        // @Daniel/Sebastian/Killian: Collect calls to BEAGLE here into global vector (separate)
-        beagleSetTransitionMatrix(this->beagle_instance, (int) node_index + this->activeLikelihood[node_index]*this->num_nodes, b_tp_begin, (double) 1.0);
-
-        // return;
+        b_operation.child1Partials         = (int) left;
     }
-#   endif /* RB_BEAGLE */
+    else
+    {
+        b_operation.child1Partials         = (int) left       + this->activeLikelihood[left]*this->num_nodes;
+    }
+    if ( node.getChild( 1 ).isTip() == true )
+    {
+        b_operation.child2Partials         = (int) right;
+    }
+    else
+    {
+        b_operation.child2Partials         = (int) right       + this->activeLikelihood[right]*this->num_nodes;
+    }
+    b_operation.child1TransitionMatrix = (int) left       + this->activeLikelihood[left]*this->num_nodes;
+    b_operation.child2TransitionMatrix = (int) right      + this->activeLikelihood[right]*this->num_nodes;
+
+    // @Daniel/Sebastian/Killian: Collect calls to BEAGLE here into global vector
+    beagleUpdatePartials(this->beagle_instance, &b_operation, 1, BEAGLE_OP_NONE);
+
+//        const double* b_tp_begin = this->transition_prob_matrices[0].theMatrix;
+//        // @Daniel/Sebastian/Killian: Collect calls to BEAGLE here into global vector (separate)
+//        beagleSetTransitionMatrix(this->beagle_instance, (int) node_index + this->activeLikelihood[node_index]*this->num_nodes, b_tp_begin, (double) 1.0);
+        
+   // TODO: this entire block of computing the branch length should probably be done in the base class as its own function
+   // first, get the branch time
+   double branch_time = node.getBranchLength();
+   
+   // second, get the clock rate for the branch
+   double rate = 1.0;
+   if ( this->branch_heterogeneous_clock_rates == true )
+   {
+       rate = this->heterogeneous_clock_rates->getValue()[node_index];
+   }
+   else if ( this->homogeneous_clock_rate != NULL)
+   {
+       rate = this->homogeneous_clock_rate->getValue();
+   }
+   
+   double branch_length = rate * branch_time;
+   
+   int tmp_prob_indices = (int) node_index + this->activeLikelihood[node_index]*this->num_nodes;
+   
+   beagleUpdateTransitionMatrices(this->beagle_instance, this->active_eigen_system[0], &tmp_prob_indices, NULL, NULL, &branch_length, 1);
+
 
 
 }
@@ -218,15 +233,27 @@ void RevBayesCore::PhyloCTMCSiteHomogeneousBEAGLE<charType>::computeRootLikeliho
 template<class charType>
 void RevBayesCore::PhyloCTMCSiteHomogeneousBEAGLE<charType>::computeTipLikelihood(const TopologyNode &node, size_t node_index)
 {
-    
-    // compute the transition probabilities
-    this->updateTransitionProbabilities( node_index );
 
-#   if defined( RB_BEAGLE )
-    const double* b_tp_begin = this->transition_prob_matrices[0].theMatrix;
-    beagleSetTransitionMatrix(this->beagle_instance, node_index + this->activeLikelihood[node_index]*this->num_nodes, b_tp_begin, (double) 1.0);
-    // return;
-#   endif /* RB_BEAGLE */
+    // TODO: this entire block of computing the branch length should probably be done in the base class as its own function
+    // first, get the branch time
+    double branch_time = node.getBranchLength();
+    
+    // second, get the clock rate for the branch
+    double rate = 1.0;
+    if ( this->branch_heterogeneous_clock_rates == true )
+    {
+        rate = this->heterogeneous_clock_rates->getValue()[node_index];
+    }
+    else if ( this->homogeneous_clock_rate != NULL)
+    {
+        rate = this->homogeneous_clock_rate->getValue();
+    }
+    
+    double branch_length = rate * branch_time;
+    
+    int tmp_prob_indices = (int) node_index + this->activeLikelihood[node_index]*this->num_nodes;
+    
+    beagleUpdateTransitionMatrices(this->beagle_instance, this->active_eigen_system[0], &tmp_prob_indices, NULL, NULL, &branch_length, 1);
     
 }
 

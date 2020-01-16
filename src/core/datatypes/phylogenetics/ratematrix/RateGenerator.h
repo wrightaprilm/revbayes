@@ -39,6 +39,7 @@ namespace RevBayesCore {
         // virtual methods that may need to overwritten
         virtual bool                        simulateStochasticMapping(double startAge, double endAge, double rate,std::vector<size_t>& transition_states, std::vector<double>& transition_times);
         virtual void                        update(void) {};
+        virtual EigenSystem*                getEigenSystem(void) const;
 
         // public methods
         void                                calculateTransitionProbabilities(double t, TransitionProbabilityMatrix& P) const;           //!< Calculate the transition probabilities for the rate matrix
