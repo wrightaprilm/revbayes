@@ -4170,9 +4170,9 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::touchSpecializati
             }
         }
     }
-    else if ( affecter == homogeneous_rate_matrix )
-    {
 # ifdef RB_BEAGLE
+    else if ( affecter == homogeneous_rate_matrix && RbSettings::userSettings().getUseBeagle() == true )
+    {
         if ( touched_eigen_system[0] == false )
         {
             touched_eigen_system[0] = true;
@@ -4201,8 +4201,8 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::touchSpecializati
         
         // TODO: Perhaps we only want to set the eigen decomposition when we start to evaluate the likelihoods instead of for every touch call.
         beagleSetEigenDecomposition(beagle_instance, active_eigen_system[0], flat_eigen_vectors, flat_inv_eigen_vectors, &my_eigen_values[0]);
-# endif
     }
+# endif
     else if ( affecter == heterogeneous_rate_matrices && branch_heterogeneous_substitution_matrices == true)
     {
         const std::set<size_t> &indices = heterogeneous_rate_matrices->getTouchedElementIndices();
