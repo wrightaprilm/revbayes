@@ -4311,8 +4311,8 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::updateTransitionP
     double start_age = end_age + node->getBranchLength();
 
     // first, get the rate matrix for this branch
-    RateMatrix_JC jc(this->num_chars);
-    const RateGenerator *rm = &jc;
+//    RateMatrix_JC jc(this->num_chars);
+    const RateGenerator *rm = NULL;
 
     if (this->branch_heterogeneous_substitution_matrices == false )
     {
@@ -4326,6 +4326,10 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::updateTransitionP
             {
                 rm = &this->homogeneous_rate_matrix->getValue();
             }
+            else
+            {
+                rm = new RateMatrix_JC(this->num_chars);
+            }
 
             for (size_t j = 0; j < this->num_site_rates; ++j)
             {
@@ -4336,6 +4340,12 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::updateTransitionP
                 }
 
                 rm->calculateTransitionProbabilities( start_age, end_age,  rate * r, this->transition_prob_matrices[j*this->num_matrices + matrix] );
+            }
+            
+            // here we need to free the rate matrix if we created it above
+            if ( this->heterogeneous_rate_matrices == NULL && this->homogeneous_rate_matrix == NULL )
+            {
+                delete rm;
             }
         }
     }
@@ -4349,6 +4359,10 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::updateTransitionP
         {
             rm = &this->homogeneous_rate_matrix->getValue();
         }
+        else
+        {
+            rm = new RateMatrix_JC(this->num_chars);
+        }
 
         for (size_t j = 0; j < this->num_site_rates; ++j)
         {
@@ -4359,6 +4373,12 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::updateTransitionP
             }
 
             rm->calculateTransitionProbabilities( start_age, end_age,  rate * r, this->transition_prob_matrices[j] );
+        }
+        
+        // here we need to free the rate matrix if we created it above
+        if ( this->heterogeneous_rate_matrices == NULL && this->homogeneous_rate_matrix == NULL )
+        {
+            delete rm;
         }
     }
 }
