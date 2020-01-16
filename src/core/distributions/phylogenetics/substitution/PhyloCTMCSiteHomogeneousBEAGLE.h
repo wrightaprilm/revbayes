@@ -103,7 +103,7 @@ void RevBayesCore::PhyloCTMCSiteHomogeneousBEAGLE<charType>::computeInternalNode
     b_operation.child2TransitionMatrix = (int) right      + this->activeLikelihood[right]*this->num_nodes;
 
     // @Daniel/Sebastian/Killian: Collect calls to BEAGLE here into global vector
-    beagleUpdatePartials(this->beagle_instance, &b_operation, 1, BEAGLE_OP_NONE);
+//    beagleUpdatePartials(this->beagle_instance, &b_operation, 1, BEAGLE_OP_NONE);
 
 //        const double* b_tp_begin = this->transition_prob_matrices[0].theMatrix;
 //        // @Daniel/Sebastian/Killian: Collect calls to BEAGLE here into global vector (separate)
@@ -128,9 +128,14 @@ void RevBayesCore::PhyloCTMCSiteHomogeneousBEAGLE<charType>::computeInternalNode
    
    int tmp_prob_indices = (int) node_index + this->activeLikelihood[node_index]*this->num_nodes;
    
-   beagleUpdateTransitionMatrices(this->beagle_instance, this->active_eigen_system[0], &tmp_prob_indices, NULL, NULL, &branch_length, 1);
+//   beagleUpdateTransitionMatrices(this->beagle_instance, this->active_eigen_system[0], &tmp_prob_indices, NULL, NULL, &branch_length, 1);
 
-
+    
+    this->b_ops.push_back( b_operation );
+//    this->b_model_indices.push_back( this->active_eigen_system[0] );
+    this->b_node_indices.push_back( tmp_prob_indices );
+    this->b_branch_lengths.push_back( branch_length );
+    
 
 }
 
@@ -185,7 +190,26 @@ void RevBayesCore::PhyloCTMCSiteHomogeneousBEAGLE<charType>::computeRootLikeliho
     }
     
     // @Daniel/Sebastian/Killian: Collect calls to BEAGLE here into global vector
-    beagleUpdatePartials(this->beagle_instance, &b_operation, 1, BEAGLE_OP_NONE);
+//    beagleUpdatePartials(this->beagle_instance, &b_operation, 1, BEAGLE_OP_NONE);
+    
+    this->b_ops.push_back( b_operation );
+    
+    beagleUpdateTransitionMatrices(this->beagle_instance, this->active_eigen_system[0], &this->b_node_indices[0], NULL, NULL, &this->b_branch_lengths[0], this->b_branch_lengths.size());
+    beagleUpdatePartials(this->beagle_instance, &this->b_ops[0], this->b_ops.size(), BEAGLE_OP_NONE);
+    
+    
+    this->b_ops.clear();
+    this->b_branch_lengths.clear();
+    this->b_node_indices.clear();
+    
+//    for ( size_t i=0; i<this->b_branch_lengths.size(); ++i )
+//    {
+//        beagleUpdateTransitionMatrices(this->beagle_instance, this->active_eigen_system[0], &this->b_node_indices[i], NULL, NULL, &this->b_branch_lengths[i], 1);
+//    }
+//    for ( size_t i=0; i<this->b_ops.size(); ++i)
+//    {
+//        beagleUpdatePartials(this->beagle_instance, &this->b_ops[i], 1, BEAGLE_OP_NONE);
+//    }
 
     const std::vector<double> &b_f = ff[0];
     const double* b_inStateFrequencies     = &b_f[0];
@@ -253,8 +277,11 @@ void RevBayesCore::PhyloCTMCSiteHomogeneousBEAGLE<charType>::computeTipLikelihoo
     
     int tmp_prob_indices = (int) node_index + this->activeLikelihood[node_index]*this->num_nodes;
     
-    beagleUpdateTransitionMatrices(this->beagle_instance, this->active_eigen_system[0], &tmp_prob_indices, NULL, NULL, &branch_length, 1);
+//    beagleUpdateTransitionMatrices(this->beagle_instance, this->active_eigen_system[0], &tmp_prob_indices, NULL, NULL, &branch_length, 1);
     
+//    this->b_model_indices.push_back( this->active_eigen_system[0] );
+    this->b_node_indices.push_back( tmp_prob_indices );
+    this->b_branch_lengths.push_back( branch_length );
 }
 
 

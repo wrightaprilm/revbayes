@@ -251,17 +251,17 @@ namespace RevBayesCore {
 
 #       if defined( RB_BEAGLE )
         
-        struct BeagleTransitionProbabilityOp {
-            size_t                                                          b_model_index;
-            size_t                                                          b_node_index;
-            double                                                          b_branch_length;
-        };
+//        struct BeagleTransitionProbabilityOp {
+//            size_t                                                          b_model_index;
+//            size_t                                                          b_node_index;
+//            double                                                          b_branch_length;
+//        };
         
         std::vector<BeagleOperation>                                        b_ops;
-        std::vector<BeagleTransitionProbabilityOp>                          b_tp_ops;
-//        std::vector<size_t>                                                 b_model_indices;
-//        std::vector<size_t>                                                 b_node_indices;
-//        std::vector<double>                                                 b_branch_lengths;
+//        std::vector<BeagleTransitionProbabilityOp>                          b_tp_ops;
+        std::vector<int>                                                    b_model_indices;
+        std::vector<int>                                                    b_node_indices;
+        std::vector<double>                                                 b_branch_lengths;
         int                                                                 beagle_instance;
 #       if defined( RB_BEAGLE_DEBUG )
 #       endif /* RB_BEAGLE_DEBUG */
