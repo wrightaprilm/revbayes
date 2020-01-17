@@ -3044,7 +3044,7 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::setMcmcMode(bool 
 
         std::stringstream ss;
 
-        if ( RbSettings::userSettings().getUseBeagle() == true && using_ambiguous_characters == false && num_site_mixtures == 1 && tau->getValue().isRooted() == false && num_site_rates == 1 )
+        if ( RbSettings::userSettings().getUseBeagle() == true && num_site_mixtures == 1 && tau->getValue().isRooted() == false && num_site_rates == 1 )
         {
             
             ss << std::endl;
@@ -3055,8 +3055,8 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::setMcmcMode(bool 
             int b_resource = (int) RbSettings::userSettings().getBeagleResource();
             
             int  b_tipCount            = (int) tau->getValue().getNumberOfTips();
-            int  b_partialsBufferCount = (int) num_nodes * 2;
-            int  b_compactBufferCount  = (int) tau->getValue().getNumberOfTips();
+            int  b_partialsBufferCount = (int) num_nodes * 2 + ( using_ambiguous_characters ? tau->getValue().getNumberOfTips() : 0);
+            int  b_compactBufferCount  = (int) tau->getValue().getNumberOfTips() - ( using_ambiguous_characters ? tau->getValue().getNumberOfTips() : 0);
             int  b_stateCount          = (int) num_chars;
             int  b_patternCount        = (int) pattern_block_size;
             int  b_eigenBufferCount    = (int) num_site_mixtures * 2;
@@ -3159,7 +3159,16 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::setMcmcMode(bool 
             }
 
             // set tip data in BEAGLE
-            int* b_inStates = new int[pattern_block_size];
+            int* b_inStates = NULL;
+            double* b_inPartials = NULL;
+            if ( using_ambiguous_characters == true )
+            {
+                b_inPartials = new double[pattern_block_size*num_chars];
+            }
+            else
+            {
+                b_inStates = new int[pattern_block_size];
+            }
             int  b_tipIndex;
 
             std::vector<TopologyNode*> nodes = tau->getValue().getNodes();
@@ -3167,26 +3176,55 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::setMcmcMode(bool 
             {
                 if ( (*it)->isTip() )
                 {
+                    // TODO: change this code here to allow for ambiguity codes
                     b_tipIndex = (int) (*it)->getIndex();
                     size_t data_tip_index = this->taxon_name_2_tip_index_map[ (*it)->getName() ];
                     const std::vector<bool> &gap_node = this->gap_matrix[data_tip_index];
                     const std::vector<unsigned long> &char_node = this->char_matrix[data_tip_index];
-
+                    const std::vector<RbBitSet> &amb_char_node = this->ambiguous_char_matrix[data_tip_index];
+                    
                     // iterate over all sites
                     for (size_t b_pattern = 0; b_pattern < this->pattern_block_size; ++b_pattern)
                     {
                         // is this site a gap?
                         if ( gap_node[b_pattern] ) 
                         {
-                            b_inStates[b_pattern] = (int) num_chars;
+                            if ( using_ambiguous_characters == true )
+                            {
+                                for (size_t c=0; c<num_chars; ++c)
+                                {
+                                    b_inPartials[b_pattern*num_chars+c] = 1.0;
+                                }
+                            }
+                            else
+                            {
+                                b_inStates[b_pattern] = (int) num_chars;
+                            }
                         }
                         else
                         {
-                            b_inStates[b_pattern] = (int) char_node[b_pattern];
+
+                            if ( using_ambiguous_characters == true )
+                            {
+                                for (size_t c=0; c<num_chars; ++c)
+                                {
+                                    b_inPartials[b_pattern*num_chars+c] = (amb_char_node[b_pattern].isSet(c) ? 1.0 : 0.0);
+                                }
+                            }
+                            else
+                            {
+                                b_inStates[b_pattern] = (int) char_node[b_pattern];
+                            }
                         }
                     }
-
-                    beagleSetTipStates(beagle_instance, b_tipIndex, b_inStates);
+                    if ( using_ambiguous_characters == true )
+                    {
+                        beagleSetTipPartials(beagle_instance, b_tipIndex, b_inPartials);
+                    }
+                    else
+                    {
+                        beagleSetTipStates(beagle_instance, b_tipIndex, b_inStates);
+                    }
 
 #                   if defined ( RB_BEAGLE_DEBUG_TIP_STATES )
                     ss << "BEAGLE setTipStates, tip = " << b_tipIndex << ", states = ";
@@ -3227,11 +3265,6 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::setMcmcMode(bool 
             beagleSetCategoryRates(beagle_instance,
                                    &b_inCategoryRates);
 
-        }
-        else if ( RbSettings::userSettings().getUseBeagle() == true && using_ambiguous_characters == true )
-        {
-            ss << "Failed to start BEAGLE instance, ambiguous characters not currently supported. Reverting to RevBayes likelihood calculator." << std::endl;
-            RbSettings::userSettings().setUseBeagle(false);
         }
         else if ( RbSettings::userSettings().getUseBeagle() == true && num_site_mixtures > 1 )
         {
