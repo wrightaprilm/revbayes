@@ -316,8 +316,21 @@ RevBayesCore::TypedDistribution< RevBayesCore::AbstractHomologousDiscreteCharact
     }
     else if ( dt == "AA" || dt == "Protein" )
     {
-        RevBayesCore::PhyloCTMCSiteHomogeneous<RevBayesCore::AminoAcidState> *dist = new RevBayesCore::PhyloCTMCSiteHomogeneous<RevBayesCore::AminoAcidState>(tau, 20, true, n, ambig, internal, gapmatch);
 
+        RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<RevBayesCore::AminoAcidState> *dist = NULL;
+#ifdef RB_BEAGLE
+        if ( RbSettings::userSettings().getUseBeagle() == true && use_site_matrices == false && site_ratesNode->getValue().size() <= 1 )
+        {
+            dist = new RevBayesCore::PhyloCTMCSiteHomogeneousBEAGLE<RevBayesCore::AminoAcidState>(tau, 20, true, n, ambig, internal, gapmatch);
+        }
+        else
+        {
+#endif
+        dist = new RevBayesCore::PhyloCTMCSiteHomogeneous<RevBayesCore::AminoAcidState>(tau, 20, true, n, ambig, internal, gapmatch);
+#ifdef RB_BEAGLE
+        }
+#endif
+        
         // set the root frequencies (by default these are NULL so this is OK)
         dist->setRootFrequencies( rf );
 

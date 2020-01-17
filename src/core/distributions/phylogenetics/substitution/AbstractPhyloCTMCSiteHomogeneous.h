@@ -3044,7 +3044,7 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::setMcmcMode(bool 
 
         std::stringstream ss;
 
-        if ( RbSettings::userSettings().getUseBeagle() == true && using_ambiguous_characters == false && num_site_mixtures == 1 && num_chars == 4 && tau->getValue().isRooted() == false && num_site_rates == 1 )
+        if ( RbSettings::userSettings().getUseBeagle() == true && using_ambiguous_characters == false && num_site_mixtures == 1 && tau->getValue().isRooted() == false && num_site_rates == 1 )
         {
             
             ss << std::endl;
@@ -3236,11 +3236,6 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::setMcmcMode(bool 
         else if ( RbSettings::userSettings().getUseBeagle() == true && num_site_mixtures > 1 )
         {
             ss << "Failed to start BEAGLE instance, multiple site mixtures not currently supported. Reverting to RevBayes likelihood calculator." << std::endl;
-            RbSettings::userSettings().setUseBeagle(false);
-        }
-        else if ( RbSettings::userSettings().getUseBeagle() == true && num_chars != 4 )
-        {
-            ss << "Failed to start BEAGLE instance, non-nucleotide models not currently supported. Reverting to RevBayes likelihood calculator." << std::endl;
             RbSettings::userSettings().setUseBeagle(false);
         }
         else if ( RbSettings::userSettings().getUseBeagle() == true && tau->getValue().isRooted() == true )
