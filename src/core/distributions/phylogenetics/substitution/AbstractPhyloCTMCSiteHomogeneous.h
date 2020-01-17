@@ -4189,7 +4189,7 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::touchSpecializati
         for ( size_t i=0; i<my_eigen_vectors.getNumberOfRows(); ++i )
         {
 	  //std::copy(my_eigen_vectors[i].begin(), my_eigen_vectors[i].end(), tmp_flat_eigen_vectors);
-            memcpy(tmp_flat_eigen_vectors, &my_eigen_vectors[i][0], offset);
+	    memcpy(tmp_flat_eigen_vectors, &my_eigen_vectors[i][0], offset*sizeof(double));
             tmp_flat_eigen_vectors += offset;
         }
         
@@ -4199,7 +4199,7 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::touchSpecializati
         for ( size_t i=0; i<my_inv_eigen_vectors.getNumberOfRows(); ++i )
         {
 	  //std::copy(my_inv_eigen_vectors[i].begin(), my_inv_eigen_vectors[i].end(), tmp_flat_inv_eigen_vectors);
-            memcpy(tmp_flat_inv_eigen_vectors, &my_inv_eigen_vectors[i][0], offset);
+            memcpy(tmp_flat_inv_eigen_vectors, &my_inv_eigen_vectors[i][0], offset*sizeof(double));
             tmp_flat_inv_eigen_vectors += offset;
         }
         
