@@ -4180,18 +4180,22 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::touchSpecializati
         
         double *flat_eigen_vectors = new double[ my_eigen_vectors.getNumberOfRows() * my_eigen_vectors.getNumberOfColumns() ];
         double *tmp_flat_eigen_vectors = flat_eigen_vectors;
+	size_t  offset = my_eigen_vectors.getNumberOfColumns();
         for ( size_t i=0; i<my_eigen_vectors.getNumberOfRows(); ++i )
         {
-            std::copy(my_eigen_vectors[i].begin(), my_eigen_vectors[i].end(), tmp_flat_eigen_vectors);
-            tmp_flat_eigen_vectors += my_eigen_vectors.getNumberOfColumns();
+	  //std::copy(my_eigen_vectors[i].begin(), my_eigen_vectors[i].end(), tmp_flat_eigen_vectors);
+	    memcpy(tmp_flat_eigen_vectors, &my_eigen_vectors[i][0], offset*sizeof(double));
+            tmp_flat_eigen_vectors += offset;
         }
         
         double *flat_inv_eigen_vectors = new double[ my_inv_eigen_vectors.getNumberOfRows() * my_inv_eigen_vectors.getNumberOfColumns() ];
         double *tmp_flat_inv_eigen_vectors = flat_inv_eigen_vectors;
+	offset = my_inv_eigen_vectors.getNumberOfColumns();
         for ( size_t i=0; i<my_inv_eigen_vectors.getNumberOfRows(); ++i )
         {
-            std::copy(my_inv_eigen_vectors[i].begin(), my_inv_eigen_vectors[i].end(), tmp_flat_inv_eigen_vectors);
-            tmp_flat_inv_eigen_vectors += my_inv_eigen_vectors.getNumberOfColumns();
+	  //std::copy(my_inv_eigen_vectors[i].begin(), my_inv_eigen_vectors[i].end(), tmp_flat_inv_eigen_vectors);
+            memcpy(tmp_flat_inv_eigen_vectors, &my_inv_eigen_vectors[i][0], offset*sizeof(double));
+            tmp_flat_inv_eigen_vectors += offset;
         }
         
         // TODO: Perhaps we only want to set the eigen decomposition when we start to evaluate the likelihoods instead of for every touch call.
