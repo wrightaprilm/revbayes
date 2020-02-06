@@ -3052,7 +3052,11 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::setMcmcMode(bool 
             ss << " for parallel likelihood evaluation (https://beagle-dev.github.io/)";
             ss << std::endl;
 
-            int b_resource = (int) RbSettings::userSettings().getBeagleResource();
+            int  b_resource = (int) RbSettings::userSettings().getBeagleResource();
+            bool b_use_cpu_threading = (RbSettings::userSettings().getBeagleMaxCPUThreads() != 1 ? 
+                                        true : false);
+            bool b_use_scaling = (RbSettings::userSettings().getBeagleScalingMode() != "none" ? 
+                                        true : false);
             
             int  b_tipCount            = (int) tau->getValue().getNumberOfTips();
             int  b_partialsBufferCount = (int) num_nodes * 2 + ( using_ambiguous_characters ? tau->getValue().getNumberOfTips() : 0);
@@ -3062,10 +3066,15 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::setMcmcMode(bool 
             int  b_eigenBufferCount    = (int) num_site_mixtures * 2;
             int  b_matrixBufferCount   = (int) num_nodes * 2;
             int  b_categoryCount       = (int) num_site_rates;
-            int  b_scaleBufferCount    =       0;
+            int  b_scaleBufferCount    = (int) (b_use_scaling ? 
+                                                (num_nodes * 2) : 0);
             int* b_resourceList        =       &b_resource;
             int  b_resourceCount       =       1;
-            long b_preferenceFlags     =       BEAGLE_FLAG_PRECISION_DOUBLE | BEAGLE_FLAG_THREADING_CPP;
+            long b_preferenceFlags     =      (RbSettings::userSettings().getBeagleUseDoublePrecision() ? 
+                                               BEAGLE_FLAG_PRECISION_DOUBLE :
+                                               BEAGLE_FLAG_PRECISION_SINGLE)
+                                            | (b_use_cpu_threading ? 
+                                               BEAGLE_FLAG_THREADING_CPP : 0);
             long b_requirementFlags    =       0;
 
             BeagleInstanceDetails b_return_info;
@@ -3156,115 +3165,120 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::setMcmcMode(bool 
                 ss << "\t" << "Flags:";
                 ss << BeagleUtilities::printBeagleFlags(b_return_info.flags);
                 ss << std::endl;
-            }
 
-            // set tip data in BEAGLE
-            int* b_inStates = NULL;
-            double* b_inPartials = NULL;
-            if ( using_ambiguous_characters == true )
-            {
-                b_inPartials = new double[pattern_block_size*num_chars];
-            }
-            else
-            {
-                b_inStates = new int[pattern_block_size];
-            }
-            int  b_tipIndex;
+                if (b_use_cpu_threading) {
+                    beagleSetCPUThreadCount(beagle_instance,
+                                            RbSettings::userSettings().getBeagleMaxCPUThreads());
+                }
 
-            std::vector<TopologyNode*> nodes = tau->getValue().getNodes();
-            for (std::vector<TopologyNode*>::iterator it = nodes.begin(); it != nodes.end(); ++it)
-            {
-                if ( (*it)->isTip() )
+                // set tip data in BEAGLE
+                int* b_inStates = NULL;
+                double* b_inPartials = NULL;
+                if ( using_ambiguous_characters == true )
                 {
-                    // TODO: change this code here to allow for ambiguity codes
-                    b_tipIndex = (int) (*it)->getIndex();
-                    size_t data_tip_index = this->taxon_name_2_tip_index_map[ (*it)->getName() ];
-                    const std::vector<bool> &gap_node = this->gap_matrix[data_tip_index];
-                    const std::vector<unsigned long> &char_node = this->char_matrix[data_tip_index];
-                    const std::vector<RbBitSet> &amb_char_node = this->ambiguous_char_matrix[data_tip_index];
-                    
-                    // iterate over all sites
-                    for (size_t b_pattern = 0; b_pattern < this->pattern_block_size; ++b_pattern)
+                    b_inPartials = new double[pattern_block_size*num_chars];
+                }
+                else
+                {
+                    b_inStates = new int[pattern_block_size];
+                }
+                int  b_tipIndex;
+
+                std::vector<TopologyNode*> nodes = tau->getValue().getNodes();
+                for (std::vector<TopologyNode*>::iterator it = nodes.begin(); it != nodes.end(); ++it)
+                {
+                    if ( (*it)->isTip() )
                     {
-                        // is this site a gap?
-                        if ( gap_node[b_pattern] ) 
+                        // TODO: change this code here to allow for ambiguity codes
+                        b_tipIndex = (int) (*it)->getIndex();
+                        size_t data_tip_index = this->taxon_name_2_tip_index_map[ (*it)->getName() ];
+                        const std::vector<bool> &gap_node = this->gap_matrix[data_tip_index];
+                        const std::vector<unsigned long> &char_node = this->char_matrix[data_tip_index];
+                        const std::vector<RbBitSet> &amb_char_node = this->ambiguous_char_matrix[data_tip_index];
+                        
+                        // iterate over all sites
+                        for (size_t b_pattern = 0; b_pattern < this->pattern_block_size; ++b_pattern)
                         {
-                            if ( using_ambiguous_characters == true )
+                            // is this site a gap?
+                            if ( gap_node[b_pattern] ) 
                             {
-                                for (size_t c=0; c<num_chars; ++c)
+                                if ( using_ambiguous_characters == true )
                                 {
-                                    b_inPartials[b_pattern*num_chars+c] = 1.0;
+                                    for (size_t c=0; c<num_chars; ++c)
+                                    {
+                                        b_inPartials[b_pattern*num_chars+c] = 1.0;
+                                    }
+                                }
+                                else
+                                {
+                                    b_inStates[b_pattern] = (int) num_chars;
                                 }
                             }
                             else
                             {
-                                b_inStates[b_pattern] = (int) num_chars;
+
+                                if ( using_ambiguous_characters == true )
+                                {
+                                    for (size_t c=0; c<num_chars; ++c)
+                                    {
+                                        b_inPartials[b_pattern*num_chars+c] = (amb_char_node[b_pattern].isSet(c) ? 1.0 : 0.0);
+                                    }
+                                }
+                                else
+                                {
+                                    b_inStates[b_pattern] = (int) char_node[b_pattern];
+                                }
                             }
+                        }
+                        if ( using_ambiguous_characters == true )
+                        {
+                            beagleSetTipPartials(beagle_instance, b_tipIndex, b_inPartials);
                         }
                         else
                         {
-
-                            if ( using_ambiguous_characters == true )
-                            {
-                                for (size_t c=0; c<num_chars; ++c)
-                                {
-                                    b_inPartials[b_pattern*num_chars+c] = (amb_char_node[b_pattern].isSet(c) ? 1.0 : 0.0);
-                                }
-                            }
-                            else
-                            {
-                                b_inStates[b_pattern] = (int) char_node[b_pattern];
-                            }
+                            beagleSetTipStates(beagle_instance, b_tipIndex, b_inStates);
                         }
-                    }
-                    if ( using_ambiguous_characters == true )
-                    {
-                        beagleSetTipPartials(beagle_instance, b_tipIndex, b_inPartials);
-                    }
-                    else
-                    {
-                        beagleSetTipStates(beagle_instance, b_tipIndex, b_inStates);
-                    }
 
-#                   if defined ( RB_BEAGLE_DEBUG_TIP_STATES )
-                    ss << "BEAGLE setTipStates, tip = " << b_tipIndex << ", states = ";
-                    ss << std::endl;
-                    for (size_t b_pattern = 0; b_pattern < this->pattern_block_size; ++b_pattern)
-                    {
-                        ss << b_inStates[b_pattern];
-                    }
-                    ss << std::endl;
-#                   endif /* RB_BEAGLE_DEBUG_TIP_STATES */
+    #                   if defined ( RB_BEAGLE_DEBUG_TIP_STATES )
+                        ss << "BEAGLE setTipStates, tip = " << b_tipIndex << ", states = ";
+                        ss << std::endl;
+                        for (size_t b_pattern = 0; b_pattern < this->pattern_block_size; ++b_pattern)
+                        {
+                            ss << b_inStates[b_pattern];
+                        }
+                        ss << std::endl;
+    #                   endif /* RB_BEAGLE_DEBUG_TIP_STATES */
 
 
+                    }
                 }
+
+                delete[] b_inStates;
+
+                double* b_inPatternWeights = new double[pattern_block_size];
+
+                for (size_t b_pattern = 0; b_pattern < this->pattern_block_size; ++b_pattern)
+                {
+                    b_inPatternWeights[b_pattern] = (double) pattern_counts[b_pattern];
+                }
+
+                beagleSetPatternWeights(beagle_instance,
+                                        b_inPatternWeights);
+
+                delete[] b_inPatternWeights;
+
+                // site rate categories not yet supported
+                int    b_categoryWeightsIndex = 0;
+                double b_inCategoryWeights    = 1.0; 
+                beagleSetCategoryWeights(beagle_instance,
+                                         b_categoryWeightsIndex,
+                                         &b_inCategoryWeights);
+
+                double b_inCategoryRates     = 1.0; 
+                beagleSetCategoryRates(beagle_instance,
+                                       &b_inCategoryRates);
+
             }
-
-            delete[] b_inStates;
-
-            double* b_inPatternWeights = new double[pattern_block_size];
-
-            for (size_t b_pattern = 0; b_pattern < this->pattern_block_size; ++b_pattern)
-            {
-                b_inPatternWeights[b_pattern] = (double) pattern_counts[b_pattern];
-            }
-
-            beagleSetPatternWeights(beagle_instance,
-                                    b_inPatternWeights);
-
-            delete[] b_inPatternWeights;
-
-            // site rate categories not yet supported
-            int    b_categoryWeightsIndex = 0;
-            double b_inCategoryWeights    = 1.0; 
-            beagleSetCategoryWeights(beagle_instance,
-                                     b_categoryWeightsIndex,
-                                     &b_inCategoryWeights);
-
-            double b_inCategoryRates     = 1.0; 
-            beagleSetCategoryRates(beagle_instance,
-                                   &b_inCategoryRates);
-
         }
         else if ( RbSettings::userSettings().getUseBeagle() == true && num_site_mixtures > 1 )
         {
