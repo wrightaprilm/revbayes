@@ -22,6 +22,7 @@ using namespace RevBayesCore;
 CharacterHistoryAugmentedProposal::CharacterHistoryAugmentedProposal( StochasticNode<Tree> *n ) : Proposal(),
     variable( n )
 {
+    std::cout << "Here I am in the core!" << std::endl;
     // tell the base class to add the node
     addNode( variable );
     

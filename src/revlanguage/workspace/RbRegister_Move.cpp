@@ -183,6 +183,7 @@
 #include "Move_EventTimeBeta.h"
 #include "Move_EventTimeSlide.h"
 #include "Move_GibbsDrawCharacterHistory.h"
+#include "Move_CharacterHistoryAugmented.h"
 
 #include "Move_MultiValueEventBirthDeath.h"
 #include "Move_MultiValueEventScale.h"
@@ -386,6 +387,7 @@ void RevLanguage::Workspace::initializeMoveGlobalWorkspace(void)
         addType( new Move_EventTimeSlide()                               );
         addType( new Move_BirthDeathFromAgeEvent()                       );
         addType( new Move_GibbsDrawCharacterHistory()                    );
+        addType( new Move_CharacterHistoryAugmented()                    );
 
         /* Tree proposals (in folder "datatypes/inference/moves/tree") */
         addType( new Move_AddRemoveTip()                     );

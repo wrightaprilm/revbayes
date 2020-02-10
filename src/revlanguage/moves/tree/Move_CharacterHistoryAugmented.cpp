@@ -31,7 +31,7 @@ using namespace RevLanguage;
  */
 Move_CharacterHistoryAugmented::Move_CharacterHistoryAugmented() : Move()
 {
-    
+    std::cout << "Here I am!" << std::endl;
 }
 
 
@@ -108,7 +108,7 @@ const TypeSpec& Move_CharacterHistoryAugmented::getClassTypeSpec(void)
 std::string Move_CharacterHistoryAugmented::getMoveName( void ) const
 {
     // create a constructor function name variable that is the same for all instance of this class
-    std::string c_name = "GibbsDrawCharacterHistory";
+    std::string c_name = "CharacterHistoryAugmented";
     
     return c_name;
 }
