@@ -15,7 +15,7 @@ template <class variableType> class StochasticNode;
         
     public:
         
-        CharacterHistoryAugmentedProposal(StochasticNode<Tree> *n);                                                                              //!<  constructor
+        CharacterHistoryAugmentedProposal(StochasticNode<AbstractHomologousDiscreteCharacterData> *n);                                                                              //!<  constructor
         void                                            cleanProposal(void);                                                                //!< Clean up proposal
         CharacterHistoryAugmentedProposal*              clone(void) const;                                                                  //!< Clone object
         double                                          doProposal(void);                                                                   //!< Perform proposal
