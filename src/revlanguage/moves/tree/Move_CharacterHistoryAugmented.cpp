@@ -18,7 +18,7 @@
 #include "StochasticNode.h"
 
 namespace RevBayesCore { class Proposal; }
-namespace RevBayesCore { class Tree; }
+namespace RevBayesCore { class AbstractHomologousDiscreteCharacterData; }
 namespace RevBayesCore { template <class valueType> class TypedDagNode; }
 
 
@@ -62,8 +62,8 @@ void Move_CharacterHistoryAugmented::constructInternalObject( void )
     delete value;
     
     double w = static_cast<const RealPos &>( weight->getRevObject() ).getValue();
-    RevBayesCore::TypedDagNode<RevBayesCore::Tree>* tmp = static_cast<const TimeTree &>( tree->getRevObject() ).getDagNode();
-    RevBayesCore::StochasticNode<RevBayesCore::Tree> *n = static_cast<RevBayesCore::StochasticNode<RevBayesCore::Tree> *>( tmp );
+//    RevBayesCore::TypedDagNode<RevBayesCore::Tree>* tmp = static_cast<const TimeTree &>( tree->getRevObject() ).getDagNode();
+    RevBayesCore::StochasticNode<RevBayesCore::AbstractHomologousDiscreteCharacterData> *n = static_cast<RevBayesCore::StochasticNode<RevBayesCore::AbstractHomologousDiscreteCharacterData> *>( tmp );
 
     RevBayesCore::Proposal *p = new RevBayesCore::CharacterHistoryAugmentedProposal(n);
     value = new RevBayesCore::MetropolisHastingsMove(p,w);
@@ -130,8 +130,8 @@ const MemberRules& Move_CharacterHistoryAugmented::getParameterRules(void) const
     
     if ( !rules_set )
     {
-        memberRules.push_back( new ArgumentRule( "tree", TimeTree::getClassTypeSpec(), "The time-tree variable on which this move operates.", ArgumentRule::BY_REFERENCE, ArgumentRule::STOCHASTIC ) );
-        
+        memberRules.push_back( new ArgumentRule("ctmc"           , AbstractHomologousDiscreteCharacterData::getClassTypeSpec(), "The continuous-time Markov process to monitor.", ArgumentRule::BY_REFERENCE, ArgumentRule::ANY, NULL ) );
+
         /* Inherit weight from Move, put it after variable */
         const MemberRules& inheritedRules = Move::getParameterRules();
         memberRules.insert( memberRules.end(), inheritedRules.begin(), inheritedRules.end() );

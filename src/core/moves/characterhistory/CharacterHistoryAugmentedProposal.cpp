@@ -5,8 +5,8 @@
 
 #include "RbException.h"
 #include "StateDependentSpeciationExtinctionProcess.h"
-#include "AbstractHomologousDiscreteCharacterData.h"
 #include "Tree.h"
+#include "AbstractHomologousDiscreteCharacterData.h"
 #include "Cloneable.h"
 #include "StochasticNode.h"
 #include "TypedDistribution.h"
@@ -20,18 +20,32 @@ using namespace RevBayesCore;
  *
  * Here we simply allocate and initialize the Proposal object.
  */
-CharacterHistoryAugmentedProposal::CharacterHistoryAugmentedProposal( StochasticNode<AbstractHomologousDiscreteCharacterData> *n ) : Proposal(),
-    variable( n )
+CharacterHistoryAugmentedProposal::CharacterHistoryAugmentedProposal( StochasticNode<AbstractHomologousDiscreteCharacterData> *n ) :
+        Proposal(), variable( n )
 {
     std::cout << "Here I am in the core!" << std::endl;
     // tell the base class to add the node
     addNode( variable );
     
-    distribution = dynamic_cast< StateDependentSpeciationExtinctionProcess* >( &variable->getDistribution() );
-    if ( distribution == NULL )
+//    distribution = dynamic_cast< StateDependentSpeciationExtinctionProcess* >( &variable->getDistribution() );
+//    if ( distribution == NULL )
+//    {
+//        throw RbException("The CharacterHistoryAugmentedProposal is currently only implemented for CDBDP distributions.");
+//    }
+    RevBayesCore::TypedDagNode<RevBayesCore::AbstractHomologousDiscreteCharacterData>* ctmc_tdn = NULL;
+    RevBayesCore::StochasticNode<RevBayesCore::AbstractHomologousDiscreteCharacterData>* ctmc_sn = NULL;
+
+    if ( static_cast<const RevLanguage::AbstractHomologousDiscreteCharacterData&>( ctmc->getRevObject() ).isModelObject() )
     {
-        throw RbException("The CharacterHistoryAugmentedProposal is currently only implemented for CDBDP distributions.");
+        std::cout << "Got to the if statement" << std::endl;
+        ctmc_tdn = static_cast<const RevLanguage::AbstractHomologousDiscreteCharacterData&>( ctmc->getRevObject() ).getDagNode();
+        ctmc_sn  = static_cast<RevBayesCore::StochasticNode<RevBayesCore::AbstractHomologousDiscreteCharacterData>* >(ctmc_tdn);
     }
+    else
+    {
+        throw RbException("mnStochasticCharacterMap requires either a CTMC or a character-dependent birth death process (CDBDP).");
+    }
+
 }
 
 
@@ -109,17 +123,17 @@ void CharacterHistoryAugmentedProposal::undoProposal( void )
  * \param[in]     oldN     The old variable that needs to be replaced.
  * \param[in]     newN     The new RevVariable.
  */
-void CharacterHistoryAugmentedProposal::swapNodeInternal(DagNode *oldN, DagNode *newN)
-{
-    
-    variable = static_cast< StochasticNode<Tree>* >(newN) ;
-    
-    distribution = dynamic_cast< StateDependentSpeciationExtinctionProcess* >( &variable->getDistribution() );
-    if ( distribution == NULL )
-    {
-        throw RbException("The CharacterHistoryAugmentedProposal is currently only implemented for CDBDP distributions.");
-    }
-}
+//void CharacterHistoryAugmentedProposal::swapNodeInternal(DagNode *oldN, DagNode *newN)
+//{
+//
+//    variable = static_cast< StochasticNode<Tree>* >(newN) ;
+//
+//    distribution = dynamic_cast< StateDependentSpeciationExtinctionProcess* >( &variable->getDistribution() );
+//    if ( distribution == NULL )
+//    {
+//        throw RbException("The CharacterHistoryAugmentedProposal is currently only implemented for CDBDP distributions.");
+//    }
+//}
 
 
 void CharacterHistoryAugmentedProposal::setProposalTuningParameter(double tp)
