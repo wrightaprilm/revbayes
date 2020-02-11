@@ -39,19 +39,6 @@ template <class variableType> class StochasticNode;
         void                                            swapNodeInternal(DagNode *oldN, DagNode *newN);                                     //!< Swap the DAG nodes on which the Proposal is working on
         
         StateDependentSpeciationExtinctionProcess*      distribution;
-        void                                            setConstParameter(const std::string& name, const RevPtr<const RevVariable> &var);       //!< Set member variable
-
-        std::vector<RevPtr<const RevVariable> >         vars;
-        RevPtr<const RevVariable>                       filename;
-        RevPtr<const RevVariable>                       printgen;
-        RevPtr<const RevVariable>                       version;
-        RevPtr<const RevVariable>                       cdbdp;
-        RevPtr<const RevVariable>                       ctmc;
-        RevPtr<const RevVariable>                       separator;
-        RevPtr<const RevVariable>                       append;
-        RevPtr<const RevVariable>                       include_simmap;
-        RevPtr<const RevVariable>                       use_simmap_default;
-        RevPtr<const RevVariable>                       index;
 
     private:
         
