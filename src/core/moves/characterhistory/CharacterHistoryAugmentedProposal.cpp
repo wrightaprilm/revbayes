@@ -27,25 +27,11 @@ CharacterHistoryAugmentedProposal::CharacterHistoryAugmentedProposal( Stochastic
     // tell the base class to add the node
     addNode( variable );
     
-//    distribution = dynamic_cast< StateDependentSpeciationExtinctionProcess* >( &variable->getDistribution() );
+    distribution = dynamic_cast< StateDependentSpeciationExtinctionProcess* >( &variable->getDistribution() );
 //    if ( distribution == NULL )
 //    {
 //        throw RbException("The CharacterHistoryAugmentedProposal is currently only implemented for CDBDP distributions.");
 //    }
-    RevBayesCore::TypedDagNode<RevBayesCore::AbstractHomologousDiscreteCharacterData>* ctmc_tdn = NULL;
-    RevBayesCore::StochasticNode<RevBayesCore::AbstractHomologousDiscreteCharacterData>* ctmc_sn = NULL;
-
-    if ( static_cast<const RevLanguage::AbstractHomologousDiscreteCharacterData&>( ctmc->getRevObject() ).isModelObject() )
-    {
-        std::cout << "Got to the if statement" << std::endl;
-        ctmc_tdn = static_cast<const RevLanguage::AbstractHomologousDiscreteCharacterData&>( ctmc->getRevObject() ).getDagNode();
-        ctmc_sn  = static_cast<RevBayesCore::StochasticNode<RevBayesCore::AbstractHomologousDiscreteCharacterData>* >(ctmc_tdn);
-    }
-    else
-    {
-        throw RbException("mnStochasticCharacterMap requires either a CTMC or a character-dependent birth death process (CDBDP).");
-    }
-
 }
 
 
@@ -61,33 +47,33 @@ void CharacterHistoryAugmentedProposal::cleanProposal( void )
 }
 
 
-CharacterHistoryAugmentedProposal* CharacterHistoryAugmentedProposal::clone( void ) const
-{
-
-        return new CharacterHistoryAugmentedProposal( *this );
-}
+//CharacterHistoryAugmentedProposal* CharacterHistoryAugmentedProposal::clone( void ) const
+//{
+//
+//        return new CharacterHistoryAugmentedProposal( *this );
+//}
 
 /**
  * Perform the proposal.
  *
  * \return The hastings ratio.
  */
-double CharacterHistoryAugmentedProposal::doProposal( void )
-{
+//double CharacterHistoryAugmentedProposal::doProposal( void )
+//{
+//
+//    size_t num_nodes = distribution->getValue().getNumberOfNodes();
+//    std::vector<std::string> character_histories(num_nodes);
+//    distribution->drawStochasticCharacterMap(character_histories);
+//
+//    return 0.0;
+//}
 
-    size_t num_nodes = distribution->getValue().getNumberOfNodes();
-    std::vector<std::string> character_histories(num_nodes);
-    distribution->drawStochasticCharacterMap(character_histories);
-    
-    return 0.0;
-}
 
-
-const std::string& CharacterHistoryAugmentedProposal::getProposalName( void ) const
-{
-    static std::string name = "CharacterHistoryAugmentedProposal";
-    return name;
-}
+//const std::string& CharacterHistoryAugmentedProposal::getProposalName( void ) const
+//{
+//    static std::string name = "CharacterHistoryAugmentedProposal";
+//    return name;
+//}
 
 
 double CharacterHistoryAugmentedProposal::getProposalTuningParameter( void ) const
@@ -103,11 +89,11 @@ void CharacterHistoryAugmentedProposal::prepareProposal( void )
 }
 
 
-void CharacterHistoryAugmentedProposal::printParameterSummary(std::ostream &o, bool name_only) const
-{
-    
-    
-}
+//void CharacterHistoryAugmentedProposal::printParameterSummary(std::ostream &o, bool name_only) const
+//{
+//
+//
+//}
 
 
 void CharacterHistoryAugmentedProposal::undoProposal( void )

@@ -5,6 +5,7 @@
 #include "ArgumentRule.h"
 #include "ArgumentRules.h"
 #include "CharacterHistoryAugmentedProposal.h"
+#include "AbstractHomologousDiscreteCharacterData.h"
 #include "MetropolisHastingsMove.h"
 #include "Move_CharacterHistoryAugmented.h"
 #include "RealPos.h"
@@ -63,10 +64,23 @@ void Move_CharacterHistoryAugmented::constructInternalObject( void )
     
     double w = static_cast<const RealPos &>( weight->getRevObject() ).getValue();
 //    RevBayesCore::TypedDagNode<RevBayesCore::Tree>* tmp = static_cast<const TimeTree &>( tree->getRevObject() ).getDagNode();
-    RevBayesCore::StochasticNode<RevBayesCore::AbstractHomologousDiscreteCharacterData> *n = static_cast<RevBayesCore::StochasticNode<RevBayesCore::AbstractHomologousDiscreteCharacterData> *>( tmp );
+//    RevBayesCore::StochasticNode<RevBayesCore::AbstractHomologousDiscreteCharacterData> *n = static_cast<RevBayesCore::StochasticNode<RevBayesCore::AbstractHomologousDiscreteCharacterData> *>( tmp );
 
+    RevBayesCore::TypedDagNode<RevBayesCore::AbstractHomologousDiscreteCharacterData>* ctmc_tdn = NULL;
+    RevBayesCore::StochasticNode<RevBayesCore::AbstractHomologousDiscreteCharacterData>* ctmc_sn = NULL;
+
+    if ( static_cast<const RevLanguage::AbstractHomologousDiscreteCharacterData&>( ctmc->getRevObject() ).isModelObject() )
+    {
+        ctmc_tdn = static_cast<const RevLanguage::AbstractHomologousDiscreteCharacterData&>( ctmc->getRevObject() ).getDagNode();
+        ctmc_sn  = static_cast<RevBayesCore::StochasticNode<RevBayesCore::AbstractHomologousDiscreteCharacterData>* >(ctmc_tdn);
+    }
+    else
+    {
+        throw RbException("mnStochasticCharacterMap requires either a CTMC or a character-dependent birth death process (CDBDP).");
+    }
     RevBayesCore::Proposal *p = new RevBayesCore::CharacterHistoryAugmentedProposal(n);
     value = new RevBayesCore::MetropolisHastingsMove(p,w);
+
     
 }
 
