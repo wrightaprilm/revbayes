@@ -34,6 +34,9 @@ template <class variableType> class StochasticNode;
         
         StateDependentSpeciationExtinctionProcess*      distribution;
 
+        std::vector<RevPtr<const RevVariable> >         vars;
+        RevPtr<const RevVariable>                       ctmc;
+
     private:
         
         StochasticNode<AbstractHomologousDiscreteCharacterData>*                           variable;                                                                           //!< The variable the Proposal is working on
