@@ -11,7 +11,9 @@
 #include "TypedDistribution.h"
 
 namespace RevBayesCore { class DagNode; }
-
+namespace RevBayesCore { class AbstractHomologousDiscreteCharacterData; }
+namespace RevBayesCore { class Tree; }
+namespace RevBayesCore { template <class valueType> class TypedDagNode; }
 using namespace RevBayesCore;
 
 /**
