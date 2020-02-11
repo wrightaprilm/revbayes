@@ -5,15 +5,13 @@
 
 #include "RbException.h"
 #include "StateDependentSpeciationExtinctionProcess.h"
-#include "AbstractHomologousDiscreteCharacterData.h"
+#include "Tree.h"
 #include "Cloneable.h"
 #include "StochasticNode.h"
 #include "TypedDistribution.h"
 
 namespace RevBayesCore { class DagNode; }
-namespace RevBayesCore { class AbstractHomologousDiscreteCharacterData; }
-namespace RevBayesCore { class Tree; }
-namespace RevBayesCore { template <class valueType> class TypedDagNode; }
+
 using namespace RevBayesCore;
 
 /**
@@ -28,25 +26,11 @@ CharacterHistoryAugmentedProposal::CharacterHistoryAugmentedProposal( Stochastic
     // tell the base class to add the node
     addNode( variable );
     
-//    distribution = dynamic_cast< StateDependentSpeciationExtinctionProcess* >( &variable->getDistribution() );
-//    if ( distribution == NULL )
-//    {
-//        throw RbException("The CharacterHistoryAugmentedProposal is currently only implemented for CDBDP distributions.");
-//    }
-    RevBayesCore::TypedDagNode<RevBayesCore::AbstractHomologousDiscreteCharacterData>* ctmc_tdn = NULL;
-    RevBayesCore::StochasticNode<RevBayesCore::AbstractHomologousDiscreteCharacterData>* ctmc_sn = NULL;
-
-    if ( static_cast<const RevLanguage::AbstractHomologousDiscreteCharacterData&>( ctmc->getRevObject() ).isModelObject() )
+    distribution = dynamic_cast< StateDependentSpeciationExtinctionProcess* >( &variable->getDistribution() );
+    if ( distribution == NULL )
     {
-        std::cout << "I think it succeeded" << std::endl;
-        ctmc_tdn = static_cast<const RevLanguage::AbstractHomologousDiscreteCharacterData&>( ctmc->getRevObject() ).getDagNode();
-        ctmc_sn  = static_cast<RevBayesCore::StochasticNode<RevBayesCore::AbstractHomologousDiscreteCharacterData>* >(ctmc_tdn);
+        throw RbException("The CharacterHistoryAugmentedProposal is currently only implemented for CDBDP distributions.");
     }
-    else
-    {
-        throw RbException("mnCharacterHistoryAugmented requires a CTMC.");
-    }
-
 }
 
 
@@ -127,7 +111,7 @@ void CharacterHistoryAugmentedProposal::undoProposal( void )
 void CharacterHistoryAugmentedProposal::swapNodeInternal(DagNode *oldN, DagNode *newN)
 {
     
-    variable = static_cast< StochasticNode<AbstractHomologousDiscreteCharacterData>* >(newN) ;
+    variable = static_cast< StochasticNode<Tree>* >(newN) ;
     
     distribution = dynamic_cast< StateDependentSpeciationExtinctionProcess* >( &variable->getDistribution() );
     if ( distribution == NULL )
