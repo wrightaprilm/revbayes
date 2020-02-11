@@ -76,11 +76,11 @@ void Move_CharacterHistoryAugmented::constructInternalObject( void )
     }
     else
     {
-        throw RbException("mnStochasticCharacterMap requires either a CTMC or a character-dependent birth death process (CDBDP).");
+        throw RbException("mnStochasticCharacterMap requires a CTMC.");
     }
-    RevBayesCore::Proposal *p = new RevBayesCore::CharacterHistoryAugmentedProposal(n);
-    value = new RevBayesCore::MetropolisHastingsMove(p,w);
 
+    RevBayesCore::Proposal *p = new RevBayesCore::CharacterHistoryAugmentedProposal(ctmc_sn);
+    value = new RevBayesCore::MetropolisHastingsMove(p,w);
     
 }
 
