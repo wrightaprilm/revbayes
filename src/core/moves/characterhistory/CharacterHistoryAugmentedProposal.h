@@ -36,7 +36,7 @@ template <class variableType> class StochasticNode;
 
     private:
         
-        StochasticNode<Tree>*                           variable;                                                                           //!< The variable the Proposal is working on
+        StochasticNode<AbstractHomologousDiscreteCharacterData>*                           variable;                                                                           //!< The variable the Proposal is working on
         
     };
     
