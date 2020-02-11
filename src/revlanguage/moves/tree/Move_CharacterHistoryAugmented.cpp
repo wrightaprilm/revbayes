@@ -21,6 +21,7 @@
 namespace RevBayesCore { class Proposal; }
 namespace RevBayesCore { class AbstractHomologousDiscreteCharacterData; }
 namespace RevBayesCore { template <class valueType> class TypedDagNode; }
+namespace RevLanguage { class AbstractHomologousDiscreteCharacterData;}
 
 
 using namespace RevLanguage;
@@ -144,7 +145,7 @@ const MemberRules& Move_CharacterHistoryAugmented::getParameterRules(void) const
     
     if ( !rules_set )
     {
-        memberRules.push_back( new ArgumentRule("ctmc", RevBayesCore::AbstractHomologousDiscreteCharacterData::getClassTypeSpec(), "The continuous-time Markov process to monitor.", ArgumentRule::BY_REFERENCE, ArgumentRule::ANY, NULL ) );
+        memberRules.push_back( new ArgumentRule("ctmc", RevLanguage::AbstractHomologousDiscreteCharacterData::getClassTypeSpec(), "The continuous-time Markov process to monitor.", ArgumentRule::BY_REFERENCE, ArgumentRule::ANY, NULL ) );
 
         /* Inherit weight from Move, put it after variable */
         const MemberRules& inheritedRules = Move::getParameterRules();
