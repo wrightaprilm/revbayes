@@ -9,13 +9,14 @@ namespace RevBayesCore {
 class DagNode;
 class StateDependentSpeciationExtinctionProcess;
 class Tree;
+class AbstractHomologousDiscreteCharacterData;
 template <class variableType> class StochasticNode;
     
     class CharacterHistoryAugmentedProposal : public Proposal {
         
     public:
         
-        CharacterHistoryAugmentedProposal(StochasticNode<Tree> *n);                                                                              //!<  constructor
+        CharacterHistoryAugmentedProposal(StochasticNode<AbstractHomologousDiscreteCharacterData> *n);                                                                              //!<  constructor
         void                                            cleanProposal(void);                                                                //!< Clean up proposal
         CharacterHistoryAugmentedProposal*              clone(void) const;                                                                  //!< Clone object
         double                                          doProposal(void);                                                                   //!< Perform proposal
