@@ -47,33 +47,33 @@ void CharacterHistoryAugmentedProposal::cleanProposal( void )
 }
 
 
-//CharacterHistoryAugmentedProposal* CharacterHistoryAugmentedProposal::clone( void ) const
-//{
-//
-//        return new CharacterHistoryAugmentedProposal( *this );
-//}
+CharacterHistoryAugmentedProposal* CharacterHistoryAugmentedProposal::clone( void ) const
+{
+
+        return new CharacterHistoryAugmentedProposal( *this );
+}
 
 /**
  * Perform the proposal.
  *
  * \return The hastings ratio.
  */
-//double CharacterHistoryAugmentedProposal::doProposal( void )
-//{
-//
+double CharacterHistoryAugmentedProposal::doProposal( void )
+{
+
 //    size_t num_nodes = distribution->getValue().getNumberOfNodes();
 //    std::vector<std::string> character_histories(num_nodes);
 //    distribution->drawStochasticCharacterMap(character_histories);
-//
-//    return 0.0;
-//}
+
+    return 0.0;
+}
 
 
-//const std::string& CharacterHistoryAugmentedProposal::getProposalName( void ) const
-//{
-//    static std::string name = "CharacterHistoryAugmentedProposal";
-//    return name;
-//}
+const std::string& CharacterHistoryAugmentedProposal::getProposalName( void ) const
+{
+    static std::string name = "CharacterHistoryAugmentedProposal";
+    return name;
+}
 
 
 double CharacterHistoryAugmentedProposal::getProposalTuningParameter( void ) const
@@ -89,11 +89,11 @@ void CharacterHistoryAugmentedProposal::prepareProposal( void )
 }
 
 
-//void CharacterHistoryAugmentedProposal::printParameterSummary(std::ostream &o, bool name_only) const
-//{
-//
-//
-//}
+void CharacterHistoryAugmentedProposal::printParameterSummary(std::ostream &o, bool name_only) const
+{
+
+
+}
 
 
 void CharacterHistoryAugmentedProposal::undoProposal( void )
@@ -109,17 +109,17 @@ void CharacterHistoryAugmentedProposal::undoProposal( void )
  * \param[in]     oldN     The old variable that needs to be replaced.
  * \param[in]     newN     The new RevVariable.
  */
-//void CharacterHistoryAugmentedProposal::swapNodeInternal(DagNode *oldN, DagNode *newN)
-//{
-//
-//    variable = static_cast< StochasticNode<Tree>* >(newN) ;
-//
-//    distribution = dynamic_cast< StateDependentSpeciationExtinctionProcess* >( &variable->getDistribution() );
-//    if ( distribution == NULL )
-//    {
-//        throw RbException("The CharacterHistoryAugmentedProposal is currently only implemented for CDBDP distributions.");
-//    }
-//}
+void CharacterHistoryAugmentedProposal::swapNodeInternal(DagNode *oldN, DagNode *newN)
+{
+
+    variable = static_cast< StochasticNode<Tree>* >(newN) ;
+
+    distribution = dynamic_cast< StateDependentSpeciationExtinctionProcess* >( &variable->getDistribution() );
+    if ( distribution == NULL )
+    {
+        throw RbException("The CharacterHistoryAugmentedProposal is currently only implemented for CDBDP distributions.");
+    }
+}
 
 
 void CharacterHistoryAugmentedProposal::setProposalTuningParameter(double tp)
