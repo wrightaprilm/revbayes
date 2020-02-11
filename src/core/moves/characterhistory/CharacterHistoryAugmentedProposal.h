@@ -8,7 +8,7 @@
 namespace RevBayesCore {
 class DagNode;
 class StateDependentSpeciationExtinctionProcess;
-class Tree;
+class AbstractHomologousDiscreteCharacterData;
 template <class variableType> class StochasticNode;
     
     class CharacterHistoryAugmentedProposal : public Proposal {
