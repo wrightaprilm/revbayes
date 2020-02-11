@@ -32,7 +32,7 @@ using namespace RevLanguage;
  */
 Move_CharacterHistoryAugmented::Move_CharacterHistoryAugmented() : Move()
 {
-    std::cout << "Here I am!" << std::endl;
+    std::cout << "Here I am in Rl!" << std::endl;
 }
 
 
@@ -68,20 +68,27 @@ void Move_CharacterHistoryAugmented::constructInternalObject( void )
 
     RevBayesCore::TypedDagNode<RevBayesCore::AbstractHomologousDiscreteCharacterData>* ctmc_tdn = NULL;
     RevBayesCore::StochasticNode<RevBayesCore::AbstractHomologousDiscreteCharacterData>* ctmc_sn = NULL;
+    std::cout << "Did I make it to here?" << std::endl;
 
     if ( static_cast<const RevLanguage::AbstractHomologousDiscreteCharacterData&>( ctmc->getRevObject() ).isModelObject() )
     {
+        std::cout << "Did I make it to here-2?" << std::endl;
         ctmc_tdn = static_cast<const RevLanguage::AbstractHomologousDiscreteCharacterData&>( ctmc->getRevObject() ).getDagNode();
+        std::cout << "Did I make it to here-3?" << std::endl;
         ctmc_sn  = static_cast<RevBayesCore::StochasticNode<RevBayesCore::AbstractHomologousDiscreteCharacterData>* >(ctmc_tdn);
+        std::cout << "Did I make it to here-4?" << std::endl;
     }
     else
     {
         throw RbException("mnStochasticCharacterMap requires a CTMC.");
     }
 
+    std::cout << "Did I make it to here-5?" << std::endl;
     RevBayesCore::Proposal *p = new RevBayesCore::CharacterHistoryAugmentedProposal(ctmc_sn);
+    std::cout << "Did I make it to here-6?" << std::endl;
     value = new RevBayesCore::MetropolisHastingsMove(p,w);
     
+
 }
 
 
