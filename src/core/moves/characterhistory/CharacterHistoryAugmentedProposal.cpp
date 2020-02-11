@@ -36,10 +36,10 @@ CharacterHistoryAugmentedProposal::CharacterHistoryAugmentedProposal( Stochastic
     RevBayesCore::TypedDagNode<RevBayesCore::AbstractHomologousDiscreteCharacterData>* ctmc_tdn = NULL;
     RevBayesCore::StochasticNode<RevBayesCore::AbstractHomologousDiscreteCharacterData>* ctmc_sn = NULL;
 
-    if ( static_cast<const RevLanguage::AbstractHomologousDiscreteCharacterData&>( variable->getRevObject() ).isModelObject() )
+    if ( static_cast<const RevLanguage::AbstractHomologousDiscreteCharacterData&>( ctmc->getRevObject() ).isModelObject() )
     {
         std::cout << "I think it succeeded" << std::endl;
-        ctmc_tdn = static_cast<const RevLanguage::AbstractHomologousDiscreteCharacterData&>( variable->getRevObject() ).getDagNode();
+        ctmc_tdn = static_cast<const RevLanguage::AbstractHomologousDiscreteCharacterData&>( ctmc->getRevObject() ).getDagNode();
         ctmc_sn  = static_cast<RevBayesCore::StochasticNode<RevBayesCore::AbstractHomologousDiscreteCharacterData>* >(ctmc_tdn);
     }
     else
