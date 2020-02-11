@@ -5,7 +5,7 @@
 
 #include "RbException.h"
 #include "StateDependentSpeciationExtinctionProcess.h"
-#include "Tree.h"
+//#include "Tree.h"
 #include "AbstractHomologousDiscreteCharacterData.h"
 #include "Cloneable.h"
 #include "StochasticNode.h"
