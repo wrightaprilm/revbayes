@@ -5,7 +5,7 @@
 
 #include "RbException.h"
 #include "StateDependentSpeciationExtinctionProcess.h"
-#include "Tree.h"
+#include "AbstractHomologousDiscreteCharacterData.h"
 #include "Cloneable.h"
 #include "StochasticNode.h"
 #include "TypedDistribution.h"
@@ -125,7 +125,7 @@ void CharacterHistoryAugmentedProposal::undoProposal( void )
 void CharacterHistoryAugmentedProposal::swapNodeInternal(DagNode *oldN, DagNode *newN)
 {
     
-    variable = static_cast< StochasticNode<Tree>* >(newN) ;
+    variable = static_cast< StochasticNode<AbstractHomologousDiscreteCharacterData>* >(newN) ;
     
     distribution = dynamic_cast< StateDependentSpeciationExtinctionProcess* >( &variable->getDistribution() );
     if ( distribution == NULL )
