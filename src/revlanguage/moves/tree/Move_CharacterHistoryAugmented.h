@@ -28,6 +28,8 @@ namespace RevLanguage {
         
     protected:
         
+
+        // these are the input parameters for the class!!!
         void                                            setConstParameter(const std::string& name, const RevPtr<const RevVariable> &var);       //!< Set member variable
         
 //        RevPtr<const RevVariable>                       tree;

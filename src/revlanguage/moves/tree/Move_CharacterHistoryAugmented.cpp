@@ -185,9 +185,9 @@ void Move_CharacterHistoryAugmented::printValue(std::ostream &o) const
 {
     
     o << "GibbsDrawCharacterHistory(";
-    if (tree != NULL)
+    if (ctmc != NULL)
     {
-        o << tree->getName();
+        o << ctmc->getName();
     }
     else
     {
@@ -211,9 +211,9 @@ void Move_CharacterHistoryAugmented::printValue(std::ostream &o) const
 void Move_CharacterHistoryAugmented::setConstParameter(const std::string& name, const RevPtr<const RevVariable> &var)
 {
     
-    if ( name == "tree" )
+    if ( name == "ctmc" )
     {
-        tree = var;
+        ctmc = var;
     }
     else
     {
