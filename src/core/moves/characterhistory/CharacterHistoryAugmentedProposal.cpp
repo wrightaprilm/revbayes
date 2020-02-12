@@ -57,8 +57,13 @@ void CharacterHistoryAugmentedProposal::cleanProposal( void )
 }
 
 
+<<<<<<< HEAD
 
 CharacterHistoryAugmentedProposal* CharacterHistoryAugmentedProposal::clone( void ) const
+=======
+template<class characterType>
+CharacterHistoryAugmentedProposal<characterType>* CharacterHistoryAugmentedProposal<characterType>::clone( void ) const
+>>>>>>> branch 'DA_shiran' of https://github.com/revbayes/revbayes.git
 {
     return new CharacterHistoryAugmentedProposal( *this );
 }
