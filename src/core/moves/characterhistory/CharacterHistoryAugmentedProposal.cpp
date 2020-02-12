@@ -4,8 +4,8 @@
 #include <vector>
 
 #include "RbException.h"
-#include "StateDependentSpeciationExtinctionProcess.h"
-//#include "Tree.h"
+//#include "StateDependentSpeciationExtinctionProcess.h"
+#include "Tree.h"
 #include "AbstractHomologousDiscreteCharacterData.h"
 #include "Cloneable.h"
 #include "StochasticNode.h"
@@ -24,22 +24,19 @@ using namespace RevBayesCore;
  *
  * Here we simply allocate and initialize the Proposal object.
  */
-CharacterHistoryAugmentedProposal::CharacterHistoryAugmentedProposal( StochasticNode<AbstractHomologousDiscreteCharacterData> *n ) :
-        Proposal(), variable( n )
+template<class characterType>
+CharacterHistoryAugmentedProposal<characterType>::CharacterHistoryAugmentedProposal( StochasticNode<AbstractHomologousDiscreteCharacterData> *n ) :
+        Proposal(), ctmc( n )
 {
-    std::cout << "Here I am in the core!" << std::endl;
+    std::cout << "I am in the core 1" << std::endl;
     // tell the base class to add the node
-    addNode( variable );
+    addNode( ctmc );
     
-    AbstractPhyloCTMCSiteHomogeneous<characterType> *ctmc_dist = NULL;
     ctmc_dist = static_cast<AbstractPhyloCTMCSiteHomogeneous<characterType>* >( &ctmc->getDistribution() );
     tree = const_cast<TypedDagNode<Tree>* >( ctmc_dist->getTree() );
 
-    addVariable( tree );
-    addVariable( ctmc );
 
-
-    distribution = ctmc_dist
+//    distribution = dynamic_cast< StateDependentSpeciationExtinctionProcess* >( &ctmc->getDistribution() );
 //    if ( distribution == NULL )
 //    {
 //        throw RbException("The CharacterHistoryAugmentedProposal is currently only implemented for CDBDP distributions.");
@@ -72,9 +69,9 @@ CharacterHistoryAugmentedProposal* CharacterHistoryAugmentedProposal::clone( voi
 double CharacterHistoryAugmentedProposal::doProposal( void )
 {
 
-//    size_t num_nodes = distribution->getValue().getNumberOfNodes();
+//    size_t num_nodes = ctmc_dist->getValue().getNumberOfNodes();
 //    std::vector<std::string> character_histories(num_nodes);
-//    distribution->drawStochasticCharacterMap(character_histories);
+//    ctmc_dist->drawStochasticCharacterMap(character_histories);
 
     return 0.0;
 }
@@ -117,15 +114,15 @@ void CharacterHistoryAugmentedProposal::undoProposal( void )
 /**
  * Swap the current variable for a new one.
  *
- * \param[in]     oldN     The old variable that needs to be replaced.
+ * \param[in]     oldN     The old ctmc that needs to be replaced.
  * \param[in]     newN     The new RevVariable.
  */
 void CharacterHistoryAugmentedProposal::swapNodeInternal(DagNode *oldN, DagNode *newN)
 {
 
-    variable = static_cast< StochasticNode<AbstractHomologousDiscreteCharacterData>* >(newN) ;
+    ctmc = static_cast< StochasticNode<AbstractHomologousDiscreteCharacterData>* >(newN) ;
 
-    distribution = dynamic_cast< StateDependentSpeciationExtinctionProcess* >( &variable->getDistribution() );
+    ctmc_dist = dynamic_cast< StateDependentSpeciationExtinctionProcess* >( &variable->getDistribution() );
     if ( distribution == NULL )
     {
         throw RbException("The CharacterHistoryAugmentedProposal is currently only implemented for CDBDP distributions.");

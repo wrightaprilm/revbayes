@@ -9,6 +9,8 @@
 #include "RevObject.h"
 #include "RevPtr.h"
 #include "RevVariable.h"
+#include "TypedDagNode.h"
+#include "AbstractPhyloCTMCSiteHomogeneous.h"
 
 namespace RevBayesCore {
 class DagNode;
@@ -17,7 +19,8 @@ class AbstractHomologousDiscreteCharacterData;
 class Tree;
 template <class variableType> class StochasticNode;
     
-    class CharacterHistoryAugmentedProposal : public Proposal {
+template<class characterType>
+class CharacterHistoryAugmentedProposal : public Proposal {
         
     public:
         
@@ -38,11 +41,13 @@ template <class variableType> class StochasticNode;
 
         void                                            swapNodeInternal(DagNode *oldN, DagNode *newN);                                     //!< Swap the DAG nodes on which the Proposal is working on
         
-        StateDependentSpeciationExtinctionProcess*      distribution;
+        AbstractPhyloCTMCSiteHomogeneous<characterType>*      ctmc_dist;
 
     private:
         
-        StochasticNode<AbstractHomologousDiscreteCharacterData>*                           variable;                                                                           //!< The variable the Proposal is working on
+        StochasticNode<AbstractHomologousDiscreteCharacterData>*     ctmc;                                            //!< The variable the Proposal is working on
+        TypedDagNode<Tree>*                             tree;
+
         
     };
     
