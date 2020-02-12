@@ -77,7 +77,7 @@ void Move_CharacterHistoryAugmented::constructInternalObject( void )
         throw RbException("mvCharacterHistoryAugmented() requires a CTMC.");
     }
 
-    RevBayesCore::Proposal *p = new RevBayesCore::CharacterHistoryAugmentedProposal<RevBayesCore::StandardState>(ctmc_sn);
+    RevBayesCore::Proposal *p = new RevBayesCore::CharacterHistoryAugmentedProposal(ctmc_sn);
     value = new RevBayesCore::MetropolisHastingsMove(p,w);
     
 }
