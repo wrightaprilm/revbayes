@@ -27,7 +27,15 @@ CharacterHistoryAugmentedProposal::CharacterHistoryAugmentedProposal( Stochastic
     // tell the base class to add the node
     addNode( variable );
     
-    distribution = dynamic_cast< StateDependentSpeciationExtinctionProcess* >( &variable->getDistribution() );
+    AbstractPhyloCTMCSiteHomogeneous<characterType> *ctmc_dist = NULL;
+    ctmc_dist = static_cast<AbstractPhyloCTMCSiteHomogeneous<characterType>* >( &ctmc->getDistribution() );
+    tree = const_cast<TypedDagNode<Tree>* >( ctmc_dist->getTree() );
+
+    addVariable( tree );
+    addVariable( ctmc );
+
+
+    distribution = ctmc_dist
 //    if ( distribution == NULL )
 //    {
 //        throw RbException("The CharacterHistoryAugmentedProposal is currently only implemented for CDBDP distributions.");
@@ -49,8 +57,7 @@ void CharacterHistoryAugmentedProposal::cleanProposal( void )
 
 CharacterHistoryAugmentedProposal* CharacterHistoryAugmentedProposal::clone( void ) const
 {
-
-        return new CharacterHistoryAugmentedProposal( *this );
+    return new CharacterHistoryAugmentedProposal( *this );
 }
 
 /**
