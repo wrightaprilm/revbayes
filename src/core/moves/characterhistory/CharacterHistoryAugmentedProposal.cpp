@@ -31,8 +31,10 @@ CharacterHistoryAugmentedProposal::CharacterHistoryAugmentedProposal( Stochastic
     // tell the base class to add the node
     addNode( ctmc );
     
-    ctmc_dist = NULL;//static_cast<AbstractPhyloCTMCSiteHomogeneous<RevBayesCore::StandardState>* >( &ctmc->getDistribution() );
-    tree = NULL;//const_cast<TypedDagNode<Tree>* >( ctmc_dist->getTree() );
+    ctmc_dist = static_cast<AbstractPhyloCTMCSiteHomogeneous<RevBayesCore::DnaState>* >( &ctmc->getDistribution() );
+    std::cout << "I am in the core 2" << std::endl;
+    tree = const_cast<TypedDagNode<Tree>* >( ctmc_dist->getTree() );
+    std::cout << "I am in the core 3" << std::endl;
 
 
 //    distribution = dynamic_cast< StateDependentSpeciationExtinctionProcess* >( &ctmc->getDistribution() );
