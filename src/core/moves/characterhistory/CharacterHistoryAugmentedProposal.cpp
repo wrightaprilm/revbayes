@@ -24,15 +24,15 @@ using namespace RevBayesCore;
  *
  * Here we simply allocate and initialize the Proposal object.
  */
-template<class characterType>
-CharacterHistoryAugmentedProposal<characterType>::CharacterHistoryAugmentedProposal( StochasticNode<AbstractHomologousDiscreteCharacterData> *n ) :
+
+CharacterHistoryAugmentedProposal::CharacterHistoryAugmentedProposal( StochasticNode<AbstractHomologousDiscreteCharacterData> *n ) :
         Proposal(), ctmc( n )
 {
     std::cout << "I am in the core 1" << std::endl;
     // tell the base class to add the node
     addNode( ctmc );
     
-    ctmc_dist = static_cast<AbstractPhyloCTMCSiteHomogeneous<characterType>* >( &ctmc->getDistribution() );
+    ctmc_dist = static_cast<AbstractPhyloCTMCSiteHomogeneous* >( &ctmc->getDistribution() );
     tree = const_cast<TypedDagNode<Tree>* >( ctmc_dist->getTree() );
 
 
@@ -49,16 +49,16 @@ CharacterHistoryAugmentedProposal<characterType>::CharacterHistoryAugmentedPropo
  * decides whether to accept, reject, etc. the proposed value.
  *
  */
-template<class characterType>
-void CharacterHistoryAugmentedProposal<characterType>::cleanProposal( void )
+
+void CharacterHistoryAugmentedProposal::cleanProposal( void )
 {
     
     
 }
 
 
-template<class characterType>
-CharacterHistoryAugmentedProposal<characterType>* CharacterHistoryAugmentedProposal<characterType>::clone( void ) const
+
+CharacterHistoryAugmentedProposal* CharacterHistoryAugmentedProposal::clone( void ) const
 {
     return new CharacterHistoryAugmentedProposal( *this );
 }
@@ -68,8 +68,7 @@ CharacterHistoryAugmentedProposal<characterType>* CharacterHistoryAugmentedPropo
  *
  * \return The hastings ratio.
  */
-template<class characterType>
-double CharacterHistoryAugmentedProposal<characterType>::doProposal( void )
+double CharacterHistoryAugmentedProposal::doProposal( void )
 {
 
 //    size_t num_nodes = ctmc_dist->getValue().getNumberOfNodes();
@@ -80,35 +79,35 @@ double CharacterHistoryAugmentedProposal<characterType>::doProposal( void )
 }
 
 
-template<class characterType>
-const std::string& CharacterHistoryAugmentedProposal<characterType>::getProposalName( void ) const
+
+const std::string& CharacterHistoryAugmentedProposal::getProposalName( void ) const
 {
     static std::string name = "CharacterHistoryAugmentedProposal";
     return name;
 }
 
-template<class characterType>
-double CharacterHistoryAugmentedProposal<characterType>::getProposalTuningParameter( void ) const
+
+double CharacterHistoryAugmentedProposal::getProposalTuningParameter( void ) const
 {
     // this proposal has no tuning parameter
     return RbConstants::Double::nan;
 }
 
-template<class characterType>
-void CharacterHistoryAugmentedProposal<characterType>::prepareProposal( void )
+
+void CharacterHistoryAugmentedProposal::prepareProposal( void )
 {
     
 }
 
-template<class characterType>
-void CharacterHistoryAugmentedProposal<characterType>::printParameterSummary(std::ostream &o, bool name_only) const
+
+void CharacterHistoryAugmentedProposal::printParameterSummary(std::ostream &o, bool name_only) const
 {
 
 
 }
 
-template<class characterType>
-void CharacterHistoryAugmentedProposal<characterType>::undoProposal( void )
+
+void CharacterHistoryAugmentedProposal::undoProposal( void )
 {
     
     
@@ -121,8 +120,7 @@ void CharacterHistoryAugmentedProposal<characterType>::undoProposal( void )
  * \param[in]     oldN     The old ctmc that needs to be replaced.
  * \param[in]     newN     The new RevVariable.
  */
-template<class characterType>
-void CharacterHistoryAugmentedProposal<characterType>::swapNodeInternal(DagNode *oldN, DagNode *newN)
+void CharacterHistoryAugmentedProposal::swapNodeInternal(DagNode *oldN, DagNode *newN)
 {
 
     ctmc = static_cast< StochasticNode<AbstractHomologousDiscreteCharacterData>* >(newN) ;
@@ -134,14 +132,13 @@ void CharacterHistoryAugmentedProposal<characterType>::swapNodeInternal(DagNode 
     }
 }
 
-template<class characterType>
-void CharacterHistoryAugmentedProposal<characterType>::setProposalTuningParameter(double tp)
+void CharacterHistoryAugmentedProposal::setProposalTuningParameter(double tp)
 {
     // this proposal has no tuning parameter: nothing to do
 }
 
-template<class characterType>
-void CharacterHistoryAugmentedProposal<characterType>::tune( double rate )
+
+void CharacterHistoryAugmentedProposal::tune( double rate )
 {
     
     
