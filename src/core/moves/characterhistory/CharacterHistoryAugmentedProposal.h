@@ -41,7 +41,7 @@ class CharacterHistoryAugmentedProposal : public Proposal {
 
         void                                            swapNodeInternal(DagNode *oldN, DagNode *newN);                                     //!< Swap the DAG nodes on which the Proposal is working on
         
-        AbstractPhyloCTMCSiteHomogeneous<RevBayesCore::StandardState>*      ctmc_dist;
+        AbstractPhyloCTMCSiteHomogeneous<RevBayesCore::DnaState>*      ctmc_dist;
 
     private:
         
