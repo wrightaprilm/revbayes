@@ -49,14 +49,16 @@ CharacterHistoryAugmentedProposal<characterType>::CharacterHistoryAugmentedPropo
  * decides whether to accept, reject, etc. the proposed value.
  *
  */
-void CharacterHistoryAugmentedProposal::cleanProposal( void )
+template<class characterType>
+void CharacterHistoryAugmentedProposal<characterType>::cleanProposal( void )
 {
     
     
 }
 
 
-CharacterHistoryAugmentedProposal* CharacterHistoryAugmentedProposal::clone( void ) const
+template<class characterType>
+CharacterHistoryAugmentedProposal<characterType>* CharacterHistoryAugmentedProposal<characterType>::clone( void ) const
 {
     return new CharacterHistoryAugmentedProposal( *this );
 }
@@ -66,7 +68,8 @@ CharacterHistoryAugmentedProposal* CharacterHistoryAugmentedProposal::clone( voi
  *
  * \return The hastings ratio.
  */
-double CharacterHistoryAugmentedProposal::doProposal( void )
+template<class characterType>
+double CharacterHistoryAugmentedProposal<characterType>::doProposal( void )
 {
 
 //    size_t num_nodes = ctmc_dist->getValue().getNumberOfNodes();
@@ -77,34 +80,35 @@ double CharacterHistoryAugmentedProposal::doProposal( void )
 }
 
 
-const std::string& CharacterHistoryAugmentedProposal::getProposalName( void ) const
+template<class characterType>
+const std::string& CharacterHistoryAugmentedProposal<characterType>::getProposalName( void ) const
 {
     static std::string name = "CharacterHistoryAugmentedProposal";
     return name;
 }
 
-
-double CharacterHistoryAugmentedProposal::getProposalTuningParameter( void ) const
+template<class characterType>
+double CharacterHistoryAugmentedProposal<characterType>::getProposalTuningParameter( void ) const
 {
     // this proposal has no tuning parameter
     return RbConstants::Double::nan;
 }
 
-
-void CharacterHistoryAugmentedProposal::prepareProposal( void )
+template<class characterType>
+void CharacterHistoryAugmentedProposal<characterType>::prepareProposal( void )
 {
     
 }
 
-
-void CharacterHistoryAugmentedProposal::printParameterSummary(std::ostream &o, bool name_only) const
+template<class characterType>
+void CharacterHistoryAugmentedProposal<characterType>::printParameterSummary(std::ostream &o, bool name_only) const
 {
 
 
 }
 
-
-void CharacterHistoryAugmentedProposal::undoProposal( void )
+template<class characterType>
+void CharacterHistoryAugmentedProposal<characterType>::undoProposal( void )
 {
     
     
@@ -117,26 +121,27 @@ void CharacterHistoryAugmentedProposal::undoProposal( void )
  * \param[in]     oldN     The old ctmc that needs to be replaced.
  * \param[in]     newN     The new RevVariable.
  */
-void CharacterHistoryAugmentedProposal::swapNodeInternal(DagNode *oldN, DagNode *newN)
+template<class characterType>
+void CharacterHistoryAugmentedProposal<characterType>::swapNodeInternal(DagNode *oldN, DagNode *newN)
 {
 
     ctmc = static_cast< StochasticNode<AbstractHomologousDiscreteCharacterData>* >(newN) ;
 
-    ctmc_dist = dynamic_cast< StateDependentSpeciationExtinctionProcess* >( &variable->getDistribution() );
-    if ( distribution == NULL )
+    ctmc_dist = dynamic_cast< StateDependentSpeciationExtinctionProcess* >( &ctmc->getDistribution() );
+    if ( ctmc_dist == NULL )
     {
         throw RbException("The CharacterHistoryAugmentedProposal is currently only implemented for CDBDP distributions.");
     }
 }
 
-
-void CharacterHistoryAugmentedProposal::setProposalTuningParameter(double tp)
+template<class characterType>
+void CharacterHistoryAugmentedProposal<characterType>::setProposalTuningParameter(double tp)
 {
     // this proposal has no tuning parameter: nothing to do
 }
 
-
-void CharacterHistoryAugmentedProposal::tune( double rate )
+template<class characterType>
+void CharacterHistoryAugmentedProposal<characterType>::tune( double rate )
 {
     
     
