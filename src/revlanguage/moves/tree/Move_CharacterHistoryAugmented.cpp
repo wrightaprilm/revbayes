@@ -30,8 +30,7 @@ using namespace RevLanguage;
  *
  * The default constructor does nothing except allocating the object.
  */
-template <class charType>
-Move_CharacterHistoryAugmented<charType>::Move_CharacterHistoryAugmented() : Move()
+Move_CharacterHistoryAugmented::Move_CharacterHistoryAugmented() : Move()
 {
     std::cout << "Here I am in Rl!" << std::endl;
 }
@@ -43,8 +42,7 @@ Move_CharacterHistoryAugmented<charType>::Move_CharacterHistoryAugmented() : Mov
  *
  * \return A new copy of the move.
  */
-template <class charType>
-Move_CharacterHistoryAugmented<charType>* Move_CharacterHistoryAugmented<charType>::clone(void) const
+Move_CharacterHistoryAugmented* Move_CharacterHistoryAugmented::clone(void) const
 {
     
     return new Move_CharacterHistoryAugmented(*this);
@@ -60,8 +58,7 @@ Move_CharacterHistoryAugmented<charType>* Move_CharacterHistoryAugmented<charTyp
  * constructor. The move constructor takes care of the proper hook-ups.
  *
  */
-template<class charType>
-void Move_CharacterHistoryAugmented<charType>::constructInternalObject( void )
+void Move_CharacterHistoryAugmented::constructInternalObject( void )
 {
     delete value;
     
@@ -80,7 +77,7 @@ void Move_CharacterHistoryAugmented<charType>::constructInternalObject( void )
         throw RbException("mvCharacterHistoryAugmented() requires a CTMC.");
     }
 
-    RevBayesCore::Proposal *p = new RevBayesCore::CharacterHistoryAugmentedProposal(ctmc_sn);
+    RevBayesCore::Proposal *p = new RevBayesCore::CharacterHistoryAugmentedProposal<RevBayesCore::StandardState>(ctmc_sn);
     value = new RevBayesCore::MetropolisHastingsMove(p,w);
     
 }
@@ -91,8 +88,7 @@ void Move_CharacterHistoryAugmented<charType>::constructInternalObject( void )
  *
  * \return The class' name.
  */
-template <class charType>
-const std::string& Move_CharacterHistoryAugmented<charType>::getClassType(void)
+const std::string& Move_CharacterHistoryAugmented::getClassType(void)
 {
     
     static std::string rev_type = "Move_CharacterHistoryAugmented";
@@ -106,8 +102,7 @@ const std::string& Move_CharacterHistoryAugmented<charType>::getClassType(void)
  *
  * \return TypeSpec of this class.
  */
-template <class charType>
-const TypeSpec& Move_CharacterHistoryAugmented<charType>::getClassTypeSpec(void)
+const TypeSpec& Move_CharacterHistoryAugmented::getClassTypeSpec(void)
 {
     
     static TypeSpec rev_type_spec = TypeSpec( getClassType(), new TypeSpec( Move::getClassTypeSpec() ) );
@@ -122,8 +117,7 @@ const TypeSpec& Move_CharacterHistoryAugmented<charType>::getClassTypeSpec(void)
  *
  * \return Rev name of constructor function.
  */
-template <class charType>
-std::string Move_CharacterHistoryAugmented<charType>::getMoveName( void ) const
+std::string Move_CharacterHistoryAugmented::getMoveName( void ) const
 {
     // create a constructor function name variable that is the same for all instance of this class
     std::string c_name = "CharacterHistoryAugmented";
@@ -140,8 +134,7 @@ std::string Move_CharacterHistoryAugmented<charType>::getMoveName( void ) const
  *
  * \return The member rules.
  */
-template <class charType>
-const MemberRules& Move_CharacterHistoryAugmented<charType>::getParameterRules(void) const
+const MemberRules& Move_CharacterHistoryAugmented::getParameterRules(void) const
 {
     
     static MemberRules memberRules;
@@ -167,8 +160,7 @@ const MemberRules& Move_CharacterHistoryAugmented<charType>::getParameterRules(v
  *
  * \return The type spec of this object.
  */
-template <class charType>
-const TypeSpec& Move_CharacterHistoryAugmented<charType>::getTypeSpec( void ) const
+const TypeSpec& Move_CharacterHistoryAugmented::getTypeSpec( void ) const
 {
     
     static TypeSpec type_spec = getClassTypeSpec();
@@ -180,8 +172,7 @@ const TypeSpec& Move_CharacterHistoryAugmented<charType>::getTypeSpec( void ) co
 /**
  * Print the value for the user.
  */
-template <class charType>
-void Move_CharacterHistoryAugmented<charType>::printValue(std::ostream &o) const
+void Move_CharacterHistoryAugmented::printValue(std::ostream &o) const
 {
     
     o << "GibbsDrawCharacterHistory(";
@@ -208,8 +199,7 @@ void Move_CharacterHistoryAugmented<charType>::printValue(std::ostream &o) const
  * \param[in]    name     Name of the member variable.
  * \param[in]    var      Pointer to the variable.
  */
-template <class charType>
-void Move_CharacterHistoryAugmented<charType>::setConstParameter(const std::string& name, const RevPtr<const RevVariable> &var)
+void Move_CharacterHistoryAugmented::setConstParameter(const std::string& name, const RevPtr<const RevVariable> &var)
 {
     
     if ( name == "ctmc" )

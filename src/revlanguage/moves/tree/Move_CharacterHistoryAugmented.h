@@ -9,7 +9,7 @@
 
 namespace RevLanguage {
     
-    template <class charType>
+
     class Move_CharacterHistoryAugmented : public Move {
         
     public:
@@ -17,7 +17,7 @@ namespace RevLanguage {
         Move_CharacterHistoryAugmented(void);                                                                                                                    //!< Default constructor
         
         // Basic utility functions
-        virtual Move_CharacterHistoryAugmented<charType>*         clone(void) const;                                                                      //!< Clone object
+        virtual Move_CharacterHistoryAugmented*         clone(void) const;                                                                      //!< Clone object
         void                                            constructInternalObject(void);                                                          //!< We construct the a new internal Move.
         static const std::string&                       getClassType(void);                                                                     //!< Get Rev type
         static const TypeSpec&                          getClassTypeSpec(void);                                                                 //!< Get class type spec
