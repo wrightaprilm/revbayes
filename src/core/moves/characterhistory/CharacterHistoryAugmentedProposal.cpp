@@ -119,13 +119,13 @@ void CharacterHistoryAugmentedProposal::undoProposal( void )
 void CharacterHistoryAugmentedProposal::swapNodeInternal(DagNode *oldN, DagNode *newN)
 {
 
-    ctmc = static_cast< StochasticNode<AbstractHomologousDiscreteCharacterData>* >(newN) ;
-
-    ctmc_dist = dynamic_cast< StateDependentSpeciationExtinctionProcess* >( &ctmc->getDistribution() );
-    if ( ctmc_dist == NULL )
-    {
-        throw RbException("The CharacterHistoryAugmentedProposal is currently only implemented for CDBDP distributions.");
-    }
+//    ctmc = static_cast< StochasticNode<AbstractHomologousDiscreteCharacterData>* >(newN) ;
+//
+//    ctmc_dist = dynamic_cast< StateDependentSpeciationExtinctionProcess* >( &ctmc->getDistribution() );
+//    if ( ctmc_dist == NULL )
+//    {
+//        throw RbException("The CharacterHistoryAugmentedProposal is currently only implemented for CDBDP distributions.");
+//    }
 }
 
 
