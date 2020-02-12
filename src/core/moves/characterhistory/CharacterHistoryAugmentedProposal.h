@@ -19,14 +19,14 @@ class AbstractHomologousDiscreteCharacterData;
 class Tree;
 template <class variableType> class StochasticNode;
     
-
+template<class characterType>
 class CharacterHistoryAugmentedProposal : public Proposal {
         
     public:
         
         CharacterHistoryAugmentedProposal(StochasticNode<AbstractHomologousDiscreteCharacterData> *n);                                                                              //!<  constructor
         void                                            cleanProposal(void);                                                                //!< Clean up proposal
-        CharacterHistoryAugmentedProposal*              clone(void) const;                                                                  //!< Clone object
+        CharacterHistoryAugmentedProposal<characterType>*              clone(void) const;                                                                  //!< Clone object
         double                                          doProposal(void);                                                                   //!< Perform proposal
         const std::string&                              getProposalName(void) const;                                                        //!< Get the name of the proposal for summary printing
         double                                          getProposalTuningParameter(void) const;
@@ -41,7 +41,7 @@ class CharacterHistoryAugmentedProposal : public Proposal {
 
         void                                            swapNodeInternal(DagNode *oldN, DagNode *newN);                                     //!< Swap the DAG nodes on which the Proposal is working on
         
-        AbstractPhyloCTMCSiteHomogeneous*      ctmc_dist;
+        AbstractPhyloCTMCSiteHomogeneous<characterType>*      ctmc_dist;
 
     private:
         

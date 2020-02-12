@@ -30,7 +30,8 @@ using namespace RevLanguage;
  *
  * The default constructor does nothing except allocating the object.
  */
-Move_CharacterHistoryAugmented::Move_CharacterHistoryAugmented() : Move()
+template <class charType>
+Move_CharacterHistoryAugmented<charType>::Move_CharacterHistoryAugmented() : Move()
 {
     std::cout << "Here I am in Rl!" << std::endl;
 }
@@ -42,7 +43,8 @@ Move_CharacterHistoryAugmented::Move_CharacterHistoryAugmented() : Move()
  *
  * \return A new copy of the move.
  */
-Move_CharacterHistoryAugmented* Move_CharacterHistoryAugmented::clone(void) const
+template <class charType>
+Move_CharacterHistoryAugmented<charType>* Move_CharacterHistoryAugmented<charType>::clone(void) const
 {
     
     return new Move_CharacterHistoryAugmented(*this);
@@ -58,7 +60,8 @@ Move_CharacterHistoryAugmented* Move_CharacterHistoryAugmented::clone(void) cons
  * constructor. The move constructor takes care of the proper hook-ups.
  *
  */
-void Move_CharacterHistoryAugmented::constructInternalObject( void )
+template<class charType>
+void Move_CharacterHistoryAugmented<charType>::constructInternalObject( void )
 {
     delete value;
     
@@ -88,7 +91,8 @@ void Move_CharacterHistoryAugmented::constructInternalObject( void )
  *
  * \return The class' name.
  */
-const std::string& Move_CharacterHistoryAugmented::getClassType(void)
+template <class charType>
+const std::string& Move_CharacterHistoryAugmented<charType>::getClassType(void)
 {
     
     static std::string rev_type = "Move_CharacterHistoryAugmented";
@@ -102,7 +106,8 @@ const std::string& Move_CharacterHistoryAugmented::getClassType(void)
  *
  * \return TypeSpec of this class.
  */
-const TypeSpec& Move_CharacterHistoryAugmented::getClassTypeSpec(void)
+template <class charType>
+const TypeSpec& Move_CharacterHistoryAugmented<charType>::getClassTypeSpec(void)
 {
     
     static TypeSpec rev_type_spec = TypeSpec( getClassType(), new TypeSpec( Move::getClassTypeSpec() ) );
@@ -117,7 +122,8 @@ const TypeSpec& Move_CharacterHistoryAugmented::getClassTypeSpec(void)
  *
  * \return Rev name of constructor function.
  */
-std::string Move_CharacterHistoryAugmented::getMoveName( void ) const
+template <class charType>
+std::string Move_CharacterHistoryAugmented<charType>::getMoveName( void ) const
 {
     // create a constructor function name variable that is the same for all instance of this class
     std::string c_name = "CharacterHistoryAugmented";
@@ -134,7 +140,8 @@ std::string Move_CharacterHistoryAugmented::getMoveName( void ) const
  *
  * \return The member rules.
  */
-const MemberRules& Move_CharacterHistoryAugmented::getParameterRules(void) const
+template <class charType>
+const MemberRules& Move_CharacterHistoryAugmented<charType>::getParameterRules(void) const
 {
     
     static MemberRules memberRules;
@@ -160,7 +167,8 @@ const MemberRules& Move_CharacterHistoryAugmented::getParameterRules(void) const
  *
  * \return The type spec of this object.
  */
-const TypeSpec& Move_CharacterHistoryAugmented::getTypeSpec( void ) const
+template <class charType>
+const TypeSpec& Move_CharacterHistoryAugmented<charType>::getTypeSpec( void ) const
 {
     
     static TypeSpec type_spec = getClassTypeSpec();
@@ -172,7 +180,8 @@ const TypeSpec& Move_CharacterHistoryAugmented::getTypeSpec( void ) const
 /**
  * Print the value for the user.
  */
-void Move_CharacterHistoryAugmented::printValue(std::ostream &o) const
+template <class charType>
+void Move_CharacterHistoryAugmented<charType>::printValue(std::ostream &o) const
 {
     
     o << "GibbsDrawCharacterHistory(";
@@ -199,7 +208,8 @@ void Move_CharacterHistoryAugmented::printValue(std::ostream &o) const
  * \param[in]    name     Name of the member variable.
  * \param[in]    var      Pointer to the variable.
  */
-void Move_CharacterHistoryAugmented::setConstParameter(const std::string& name, const RevPtr<const RevVariable> &var)
+template <class charType>
+void Move_CharacterHistoryAugmented<charType>::setConstParameter(const std::string& name, const RevPtr<const RevVariable> &var)
 {
     
     if ( name == "ctmc" )
