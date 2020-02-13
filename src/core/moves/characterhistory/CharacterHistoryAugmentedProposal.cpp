@@ -36,7 +36,7 @@ CharacterHistoryAugmentedProposal::CharacterHistoryAugmentedProposal( Stochastic
     ctmc_dist = static_cast<AbstractPhyloCTMCSiteHomogeneous<RevBayesCore::NaturalNumbersState>* >( &ctmc->getDistribution() );
     tree = const_cast<TypedDagNode<Tree>* >( ctmc_dist->getTree() );
 
-    size_t num_sites = dist_ctmc->getValue().getNumberOfCharacters();
+    size_t num_sites = ctmc_dist->getValue().getNumberOfCharacters();
     size_t num_nodes = tree->getValue().getNumberOfNodes();
     std::cout << "I am in the core 2" << std::endl; //I got it to work up to here. Next - try some functionality of PhyloCTMC
 
