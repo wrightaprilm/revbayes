@@ -175,16 +175,16 @@ const TypeSpec& Move_CharacterHistoryAugmented::getTypeSpec( void ) const
 void Move_CharacterHistoryAugmented::printValue(std::ostream &o) const
 {
     
-    o << "GibbsDrawCharacterHistory(";
-    if (ctmc != NULL)
-    {
-        o << ctmc->getName();
-    }
-    else
-    {
-        o << "?";
-    }
-    o << ")";
+//    o << "GibbsDrawCharacterHistory(";
+//    if (ctmc != NULL)
+//    {
+//        o << ctmc->getName();
+//    }
+//    else
+//    {
+//        o << "?";
+//    }
+//    o << ")";
     
 }
 

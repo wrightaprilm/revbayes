@@ -1262,21 +1262,27 @@ template<class charType>
 void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::drawStochasticCharacterMap(std::vector<std::string>& character_histories, size_t site, bool use_simmap_default)
 {
 
+    std::cout << "I am in the drawStochasticCharacterMap 1" << std::endl;
     bool success = false;
     size_t max_draws = 10;
     size_t n_draws = 0;
 
     while (!success && n_draws != max_draws) {
         // first draw joint ancestral states
+        std::cout << "I am in the drawStochasticCharacterMap 2" << std::endl;
         std::vector<std::vector<charType> > start_states(this->num_nodes, std::vector<charType>(this->num_sites, template_state));
         std::vector<std::vector<charType> > end_states(this->num_nodes, std::vector<charType>(this->num_sites, template_state));
+        std::cout << "I am in the drawStochasticCharacterMap 3" << std::endl;
         this->drawJointConditionalAncestralStates( start_states, end_states );
 
+        std::cout << "I am in the drawStochasticCharacterMap 4" << std::endl;
         // save the character history for the root
         const TopologyNode &root = this->tau->getValue().getRoot();
         size_t root_index = root.getIndex();
         std::string simmap_string = "{" + end_states[root_index][site].getStringValue() + "," + StringUtilities::toString( root.getBranchLength() ) + "}";
+        std::cout << "I am in the drawStochasticCharacterMap 5" << std::endl;
         character_histories[root_index] = simmap_string;
+        std::cout << "I am in the drawStochasticCharacterMap 6" << std::endl;
 
         // the mixture components are in a vector that is a flattened version of a
         // matrix with rate components in columns and matrix components in rows.
