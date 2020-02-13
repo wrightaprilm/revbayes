@@ -25,7 +25,9 @@ using namespace RevBayesCore;
  * Here we simply allocate and initialize the Proposal object.
  */
 CharacterHistoryAugmentedProposal::CharacterHistoryAugmentedProposal( StochasticNode<AbstractHomologousDiscreteCharacterData> *n ) :
-        Proposal(), ctmc( n )
+        Proposal(), ctmc( n ),     include_simmaps( true ),
+        use_simmap_default( true ),
+        index(0)
 {
     std::cout << "I am in the core 1" << std::endl;
     // tell the base class to add the node
@@ -33,9 +35,34 @@ CharacterHistoryAugmentedProposal::CharacterHistoryAugmentedProposal( Stochastic
     
     ctmc_dist = static_cast<AbstractPhyloCTMCSiteHomogeneous<RevBayesCore::DnaState>* >( &ctmc->getDistribution() );
     tree = const_cast<TypedDagNode<Tree>* >( ctmc_dist->getTree() );
-    std::cout << "I am in the core 3" << std::endl; //I got it to work up to here. Next - try some functionality of PhyloCTMC
+    std::cout << "I am in the core 2" << std::endl; //I got it to work up to here. Next - try some functionality of PhyloCTMC
 
     size_t num_nodes = tree->getValue().getNumberOfNodes();
+
+    std::vector<std::string> character_histories( num_nodes );
+    std::cout << "I am in the core 3" << std::endl;
+    // draw stochastic character map
+    ctmc_dist->drawStochasticCharacterMap(character_histories, index, use_simmap_default );
+    std::cout << "I am in the core 4" << std::endl;
+    // print out
+    const std::vector<TopologyNode*>& nds = tree->getValue().getNodes();
+    std::cout << "I am in the core 5" << std::endl;
+    for (int i = 0; i < nds.size(); i++)
+    {
+
+        size_t node_index = nds[i]->getIndex();
+
+        // add a separator before every new element
+        std::cout << ";" ;
+
+        // print out this branch's character history in the format
+        // used by SIMMAP and phytools
+        std::cout << character_histories[ node_index ];
+
+    }
+    std::cout << "I am in the core 6" << std::endl;
+
+
 
 }
 

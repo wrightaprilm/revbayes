@@ -47,6 +47,10 @@ class CharacterHistoryAugmentedProposal : public Proposal {
         
         StochasticNode<AbstractHomologousDiscreteCharacterData>*     ctmc;                                            //!< The variable the Proposal is working on
         TypedDagNode<Tree>*                             tree;
+        bool                                            include_simmaps;                                                    //!< Should we print out SIMMAP/phytools compatible character histories?
+        bool                                            use_simmap_default;
+        size_t                                          index;
+
 
         
     };
