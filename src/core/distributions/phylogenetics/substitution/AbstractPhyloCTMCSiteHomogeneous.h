@@ -1197,6 +1197,8 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::drawJointConditio
                 std::cout << "I am in the drawJointConditionalAncestralStates 5.1.1" << std::endl;
                 size_t k = this->num_chars*mixture + state;
                 std::cout << "I am in the drawJointConditionalAncestralStates 5.1.2" << std::endl;
+                std::cout << siteProbVector[mixture] << std::endl;
+                std::cout << *p_site_mixture_j << std::endl;
                 p[k] = *p_site_mixture_j * siteProbVector[mixture];
                 std::cout << "I am in the drawJointConditionalAncestralStates 5.1.3" << std::endl;
                 sum += p[k];
