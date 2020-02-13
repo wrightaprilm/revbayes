@@ -33,7 +33,7 @@ CharacterHistoryAugmentedProposal::CharacterHistoryAugmentedProposal( Stochastic
     // tell the base class to add the node
     addNode( ctmc );
     
-    ctmc_dist = static_cast<AbstractPhyloCTMCSiteHomogeneous<RevBayesCore::DnaState>* >( &ctmc->getDistribution() );
+    ctmc_dist = static_cast<AbstractPhyloCTMCSiteHomogeneous<RevBayesCore::NaturalNumbersState>* >( &ctmc->getDistribution() );
     tree = const_cast<TypedDagNode<Tree>* >( ctmc_dist->getTree() );
     std::cout << "I am in the core 2" << std::endl; //I got it to work up to here. Next - try some functionality of PhyloCTMC
 
