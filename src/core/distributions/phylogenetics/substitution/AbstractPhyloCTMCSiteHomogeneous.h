@@ -1145,10 +1145,12 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::drawJointConditio
 
     const TopologyNode &root = tau->getValue().getRoot();
     size_t node_index = root.getIndex();
+    std::cout << "I am in the drawJointConditionalAncestralStates 1" << std::endl;
 
     // get the pointers to the partial likelihoods and the marginal likelihoods
     double*         p_node  = this->partialLikelihoods + this->activeLikelihood[node_index]*this->activeLikelihoodOffset + node_index*this->nodeOffset;
 
+    std::cout << "I am in the drawJointConditionalAncestralStates 2" << std::endl;
     // get pointers the likelihood for both subtrees
     const double*   p_site           = p_node;
 
@@ -1161,6 +1163,7 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::drawJointConditio
     for (size_t i = 0; i < this->num_sites; ++i)
 //    for (size_t i = pattern_block_start; i < this->pattern_block_end; ++i)
     {
+        std::cout << "I am in the drawJointConditionalAncestralStates 3" << std::endl;
 
         // create the character
         charType c = charType( template_state );
