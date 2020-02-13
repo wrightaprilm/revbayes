@@ -1167,6 +1167,7 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::drawJointConditio
 
         // create the character
         charType c = charType( template_state );
+        std::cout << "I am in the drawJointConditionalAncestralStates 4" << std::endl;
 
         // sum to sample
         double sum = 0.0;
