@@ -1191,17 +1191,23 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::drawJointConditio
             const double* p_site_mixture_j       = p_site;
 
             // iterate over all starting states
+            std::cout << "I am in the drawJointConditionalAncestralStates 5.1" << std::endl;
             for (size_t state = 0; state < this->num_chars; ++state)
             {
+                std::cout << "I am in the drawJointConditionalAncestralStates 5.1.1" << std::endl;
                 size_t k = this->num_chars*mixture + state;
+                std::cout << "I am in the drawJointConditionalAncestralStates 5.1.2" << std::endl;
                 p[k] = *p_site_mixture_j * siteProbVector[mixture];
+                std::cout << "I am in the drawJointConditionalAncestralStates 5.1.3" << std::endl;
                 sum += p[k];
+                std::cout << "I am in the drawJointConditionalAncestralStates 5.1.4" << std::endl;
 
                 // increment the pointers to the next state for (site,rate)
                 p_site_mixture_j++;
             }
 
             // increment the pointers to the next mixture category for given site
+            std::cout << "I am in the drawJointConditionalAncestralStates 5.2" << std::endl;
             p_site       += this->mixtureOffset;
 
         } // end-for over all mixtures (=rate categories)
