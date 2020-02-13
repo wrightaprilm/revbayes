@@ -1178,6 +1178,7 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::drawJointConditio
         {
             pattern = site_pattern[i - pattern_block_start];
         }
+        std::cout << "I am in the drawJointConditionalAncestralStates 5" << std::endl;
 
         // get ptr to first mixture cat for site
         p_site          = p_node  + pattern * this->siteOffset;
@@ -1204,6 +1205,7 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::drawJointConditio
             p_site       += this->mixtureOffset;
 
         } // end-for over all mixtures (=rate categories)
+        std::cout << "I am in the drawJointConditionalAncestralStates 6" << std::endl;
 
         // sample char from p
         bool stop = false;
@@ -1236,6 +1238,7 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::drawJointConditio
 
         endStates[node_index][i] = startStates[node_index][i];
     }
+    std::cout << "I am in the drawJointConditionalAncestralStates 7" << std::endl;
 
     // recurse
     std::vector<TopologyNode*> children = root.getChildren();
@@ -1243,6 +1246,7 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::drawJointConditio
     {
         // daughters identically inherit ancestral state
         startStates[ children[i]->getIndex() ] = endStates[ root.getIndex() ];
+        std::cout << "I am in the drawJointConditionalAncestralStates 8" << std::endl;
 
         // recurse towards tips
         if ( children[i]->isTip() == false )
