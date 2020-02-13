@@ -44,7 +44,9 @@ CharacterHistoryAugmentedProposal::CharacterHistoryAugmentedProposal( Stochastic
     std::vector<std::vector<RevBayesCore::NaturalNumbersState> > endStates(num_nodes,std::vector<RevBayesCore::NaturalNumbersState>(num_sites));
 
     // draw ancestral states
+    std::cout << "I am in the core 3" << std::endl;
     ctmc_dist->drawJointConditionalAncestralStates(startStates, endStates);
+    std::cout << "I am in the core 4" << std::endl;
 
 
 
