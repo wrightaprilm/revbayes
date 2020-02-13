@@ -33,14 +33,10 @@ CharacterHistoryAugmentedProposal::CharacterHistoryAugmentedProposal( Stochastic
     
     ctmc_dist = static_cast<AbstractPhyloCTMCSiteHomogeneous<RevBayesCore::DnaState>* >( &ctmc->getDistribution() );
     tree = const_cast<TypedDagNode<Tree>* >( ctmc_dist->getTree() );
-    std::cout << "I am in the core 3" << std::endl; //I got it to work up to here. Next - try some functionality of PhyloCRMC
+    std::cout << "I am in the core 3" << std::endl; //I got it to work up to here. Next - try some functionality of PhyloCTMC
 
+    size_t num_nodes = tree->getValue().getNumberOfNodes();
 
-//    distribution = dynamic_cast< StateDependentSpeciationExtinctionProcess* >( &ctmc->getDistribution() );
-//    if ( distribution == NULL )
-//    {
-//        throw RbException("The CharacterHistoryAugmentedProposal is currently only implemented for CDBDP distributions.");
-//    }
 }
 
 
