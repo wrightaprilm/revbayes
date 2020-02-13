@@ -37,6 +37,14 @@ CharacterHistoryAugmentedProposal::CharacterHistoryAugmentedProposal( Stochastic
     tree = const_cast<TypedDagNode<Tree>* >( ctmc_dist->getTree() );
     std::cout << "I am in the core 2" << std::endl; //I got it to work up to here. Next - try some functionality of PhyloCTMC
 
+    std::vector<std::vector<characterType> > startStates(num_nodes,std::vector<characterType>(num_sites));
+    std::vector<std::vector<characterType> > endStates(num_nodes,std::vector<characterType>(num_sites));
+
+    // draw ancestral states
+    ctmc_dist->drawJointConditionalAncestralStates(startStates, endStates);
+
+
+
     size_t num_nodes = tree->getValue().getNumberOfNodes();
 
     std::vector<std::string> character_histories( num_nodes );

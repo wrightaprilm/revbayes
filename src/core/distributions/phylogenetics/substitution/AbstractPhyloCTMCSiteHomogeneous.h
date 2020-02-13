@@ -1145,12 +1145,10 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::drawJointConditio
 
     const TopologyNode &root = tau->getValue().getRoot();
     size_t node_index = root.getIndex();
-    std::cout << "I am in the drawJointConditionalAncestralStates 1" << std::endl;
 
     // get the pointers to the partial likelihoods and the marginal likelihoods
     double*         p_node  = this->partialLikelihoods + this->activeLikelihood[node_index]*this->activeLikelihoodOffset + node_index*this->nodeOffset;
 
-    std::cout << "I am in the drawJointConditionalAncestralStates 2" << std::endl;
     // get pointers the likelihood for both subtrees
     const double*   p_site           = p_node;
 
@@ -1163,11 +1161,9 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::drawJointConditio
     for (size_t i = 0; i < this->num_sites; ++i)
 //    for (size_t i = pattern_block_start; i < this->pattern_block_end; ++i)
     {
-        std::cout << "I am in the drawJointConditionalAncestralStates 3" << std::endl;
 
         // create the character
         charType c = charType( template_state );
-        std::cout << "I am in the drawJointConditionalAncestralStates 4" << std::endl;
 
         // sum to sample
         double sum = 0.0;
@@ -1178,7 +1174,6 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::drawJointConditio
         {
             pattern = site_pattern[i - pattern_block_start];
         }
-        std::cout << "I am in the drawJointConditionalAncestralStates 5" << std::endl;
 
         // get ptr to first mixture cat for site
         p_site          = p_node  + pattern * this->siteOffset;
@@ -1191,29 +1186,20 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::drawJointConditio
             const double* p_site_mixture_j       = p_site;
 
             // iterate over all starting states
-            std::cout << "I am in the drawJointConditionalAncestralStates 5.1" << std::endl;
             for (size_t state = 0; state < this->num_chars; ++state)
             {
-                std::cout << "I am in the drawJointConditionalAncestralStates 5.1.1" << std::endl;
                 size_t k = this->num_chars*mixture + state;
-                std::cout << "I am in the drawJointConditionalAncestralStates 5.1.2" << std::endl;
-                std::cout << siteProbVector[mixture] << std::endl;
-                std::cout << *p_site_mixture_j << std::endl;
                 p[k] = *p_site_mixture_j * siteProbVector[mixture];
-                std::cout << "I am in the drawJointConditionalAncestralStates 5.1.3" << std::endl;
                 sum += p[k];
-                std::cout << "I am in the drawJointConditionalAncestralStates 5.1.4" << std::endl;
 
                 // increment the pointers to the next state for (site,rate)
                 p_site_mixture_j++;
             }
 
             // increment the pointers to the next mixture category for given site
-            std::cout << "I am in the drawJointConditionalAncestralStates 5.2" << std::endl;
             p_site       += this->mixtureOffset;
 
         } // end-for over all mixtures (=rate categories)
-        std::cout << "I am in the drawJointConditionalAncestralStates 6" << std::endl;
 
         // sample char from p
         bool stop = false;
@@ -1246,7 +1232,6 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::drawJointConditio
 
         endStates[node_index][i] = startStates[node_index][i];
     }
-    std::cout << "I am in the drawJointConditionalAncestralStates 7" << std::endl;
 
     // recurse
     std::vector<TopologyNode*> children = root.getChildren();
@@ -1254,7 +1239,6 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::drawJointConditio
     {
         // daughters identically inherit ancestral state
         startStates[ children[i]->getIndex() ] = endStates[ root.getIndex() ];
-        std::cout << "I am in the drawJointConditionalAncestralStates 8" << std::endl;
 
         // recurse towards tips
         if ( children[i]->isTip() == false )
@@ -1278,27 +1262,21 @@ template<class charType>
 void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::drawStochasticCharacterMap(std::vector<std::string>& character_histories, size_t site, bool use_simmap_default)
 {
 
-    std::cout << "I am in the drawStochasticCharacterMap 1" << std::endl;
     bool success = false;
     size_t max_draws = 10;
     size_t n_draws = 0;
 
     while (!success && n_draws != max_draws) {
         // first draw joint ancestral states
-        std::cout << "I am in the drawStochasticCharacterMap 2" << std::endl;
         std::vector<std::vector<charType> > start_states(this->num_nodes, std::vector<charType>(this->num_sites, template_state));
         std::vector<std::vector<charType> > end_states(this->num_nodes, std::vector<charType>(this->num_sites, template_state));
-        std::cout << "I am in the drawStochasticCharacterMap 3" << std::endl;
         this->drawJointConditionalAncestralStates( start_states, end_states );
 
-        std::cout << "I am in the drawStochasticCharacterMap 4" << std::endl;
         // save the character history for the root
         const TopologyNode &root = this->tau->getValue().getRoot();
         size_t root_index = root.getIndex();
         std::string simmap_string = "{" + end_states[root_index][site].getStringValue() + "," + StringUtilities::toString( root.getBranchLength() ) + "}";
-        std::cout << "I am in the drawStochasticCharacterMap 5" << std::endl;
         character_histories[root_index] = simmap_string;
-        std::cout << "I am in the drawStochasticCharacterMap 6" << std::endl;
 
         // the mixture components are in a vector that is a flattened version of a
         // matrix with rate components in columns and matrix components in rows.
