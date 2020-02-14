@@ -29,7 +29,7 @@ CharacterHistoryAugmentedProposal::CharacterHistoryAugmentedProposal( Stochastic
         use_simmap_default( true ),
         index(0)
 {
-    std::cout << "I am in the core 1" << std::endl;
+    std::cout << "in core 1" << std::endl;
     // tell the base class to add the node
     addNode( ctmc );
     
@@ -38,20 +38,20 @@ CharacterHistoryAugmentedProposal::CharacterHistoryAugmentedProposal( Stochastic
 
     size_t num_sites = ctmc_dist->getValue().getNumberOfCharacters();
     size_t num_nodes = tree->getValue().getNumberOfNodes();
-    std::cout << "I am in the core 2" << std::endl; //I got it to work up to here. Next - try some functionality of PhyloCTMC
+    std::cout << "in core 2" << std::endl; //I got it to work up to here. Next - try some functionality of PhyloCTMC
 
     std::vector<std::vector<RevBayesCore::NaturalNumbersState> > startStates(num_nodes,std::vector<RevBayesCore::NaturalNumbersState>(num_sites));
     std::vector<std::vector<RevBayesCore::NaturalNumbersState> > endStates(num_nodes,std::vector<RevBayesCore::NaturalNumbersState>(num_sites));
 
     // draw ancestral states
-    std::cout << "I am in the core 3" << std::endl;
+    std::cout << "in core 3" << std::endl;
     ctmc_dist->drawJointConditionalAncestralStates(startStates, endStates);
-    std::cout << "I am in the core 4" << std::endl;
+    std::cout << "in core 4" << std::endl;
 
 
 
     std::vector<std::string> character_histories( num_nodes );
-    std::cout << "I am in the core 3" << std::endl;
+    std::cout << "in core 3" << std::endl;
     // draw stochastic character map
     ctmc_dist->drawStochasticCharacterMap(character_histories, index, use_simmap_default );
     std::cout << "I am in the core 4" << std::endl;
