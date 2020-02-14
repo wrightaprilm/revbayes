@@ -1,3 +1,12 @@
+#include <stddef.h>
+#include <algorithm>
+#include <cmath>
+#include <iterator>
+#include <ostream>
+#include <set>
+#include <string>
+#include <vector>
+
 #include "DistributionExponential.h"
 #include "PiecewiseConstantSerialSampledBirthDeathProcess.h"
 #include "RandomNumberFactory.h"
@@ -5,10 +14,16 @@
 #include "RbConstants.h"
 #include "RbMathCombinatorialFunctions.h"
 #include "RbMathLogic.h"
-#include "StochasticNode.h"
+#include "AbstractBirthDeathProcess.h"
+#include "DagNode.h"
+#include "RbException.h"
+#include "RbVector.h"
+#include "RbVectorImpl.h"
+#include "TopologyNode.h"
+#include "Tree.h"
+#include "TypedDagNode.h"
 
-#include <algorithm>
-#include <cmath>
+namespace RevBayesCore { class Taxon; }
 
 using namespace RevBayesCore;
 
@@ -938,6 +953,21 @@ double PiecewiseConstantSerialSampledBirthDeathProcess::simulateDivergenceTime(d
     return present + t;
 }
 
+std::vector<double> PiecewiseConstantSerialSampledBirthDeathProcess::simulateDivergenceTimes(size_t n, double origin, double present, double min) const
+{
+
+    std::vector<double> times(n, 0.0);
+
+    for (size_t i = 0; i < n; ++i)
+    {
+        times[i] = simulateDivergenceTime(origin, min);
+    }
+
+    // finally sort the times
+    std::sort(times.begin(), times.end());
+
+    return times;
+}
 
 /**
  * Compute the diversity of the tree at time t.

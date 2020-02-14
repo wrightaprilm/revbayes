@@ -1,14 +1,20 @@
-#include "DistributionExponential.h"
-#include "AbstractPiecewiseConstantFossilizedRangeProcess.h"
-#include "RandomNumberFactory.h"
-#include "RandomNumberGenerator.h"
-#include "RbConstants.h"
-#include "RbMathLogic.h"
-#include "StochasticNode.h"
-#include "TypedDistribution.h"
-
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
+#include <ostream>
+#include <vector>
+
+#include "DistributionExponential.h"
+#include "AbstractPiecewiseConstantFossilizedRangeProcess.h"
+#include "RbConstants.h"
+#include "RbMathLogic.h"
+#include "DagNode.h"
+#include "RbException.h"
+#include "RbVector.h"
+#include "RbVectorImpl.h"
+#include "Taxon.h"
+#include "TimeInterval.h"
+#include "TypedDagNode.h"
 
 using namespace RevBayesCore;
 
@@ -622,7 +628,7 @@ size_t AbstractPiecewiseConstantFossilizedRangeProcess::l(double t) const
  */
 double AbstractPiecewiseConstantFossilizedRangeProcess::p( size_t i, double t ) const
 {
-    if ( t == 0) return 1.0;
+    if (t == 0.0) return 1.0;
 
     // get the parameters
     double b = birth[i];
@@ -632,16 +638,16 @@ double AbstractPiecewiseConstantFossilizedRangeProcess::p( size_t i, double t ) 
     double ti = times[i];
     
     double diff = b - d - f;
-    double bp   = b*f;
     double dt   = t - ti;
-    
-    double A = sqrt( diff*diff + 4.0*bp);
+
+    double A = sqrt( diff*diff + 4.0*b*f);
     double B = ( (1.0 - 2.0*(1.0-r)*p_i[i] )*b + d + f ) / A;
+
+    double ln_e = -A*dt;
+
+    double tmp = (1.0 + B) + exp(ln_e)*(1.0 - B);
     
-    double e = exp(-A*dt);
-    double tmp = b + d + f - A * ((1.0+B)-e*(1.0-B))/((1.0+B)+e*(1.0-B));
-    
-    return tmp / (2.0*b);
+    return (b + d + f - A * ((1.0+B)-exp(ln_e)*(1.0-B))/tmp)/(2.0*b);
 }
 
 
@@ -661,14 +667,14 @@ double AbstractPiecewiseConstantFossilizedRangeProcess::q( size_t i, double t, b
     double ti = times[i];
     
     double diff = b - d - f;
-    double bp   = b*f;
     double dt   = t - ti;
 
-    double A = sqrt( diff*diff + 4.0*bp);
+    double A = sqrt( diff*diff + 4.0*b*f);
     double B = ( (1.0 - 2.0*(1.0-r)*p_i[i] )*b + d + f ) / A;
 
     double ln_e = -A*dt;
-    double tmp = (1.0+B) + exp(ln_e)*(1.0-B);
+
+    double tmp = (1.0 + B) + exp(ln_e)*(1.0 - B);
 
     double q = log(4.0) + ln_e - 2.0*log(tmp);
 
