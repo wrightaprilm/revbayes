@@ -1543,7 +1543,7 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::executeMethod(con
         std::vector<std::string> character_histories(num_nodes);
         drawStochasticCharacterMap(character_histories);
         static_cast<TreeDiscreteCharacterData*>(this->value)->setTimeInStates(time_in_states);
-        return NULL;
+
     }
 
     else if ( n == "siteLikelihoods" )

@@ -911,11 +911,6 @@ MethodTable Dist_phyloCTMC::getDistributionMethods( void ) const
 {
     
     MethodTable methods = TypedDistribution<AbstractHomologousDiscreteCharacterData>::getDistributionMethods();
-    
-    // clampCharData
-    ArgumentRules* clampCharDataArgRules = new ArgumentRules();
-    clampCharDataArgRules->push_back( new ArgumentRule( "value", AbstractHomologousDiscreteCharacterData::getClassTypeSpec(), "The observed value.", ArgumentRule::BY_VALUE, ArgumentRule::ANY ) );
-    methods.addFunction( new MemberProcedure( "clampCharData", RlUtils::Void, clampCharDataArgRules ) );
 
     // member functions
     ArgumentRules* siteLikelihoodsArgRules = new ArgumentRules();
@@ -934,9 +929,13 @@ MethodTable Dist_phyloCTMC::getDistributionMethods( void ) const
     std::vector<std::string> optionsMethod;
     optionsMethod.push_back( "sampling" );
     optionsMethod.push_back( "weightedAverage" );
+
     siteRatesArgRules->push_back( new OptionRule( "estimateMethod", new RlString("sampling"), optionsMethod, "The method used to estimate the site specific rate." ) );
-    
     methods.addFunction( new DistributionMemberFunction<Dist_phyloCTMC, ModelVector<RealPos> >( "siteRates", variable, siteRatesArgRules, true ) );
+    
+    // clampCharData
+    clampCharDataArgRules->push_back( new ArgumentRule( "value", AbstractHomologousDiscreteCharacterData::getClassTypeSpec(), "The observed value.", ArgumentRule::BY_VALUE, ArgumentRule::ANY ) );
+    methods.addFunction( new MemberProcedure( "clampCharData", RlUtils::Void, clampCharDataArgRules ) );
     
     return methods;
 }
