@@ -1514,8 +1514,7 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::executeMethod(con
 
         // check if the tip names match
         bool match = true;
-        std::cout << "IN CTMC:" << '\n';
-        std::cout << typeid(value).name() << '\n';
+
         std::vector<string> tips = value->getTipNames();
         for (size_t i = 0; i < tips.size(); i++)
         {
