@@ -1407,6 +1407,8 @@ RevLanguage::RevPtr<RevLanguage::RevVariable> StateDependentSpeciationExtinction
     
         // check if the tip names match
         bool match = true;
+        std::cout << "IN SSE:" << '\n';
+        std::cout << typeid(value).name() << '\n';
         std::vector<string> tips = value->getTipNames();
         for (size_t i = 0; i < tips.size(); i++)
         {
