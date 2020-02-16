@@ -1515,7 +1515,7 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::executeMethod(con
         // check if the tip names match
         bool match = true;
 
-        std::vector<string> tips = value->getTipNames();
+        std::vector<string> tips = (this->value)->getTipNames(); //changed that
         for (size_t i = 0; i < tips.size(); i++)
         {
             found = false;
@@ -1540,14 +1540,15 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::executeMethod(con
 
         static_cast<TreeDiscreteCharacterData*>(this->value)->setCharacterData( v.clone() );
              // simulate character history over the tree conditioned on the new tip data
-        size_t num_nodes = value->getNumberOfNodes();
+        size_t num_nodes = (this->value)->getNumberOfNodes();  //changed that
         std::vector<std::string> character_histories(num_nodes);
         drawStochasticCharacterMap(character_histories);
         static_cast<TreeDiscreteCharacterData*>(this->value)->setTimeInStates(time_in_states);
 
     }
 
-    else if ( n == "siteLikelihoods" )
+    else
+    if ( n == "siteLikelihoods" )
     {
 
         bool delete_partial_likelihoods = false;
