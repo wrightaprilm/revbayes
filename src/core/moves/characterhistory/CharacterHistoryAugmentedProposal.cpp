@@ -33,7 +33,7 @@ CharacterHistoryAugmentedProposal::CharacterHistoryAugmentedProposal( Stochastic
     // tell the base class to add the node
     addNode( ctmc );
     
-    ctmc_dist = static_cast<AbstractPhyloCTMCSiteHomogeneous<RevBayesCore::NaturalNumbersState>* >( &ctmc->getDistribution() );
+    ctmc_dist = static_cast<AbstractPhyloCTMCSiteHomogeneous<AbstractHomologousDiscreteCharacterData>* >( &ctmc->getDistribution() );
     tree = const_cast<TypedDagNode<Tree>* >( ctmc_dist->getTree() );
 
     size_t num_sites = ctmc_dist->getValue().getNumberOfCharacters();
