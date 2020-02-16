@@ -1518,7 +1518,7 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::executeMethod(con
         std::cout << "###########################################" << std::endl;
         std::cout << "value = " << value << std::endl;
         std::cout << "###########################################" << std::endl;
-        std::vector<string> tips = value->getTipNames();
+        //std::vector<string> tips = value->getTipNames();
         for (size_t i = 0; i < tips.size(); i++)
         {
             found = false;
@@ -1541,12 +1541,12 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::executeMethod(con
             throw RbException("To clamp a character data object all taxa present in the tree must be present in the character data.");
         }
 
-        static_cast<TreeDiscreteCharacterData*>(this->value)->setCharacterData( v.clone() );
-             // simulate character history over the tree conditioned on the new tip data
-        size_t num_nodes = value->getNumberOfNodes();
-        std::vector<std::string> character_histories(num_nodes);
-        drawStochasticCharacterMap(character_histories);
-        static_cast<TreeDiscreteCharacterData*>(this->value)->setTimeInStates(time_in_states);
+//        static_cast<TreeDiscreteCharacterData*>(this->value)->setCharacterData( v.clone() );
+//             // simulate character history over the tree conditioned on the new tip data
+//        size_t num_nodes = value->getNumberOfNodes();
+//        std::vector<std::string> character_histories(num_nodes);
+//        drawStochasticCharacterMap(character_histories);
+//        static_cast<TreeDiscreteCharacterData*>(this->value)->setTimeInStates(time_in_states);
 
     }
 
