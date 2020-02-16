@@ -1150,7 +1150,7 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::drawJointConditio
 
     // get the pointers to the partial likelihoods and the marginal likelihoods
     std::cout << this->partialLikelihoods << std::endl;
-    std::cout << this->activeLikelihood << std::endl;
+    std::cout << &this->activeLikelihood[0] << std::endl;
     std::cout << node_index << std::endl;
     std::cout << activeLikelihood[node_index] << std::endl;
     std::cout << this->nodeOffset << std::endl;
