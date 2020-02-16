@@ -1519,27 +1519,27 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::executeMethod(con
         std::cout << "value = " << value << std::endl;
         std::cout << "###########################################" << std::endl;
         //std::vector<string> tips = value->getTipNames();
-        for (size_t i = 0; i < tips.size(); i++)
-        {
-            found = false;
-            for (size_t j = 0; j < v.getNumberOfTaxa(); j++)
-            {
-                if (tips[i] == v[j].getTaxonName())
-                {
-                    found = true;
-                    break;
-                }
-            }
-            if (found == false)
-            {
-                match = false;
-                break;
-            }
-        }
-        if (match == false)
-        {
-            throw RbException("To clamp a character data object all taxa present in the tree must be present in the character data.");
-        }
+//        for (size_t i = 0; i < tips.size(); i++)
+//        {
+//            found = false;
+//            for (size_t j = 0; j < v.getNumberOfTaxa(); j++)
+//            {
+//                if (tips[i] == v[j].getTaxonName())
+//                {
+//                    found = true;
+//                    break;
+//                }
+//            }
+//            if (found == false)
+//            {
+//                match = false;
+//                break;
+//            }
+//        }
+//        if (match == false)
+//        {
+//            throw RbException("To clamp a character data object all taxa present in the tree must be present in the character data.");
+//        }
 
 //        static_cast<TreeDiscreteCharacterData*>(this->value)->setCharacterData( v.clone() );
 //             // simulate character history over the tree conditioned on the new tip data
