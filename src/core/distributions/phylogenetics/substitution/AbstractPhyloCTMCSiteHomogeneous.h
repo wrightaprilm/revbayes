@@ -1149,6 +1149,12 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::drawJointConditio
     size_t node_index = root.getIndex();
 
     // get the pointers to the partial likelihoods and the marginal likelihoods
+    std::cout << this->partialLikelihoods << std::endl;
+    std::cout << this->activeLikelihood << std::endl;
+    std::cout << node_index << std::endl;
+    std::cout << activeLikelihood[node_index] << std::endl;
+    std::cout << this->nodeOffset << std::endl;
+
     double*         p_node  = this->partialLikelihoods + this->activeLikelihood[node_index]*this->activeLikelihoodOffset + node_index*this->nodeOffset;
 
     // get pointers the likelihood for both subtrees
