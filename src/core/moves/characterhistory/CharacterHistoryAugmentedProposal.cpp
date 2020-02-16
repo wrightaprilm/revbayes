@@ -40,8 +40,8 @@ CharacterHistoryAugmentedProposal::CharacterHistoryAugmentedProposal( Stochastic
     size_t num_nodes = tree->getValue().getNumberOfNodes();
     std::cout << "in core 2" << std::endl; //I got it to work up to here. Next - try some functionality of PhyloCTMC
 
-    std::vector<std::vector<RevBayesCore::NaturalNumbersState> > startStates(num_nodes,std::vector<RevBayesCore::NaturalNumbersState>(num_sites));
-    std::vector<std::vector<RevBayesCore::NaturalNumbersState> > endStates(num_nodes,std::vector<RevBayesCore::NaturalNumbersState>(num_sites));
+    std::vector<std::vector<AbstractHomologousDiscreteCharacterData> > startStates(num_nodes,std::vector<AbstractHomologousDiscreteCharacterData>(num_sites));
+    std::vector<std::vector<AbstractHomologousDiscreteCharacterData> > endStates(num_nodes,std::vector<AbstractHomologousDiscreteCharacterData>(num_sites));
 
     // draw ancestral states
     std::cout << "in core 3" << std::endl;
