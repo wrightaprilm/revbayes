@@ -933,11 +933,6 @@ MethodTable Dist_phyloCTMC::getDistributionMethods( void ) const
     siteRatesArgRules->push_back( new OptionRule( "estimateMethod", new RlString("sampling"), optionsMethod, "The method used to estimate the site specific rate." ) );
     methods.addFunction( new DistributionMemberFunction<Dist_phyloCTMC, ModelVector<RealPos> >( "siteRates", variable, siteRatesArgRules, true ) );
     
-    // clampCharData
-    ArgumentRules* clampCharDataArgRules = new ArgumentRules();
-    clampCharDataArgRules->push_back( new ArgumentRule( "value", AbstractHomologousDiscreteCharacterData::getClassTypeSpec(), "The observed value.", ArgumentRule::BY_VALUE, ArgumentRule::ANY ) );
-    methods.addFunction( new MemberProcedure( "clampCharData", RlUtils::Void, clampCharDataArgRules ) );
-    
     return methods;
 }
 
