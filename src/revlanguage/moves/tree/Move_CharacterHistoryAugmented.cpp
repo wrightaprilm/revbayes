@@ -32,7 +32,6 @@ using namespace RevLanguage;
  */
 Move_CharacterHistoryAugmented::Move_CharacterHistoryAugmented() : Move()
 {
-    std::cout << "Here I am in Rl!" << std::endl;
 }
 
 
@@ -71,6 +70,9 @@ void Move_CharacterHistoryAugmented::constructInternalObject( void )
     {
         ctmc_tdn = static_cast<const RevLanguage::AbstractHomologousDiscreteCharacterData&>( ctmc->getRevObject() ).getDagNode();
         ctmc_sn  = static_cast<RevBayesCore::StochasticNode<RevBayesCore::AbstractHomologousDiscreteCharacterData>* >(ctmc_tdn);
+    std::cout << "ctmc_tdn = " << ctmc_tdn << std::endl;
+    std::cout << "ctmc_sn  = " << ctmc_sn << std::endl;
+    std::cout << "ctmc     = " << ctmc << std::endl;
     }
     else
     {
@@ -78,7 +80,9 @@ void Move_CharacterHistoryAugmented::constructInternalObject( void )
     }
 
     RevBayesCore::Proposal *p = new RevBayesCore::CharacterHistoryAugmentedProposal(ctmc_sn);
+    std::cout << "New core object created by RL = " << p << std::endl;
     value = new RevBayesCore::MetropolisHastingsMove(p,w);
+    std::cout << "value in RL = " << value << std::endl;
     
 }
 

@@ -1,6 +1,7 @@
 #include "CharacterHistoryAugmentedProposal.h"
 
 #include <stddef.h>
+#include <typeinfo>
 #include <vector>
 
 #include "RbException.h"
@@ -29,11 +30,34 @@ CharacterHistoryAugmentedProposal::CharacterHistoryAugmentedProposal( Stochastic
         use_simmap_default( true ),
         index(0)
 {
-    std::cout << "in core 1" << std::endl;
-    // tell the base class to add the node
+
+    // add the node to the base class
     addNode( ctmc );
+
+    std::cout << "We are in the core!" << std::endl;
+    std::cout << "ctmc = " << ctmc << std::endl;
+    std::cout << "ctmc_dist = " << ctmc_dist << std::endl;
+    std::cout << "ctmc->getDagNodeType() = " << ctmc->getDistribution() << std::endl;
+    std::cout << "ctmc->isClamped() = " << ctmc->isClamped() << std::endl;
+    std::cout << typeid(ctmc).name() << std::endl;
+    AbstractPhyloCTMCSiteHomogeneous<RnaState>* x1 = dynamic_cast<AbstractPhyloCTMCSiteHomogeneous<RnaState>* >( &ctmc->getDistribution() );
+    std::cout << "x1 = " << x1 << std::endl;
+    AbstractPhyloCTMCSiteHomogeneous<DnaState>* x = dynamic_cast<AbstractPhyloCTMCSiteHomogeneous<DnaState>* >( &ctmc->getDistribution() );
+    std::cout << "x = " << x << std::endl;
+    std::cout << x->getTree() << std::endl;
+    //std::cout << x->getTemplateState().getDataType() << std::endl;
     
-    ctmc_dist = static_cast<AbstractPhyloCTMCSiteHomogeneous<AbstractHomologousDiscreteCharacterData>* >( &ctmc->getDistribution() );
+    std::cout << x->getTree()->getValue() << std::endl;
+    
+    std::cout << ctmc->getDagNodeType() << std::endl;
+    //std::cout <<         ctmc->template_state  << std::endl;
+    //ctmc_dist = static_cast<AbstractPhyloCTMCSiteHomogeneous<RevBayesCore::AbstractHomologousDiscreteCharacterData* >>(ctmc->getDistribution());
+    std::cout << ctmc->getValue().getNumberOfTaxa() << std::endl;
+    std::cout << ctmc->getValue().getNumberOfCharacters() << std::endl;
+    //std::cout << this->getDistribution() << std::endl;
+    //ctmc_dist = static_cast<AbstractPhyloCTMCSiteHomogeneous<AbstractHomologousDiscreteCharacterData>* >( &ctmc->getDistribution() );
+
+    /*ctmc_dist = static_cast<AbstractPhyloCTMCSiteHomogeneous<AbstractHomologousDiscreteCharacterData>* >( &ctmc->getDistribution() );
     tree = const_cast<TypedDagNode<Tree>* >( ctmc_dist->getTree() );
 
     size_t num_sites = ctmc_dist->getValue().getNumberOfCharacters();
@@ -46,11 +70,11 @@ CharacterHistoryAugmentedProposal::CharacterHistoryAugmentedProposal( Stochastic
     // draw ancestral states
     std::cout << "in core 3" << std::endl;
     ctmc_dist->drawJointConditionalAncestralStates(startStates, endStates);
-    std::cout << "in core 4" << std::endl;
+    std::cout << "in core 4" << std::endl;*/
 
 
 
-    std::vector<std::string> character_histories( num_nodes );
+    /*std::vector<std::string> character_histories( num_nodes );
     std::cout << "in core 3" << std::endl;
     // draw stochastic character map
     ctmc_dist->drawStochasticCharacterMap(character_histories, index, use_simmap_default );
@@ -71,7 +95,7 @@ CharacterHistoryAugmentedProposal::CharacterHistoryAugmentedProposal( Stochastic
         std::cout << character_histories[ node_index ];
 
     }
-    std::cout << "I am in the core 6" << std::endl;
+    std::cout << "I am in the core 6" << std::endl;*/
 
 
 

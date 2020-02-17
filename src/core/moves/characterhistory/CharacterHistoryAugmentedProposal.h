@@ -20,6 +20,7 @@ class Tree;
 template <class variableType> class StochasticNode;
     
 
+template<class characterType>
 class CharacterHistoryAugmentedProposal : public Proposal {
         
     public:
@@ -41,7 +42,7 @@ class CharacterHistoryAugmentedProposal : public Proposal {
 
         void                                            swapNodeInternal(DagNode *oldN, DagNode *newN);                                     //!< Swap the DAG nodes on which the Proposal is working on
         
-        AbstractPhyloCTMCSiteHomogeneous<RevBayesCore::NaturalNumbersState>*      ctmc_dist;
+        AbstractPhyloCTMCSiteHomogeneous<characterType>*      ctmc_dist;
 
     private:
         
