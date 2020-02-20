@@ -83,7 +83,7 @@ void Move_CharacterHistoryAugmented::constructInternalObject( void )
     std::cout << "New core object created by RL = " << p << std::endl;
     value = new RevBayesCore::MetropolisHastingsMove(p,w);
     std::cout << "value in RL = " << value << std::endl;
-    
+
 }
 
 
@@ -134,7 +134,7 @@ std::string Move_CharacterHistoryAugmented::getMoveName( void ) const
  * Get the member rules used to create the constructor of this object.
  *
  * The member rules of the scale move are:
- * (1) the variable which must be a time-tree.
+ * (1) the variable which must be a PhyloCTMC.
  *
  * \return The member rules.
  */

@@ -20,7 +20,7 @@ class Tree;
 template <class variableType> class StochasticNode;
     
 
-template<class characterType>
+//template <class charType>
 class CharacterHistoryAugmentedProposal : public Proposal {
         
     public:
@@ -42,7 +42,7 @@ class CharacterHistoryAugmentedProposal : public Proposal {
 
         void                                            swapNodeInternal(DagNode *oldN, DagNode *newN);                                     //!< Swap the DAG nodes on which the Proposal is working on
         
-        AbstractPhyloCTMCSiteHomogeneous<characterType>*      ctmc_dist;
+        //AbstractPhyloCTMCSiteHomogeneous<AbstractHomologousDiscreteCharacterData>*      ctmc_dist;
 
     private:
         

@@ -34,24 +34,77 @@ CharacterHistoryAugmentedProposal::CharacterHistoryAugmentedProposal( Stochastic
     // add the node to the base class
     addNode( ctmc );
 
+//    chartype = &ctmc->getValue();
     std::cout << "We are in the core!" << std::endl;
     std::cout << "ctmc = " << ctmc << std::endl;
-    std::cout << "ctmc_dist = " << ctmc_dist << std::endl;
-    std::cout << "ctmc->getDagNodeType() = " << ctmc->getDistribution() << std::endl;
+    std::cout << "&ctmc->getDistribution() = " << ctmc->getDistribution() << std::endl;
+    //std::cout << "ctmc_dist = " << ctmc_dist << std::endl;
+    
+    std::string charTypeSTR = (ctmc->getValue()).getDataType();
     std::cout << "ctmc->isClamped() = " << ctmc->isClamped() << std::endl;
+    
+    if (charTypeSTR == "NaturalNumbers")
+    {
+        AbstractPhyloCTMCSiteHomogeneous<NaturalNumbersState>* ctmc_dist = dynamic_cast<AbstractPhyloCTMCSiteHomogeneous<NaturalNumbersState>* >( &ctmc->getDistribution() );
+//        ctmc_dist = static_cast<AbstractPhyloCTMCSiteHomogeneous<AbstractHomologousDiscreteCharacterData>* >( &ctmc->getDistribution() );
+        tree = const_cast<TypedDagNode<Tree>* >( ctmc_dist->getTree() );
+        
+        size_t num_sites = ctmc_dist->getValue().getNumberOfCharacters();
+        size_t num_nodes = tree->getValue().getNumberOfNodes();
+        std::cout << "in core 2" << std::endl; //I got it to work up to here. Next - try some functionality of PhyloCTMC
+
+        std::vector<std::vector<NaturalNumbersState> > startStates(num_nodes,std::vector<NaturalNumbersState>(num_sites));
+        std::vector<std::vector<NaturalNumbersState> > endStates(num_nodes,std::vector<NaturalNumbersState>(num_sites));
+
+        // draw ancestral states
+        std::cout << "in core 3" << std::endl;
+        ctmc_dist->drawJointConditionalAncestralStates(startStates, endStates);
+        std::cout << "in core 4" << std::endl;
+    }
+    else if (charTypeSTR == "DNA")
+    {
+        AbstractPhyloCTMCSiteHomogeneous<DnaState>* ctmc_dist = dynamic_cast<AbstractPhyloCTMCSiteHomogeneous<DnaState>* >( &ctmc->getDistribution() );
+
+        tree = const_cast<TypedDagNode<Tree>* >( ctmc_dist->getTree() );
+        
+        size_t num_sites = ctmc_dist->getValue().getNumberOfCharacters();
+        size_t num_nodes = tree->getValue().getNumberOfNodes();
+        std::cout << "in core 2" << std::endl; //I got it to work up to here. Next - try some functionality of PhyloCTMC
+
+        std::vector<std::vector<DnaState> > startStates(num_nodes,std::vector<DnaState>(num_sites));
+        std::vector<std::vector<DnaState> > endStates(num_nodes,std::vector<DnaState>(num_sites));
+
+        // draw ancestral states
+        std::cout << "in core 3" << std::endl;
+        ctmc_dist->drawJointConditionalAncestralStates(startStates, endStates);
+        std::cout << "in core 4" << std::endl;
+    }
+    else if (charTypeSTR == "RNA")
+    {
+        AbstractPhyloCTMCSiteHomogeneous<RnaState>* x1 = dynamic_cast<AbstractPhyloCTMCSiteHomogeneous<RnaState>* >( &ctmc->getDistribution() );
+        std::cout << "x1 = " << x1 << std::endl;
+    }
+    else if (charTypeSTR == "Standard")
+    {
+        AbstractPhyloCTMCSiteHomogeneous<StandardState>* x1 = dynamic_cast<AbstractPhyloCTMCSiteHomogeneous<StandardState>* >( &ctmc->getDistribution() );
+        std::cout << "x1 = " << x1 << std::endl;
+    }
+    else
+    {
+        throw RbException( "Invalid data type. Valid data types are: NaturalNumbers|DNA|RNA|Standard" );
+    }
+    std::cout << "(ctmc->getValue()).getDataType() = " << charTypeSTR << std::endl;
+    
     std::cout << typeid(ctmc).name() << std::endl;
-    AbstractPhyloCTMCSiteHomogeneous<RnaState>* x1 = dynamic_cast<AbstractPhyloCTMCSiteHomogeneous<RnaState>* >( &ctmc->getDistribution() );
-    std::cout << "x1 = " << x1 << std::endl;
-    AbstractPhyloCTMCSiteHomogeneous<DnaState>* x = dynamic_cast<AbstractPhyloCTMCSiteHomogeneous<DnaState>* >( &ctmc->getDistribution() );
-    std::cout << "x = " << x << std::endl;
-    std::cout << x->getTree() << std::endl;
+    
+
+    //std::cout << x->getTree() << std::endl;
     //std::cout << x->getTemplateState().getDataType() << std::endl;
     
-    std::cout << x->getTree()->getValue() << std::endl;
+    //std::cout << x->getTree()->getValue() << std::endl;
     
     std::cout << ctmc->getDagNodeType() << std::endl;
-    //std::cout <<         ctmc->template_state  << std::endl;
-    //ctmc_dist = static_cast<AbstractPhyloCTMCSiteHomogeneous<RevBayesCore::AbstractHomologousDiscreteCharacterData* >>(ctmc->getDistribution());
+
     std::cout << ctmc->getValue().getNumberOfTaxa() << std::endl;
     std::cout << ctmc->getValue().getNumberOfCharacters() << std::endl;
     //std::cout << this->getDistribution() << std::endl;

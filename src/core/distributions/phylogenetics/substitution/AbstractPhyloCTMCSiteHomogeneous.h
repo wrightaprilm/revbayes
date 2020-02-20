@@ -5,6 +5,8 @@
 #include "ConstantNode.h"
 #include "DiscreteTaxonData.h"
 #include "DnaState.h"
+#include "RnaState.h"          //Shiran added
+#include "StandardState.h"     //Shiran added
 #include "MatrixReal.h"
 #include "MemberObject.h"
 #include "RbConstants.h"
