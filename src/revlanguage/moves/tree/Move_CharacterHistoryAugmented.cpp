@@ -70,19 +70,40 @@ void Move_CharacterHistoryAugmented::constructInternalObject( void )
     {
         ctmc_tdn = static_cast<const RevLanguage::AbstractHomologousDiscreteCharacterData&>( ctmc->getRevObject() ).getDagNode();
         ctmc_sn  = static_cast<RevBayesCore::StochasticNode<RevBayesCore::AbstractHomologousDiscreteCharacterData>* >(ctmc_tdn);
-    std::cout << "ctmc_tdn = " << ctmc_tdn << std::endl;
-    std::cout << "ctmc_sn  = " << ctmc_sn << std::endl;
-    std::cout << "ctmc     = " << ctmc << std::endl;
+        std::cout << "ctmc_tdn = " << ctmc_tdn << std::endl;
+        std::cout << "ctmc_sn  = " << ctmc_sn << std::endl;
+        std::cout << "ctmc     = " << ctmc << std::endl;
     }
     else
     {
         throw RbException("mvCharacterHistoryAugmented() requires a CTMC.");
     }
+    
+    std::string charTypeSTR = (ctmc_sn->getValue()).getDataType();
+    RevBayesCore::Proposal *p ;
 
-    RevBayesCore::Proposal *p = new RevBayesCore::CharacterHistoryAugmentedProposal(ctmc_sn);
-    std::cout << "New core object created by RL = " << p << std::endl;
+    if (charTypeSTR == "NaturalNumbers")
+    {
+        p = new RevBayesCore::CharacterHistoryAugmentedProposal<RevBayesCore::NaturalNumbersState>(ctmc_sn);
+    }
+    else if (charTypeSTR == "DNA")
+    {
+        p = new RevBayesCore::CharacterHistoryAugmentedProposal<RevBayesCore::DnaState>(ctmc_sn);
+    }
+    else if (charTypeSTR == "RNA")
+    {
+        p = new RevBayesCore::CharacterHistoryAugmentedProposal<RevBayesCore::RnaState>(ctmc_sn);
+    }
+    else if (charTypeSTR == "Standard")
+    {
+        p = new RevBayesCore::CharacterHistoryAugmentedProposal<RevBayesCore::StandardState>(ctmc_sn);
+    }
+    else
+    {
+        throw RbException( "Invalid data type. Valid data types are: NaturalNumbers|DNA|RNA|Standard" );
+    }
+    
     value = new RevBayesCore::MetropolisHastingsMove(p,w);
-    std::cout << "value in RL = " << value << std::endl;
 
 }
 
