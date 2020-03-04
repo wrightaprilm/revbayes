@@ -58,6 +58,8 @@ namespace RevBayesCore {
         virtual MatrixReal                  getStochasticMatrix(size_t n);
         virtual double                      getDominatingRate(void) const;
         virtual bool                        simulateStochasticMapping(double startAge, double endAge, double rate,std::vector<size_t>& transition_states, std::vector<double>& transition_times);
+        virtual double                      computeStochasticMappingLikelihood(double startAge, double endAge, double rate,std::vector<size_t>& transition_states, std::vector<double>& transition_times);
+        
         
 
     protected:

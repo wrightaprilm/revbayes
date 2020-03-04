@@ -521,6 +521,48 @@ bool AbstractRateMatrix::simulateStochasticMapping(double startAge, double endAg
 }
 
 
+double AbstractRateMatrix::computeStochasticMappingLikelihood(double startAge, double endAge, double rate,std::vector<size_t>& transition_states, std::vector<double>& transition_times)
+{
+    //compute likelihood for branch
+    size_t final_n_events = transition_states.size()-1;
+    double n_events_factorial = tgamma(final_n_events+1);
+    double substitution_probabilities_multiplication = 1.0;
+    size_t end_state = transition_states.back();
+    
+    double branch_length = (startAge - endAge);
+    double lambda = branch_length * rate * dominating_rate;
+    
+    
+    if (final_n_events == 0) //check if I'm treating virtual substitutions correctly
+    {
+        substitution_probabilities_multiplication = 1;
+    }
+    else if (final_n_events == 1)
+    {
+        size_t start_state = transition_states[0];
+        const MatrixReal& R_1 = getStochasticMatrix(final_n_events);
+
+        substitution_probabilities_multiplication = R_1[start_state][end_state];
+    }
+    else
+    {
+        for (size_t i = 1; i < transition_states.size(); i++)
+        {
+            size_t prev_state = transition_states[i-1];
+            size_t next_state = transition_states[i];
+            size_t num_events_left = final_n_events - i + 1;
+
+            const MatrixReal& R_1 = getStochasticMatrix(1);
+            const MatrixReal& R_n = getStochasticMatrix(num_events_left);
+
+            substitution_probabilities_multiplication *= R_1[prev_state][next_state] * R_n[next_state][end_state];
+        }
+    }
+    
+    return exp(-lambda)* pow(lambda, final_n_events)/n_events_factorial *substitution_probabilities_multiplication;
+   
+}
+
 
 void AbstractRateMatrix::exponentiateMatrixByScalingAndSquaring(double t,  TransitionProbabilityMatrix& p) const {
 

@@ -125,15 +125,15 @@ double CharacterHistoryAugmentedProposal<characterType>::doProposal( void )
 {
     
     size_t num_nodes;
-    AbstractPhyloCTMCSiteHomogeneous<characterType> *ctmc_dist = NULL;
-    ctmc_dist = static_cast<AbstractPhyloCTMCSiteHomogeneous<characterType>* >( &ctmc->getDistribution() );
     num_nodes = tree->getValue().getNumberOfNodes();
     
     std::vector<std::string> character_histories(num_nodes);
-    
+
     // draw stochastic character map
+    index = 0; // Note that for now it's only calculated for a single index (index is initialized to 0)
     ctmc_dist->drawStochasticCharacterMap( character_histories, index, false );
     
+    //double log_augmented_likelihood = ctmc_dist->log_augmented_likelihood;
     
     return 0.0;
 }
