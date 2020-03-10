@@ -13,9 +13,9 @@
 # Reading in the Data #
 #######################
 
-tree <- readTrees("../data/abcdefgh.tree")[1]
+tree <- readTrees("data/abcdefgh.tree")[1]
 
-constraints <- readRelativeNodeAgeConstraints(file="../data/NodeOrderConstraints.txt")
+constraints <- readRelativeNodeAgeConstraints(file="data/NodeOrderConstraints.txt")
 
 # Get some useful variables from the data. We need these later on.
 taxa <- tree.taxa()

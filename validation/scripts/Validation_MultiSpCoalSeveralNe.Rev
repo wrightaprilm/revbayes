@@ -72,12 +72,12 @@ monitors.append(mnScreen(printgen=1, mean_Ne))
 
 mymcmc = mcmc(mymodel, monitors, moves)
 
-mymcmc.run(generations=1000)
-
-# you may want to quit RevBayes now
-q()
+#mymcmc.run(generations=1000)
 
 validation = validationAnalysis( mymcmc, 100 )
 validation.burnin(generations=500,tuningInterval=25)
 validation.run(generations=500)
 validation.summarize()
+
+# you may want to quit RevBayes now
+q()

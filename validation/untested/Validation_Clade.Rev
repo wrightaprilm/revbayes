@@ -23,3 +23,5 @@ print(clade_1)
 clade_1 = clade(data.names()[1].getSpeciesName(), data.names()[2].getSpeciesName(), missing= 0)
 print(clade_1)
 # We should get   {Callicebus_donacophilus,Saimiri_sciureus}
+
+q()
