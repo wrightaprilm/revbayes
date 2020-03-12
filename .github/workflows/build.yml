@@ -12,7 +12,12 @@ jobs:
   build:
     strategy:
       matrix:
-        name: [ubuntu-gcc-8,
+        name: [ubuntu-gcc-4.8,
+               ubuntu-gcc-4.9,
+               ubuntu-gcc-5,
+               ubuntu-gcc-6,
+               ubuntu-gcc-7,
+               ubuntu-gcc-8,
                ubuntu-gcc-9,
                ubuntu-gcc-9-mpi,
                ubuntu-clang-8,
@@ -20,6 +25,36 @@ jobs:
                ]
 
         include:
+          - name: ubuntu-gcc-4.8
+            os: ubuntu-16.04
+            compiler: gcc
+            version: "4.8"
+            mpi: false
+
+          - name: ubuntu-gcc-4.8
+            os: ubuntu-16.04
+            compiler: gcc
+            version: "4.8"
+            mpi: false
+
+          - name: ubuntu-gcc-5
+            os: ubuntu-16.04
+            compiler: gcc
+            version: "5"
+            mpi: false
+
+          - name: ubuntu-gcc-6
+            os: ubuntu-18.04
+            compiler: gcc
+            version: "6"
+            mpi: false
+
+          - name: ubuntu-gcc-7
+            os: ubuntu-18.04
+            compiler: gcc
+            version: "7"
+            mpi: false
+
           - name: ubuntu-gcc-8
             os: ubuntu-latest
             compiler: gcc
