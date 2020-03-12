@@ -31,10 +31,10 @@ jobs:
             version: "4.8"
             mpi: false
 
-          - name: ubuntu-gcc-4.8
+          - name: ubuntu-gcc-4.9
             os: ubuntu-16.04
             compiler: gcc
-            version: "4.8"
+            version: "4.9"
             mpi: false
 
           - name: ubuntu-gcc-5
