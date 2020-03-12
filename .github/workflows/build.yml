@@ -95,6 +95,7 @@ jobs:
     - name: Install (Linux)
       if: runner.os == 'Linux'
       run: |
+        sudo apt-get update
         sudo apt-get install -y pandoc libcairo2-dev ccache
         sudo apt-get install -y libboost-dev libboost-program-options-dev libboost-date-time-dev libboost-filesystem-dev libboost-regex-dev libboost-serialization-dev libboost-system-dev libboost-thread-dev 
         sudo rm -rf /usr/local/share/boost
