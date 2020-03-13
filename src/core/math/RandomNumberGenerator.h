@@ -2,6 +2,7 @@
 #define RandomNumberGenerator_H
 
 #include <stdint.h>
+#include <math.h>
 #include <chrono>
 #include "RbConstants.h"
 
@@ -27,19 +28,19 @@ namespace RevBayesCore {
 
         public:
 
-            RandomNumberGenerator   ( void );         //!< Default constructor using time seed
+            RandomNumberGenerator     ( void );            //!< Default constructor using time seed
 
-            uint64_t    getSeed     ( void ) const;   //!< Get the seed values
-            void        setSeed     ( uint64_t x );   //!< Set the seeds of the RNG
-            double      uniform01   ( void );         //!< Get a random [0,1) var
+            unsigned int  getSeed     ( void ) const;      //!< Get the seed values
+            void          setSeed     ( unsigned int x );  //!< Set the seeds of the RNG
+            double        uniform01   ( void );            //!< Get a random [0,1) var
 
         private:
 
-            uint64_t    seed;                         //!< Seed for PRNG
-            uint64_t    state[4];                     //!< Internal state vector of PRNG
+            unsigned int  seed;                            //!< Seed for PRNG
+            uint64_t      state[4];                        //!< Internal state vector of PRNG
 
-            void        updateState ( void );         //!< Update the internal state based on seed
-            uint64_t    next        ( void );         //!< Return next pseudo random number
+            void        updateState ( void );              //!< Update the internal state based on seed
+            uint64_t    next        ( void );              //!< Return next pseudo random number
 
     };
 
@@ -74,9 +75,9 @@ namespace
  */
 RevBayesCore::RandomNumberGenerator::RandomNumberGenerator( void )
 {
-    this->seed = static_cast<uint64_t>(std::chrono::high_resolution_clock::now()
-                                      .time_since_epoch()
-                                      .count());
+    this->seed = static_cast<unsigned int>(std::chrono::high_resolution_clock::now()
+                                          .time_since_epoch()
+                                          .count());
     this->seed = this->seed % RbConstants::Integer::max;
     this->updateState();
 }
@@ -100,7 +101,7 @@ RevBayesCore::RandomNumberGenerator::updateState ( void )
  *
  * \return    The current seed value.
  */
-uint64_t
+unsigned int
 RevBayesCore::RandomNumberGenerator::getSeed ( void ) const
 {
     return this->seed;
@@ -114,7 +115,7 @@ RevBayesCore::RandomNumberGenerator::getSeed ( void ) const
  * \param[in]   x   The new seed value.
  */
 void
-RevBayesCore::RandomNumberGenerator::setSeed ( uint64_t x )
+RevBayesCore::RandomNumberGenerator::setSeed ( unsigned int x )
 {
     this->seed = x;
     this->updateState();
@@ -156,10 +157,7 @@ RevBayesCore::RandomNumberGenerator::next ( void )
 double
 RevBayesCore::RandomNumberGenerator::uniform01 ( void )
 {
-    //-- In reality we want to return :  (this->next() >> 11) * 0x1.0p-53,
-    //   but since floating point hex is not available we need to use
-    //   the literal expansion.
-   return (this->next() >> 11) * 0x00000000000000007ff797f13720;
+    return (this->next() >> 11) * (1 * std::pow(2,-53));
 }
 
 
