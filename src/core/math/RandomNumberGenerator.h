@@ -45,8 +45,6 @@ namespace RevBayesCore {
 
 }
 
-#endif //-- RandomNumberGenerator.h
-
 
 //-- Anonymous namespace for private methods
 namespace
@@ -158,9 +156,13 @@ RevBayesCore::RandomNumberGenerator::next ( void )
 double
 RevBayesCore::RandomNumberGenerator::uniform01 ( void )
 {
-    return 0;
-//    return (this->next() >> 11) * 0x1.0p-53;
+    //-- In reality we want to return :  (this->next() >> 11) * 0x1.0p-53,
+    //   but since floating point hex is not available we need to use
+    //   the literal expansion.
+   return (this->next() >> 11) * 0x00000000000000007ff797f13720;
 }
 
+
+#endif //-- RandomNumberGenerator.h
 
 
