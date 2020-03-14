@@ -2,9 +2,6 @@
 #define RandomNumberGenerator_H
 
 #include <stdint.h>
-#include <math.h>
-#include <chrono>
-#include "RbConstants.h"
 
 namespace RevBayesCore {
 
@@ -34,7 +31,7 @@ namespace RevBayesCore {
             void          setSeed     ( unsigned int x );  //!< Set the seeds of the RNG
             double        uniform01   ( void );            //!< Get a random [0,1) var
 
-        private:
+        protected:
 
             unsigned int  seed;                            //!< Seed for PRNG
             uint64_t      state[4];                        //!< Internal state vector of PRNG
@@ -44,7 +41,14 @@ namespace RevBayesCore {
 
     };
 
-}
+} //-- End RandomNumberGenerator namespace
+
+
+#include "RbConstants.h"
+
+#include <stdint.h>
+#include <math.h>
+#include <chrono>
 
 
 //-- Anonymous namespace for private methods
@@ -68,6 +72,7 @@ namespace
     }
 }
 
+
 /**
  * Default constructor.
  * The default constructor allocating the object and sets the initial seed using
@@ -89,7 +94,7 @@ RevBayesCore::RandomNumberGenerator::RandomNumberGenerator( void )
 void
 RevBayesCore::RandomNumberGenerator::updateState ( void )
 {
-    this->state[0] = splitmix64_next(this->seed);
+    this->state[0] = splitmix64_next(static_cast<unsigned int>(this->seed));
     this->state[1] = splitmix64_next(this->state[0]);
     this->state[2] = splitmix64_next(this->state[1]);
     this->state[3] = splitmix64_next(this->state[2]);
@@ -162,5 +167,6 @@ RevBayesCore::RandomNumberGenerator::uniform01 ( void )
 
 
 #endif //-- RandomNumberGenerator.h
+
 
 
