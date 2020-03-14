@@ -1,12 +1,11 @@
 #ifndef RandomNumberFactory_H
 #define RandomNumberFactory_H
 
-#include "RandomNumberGenerator.h"
-
 #include <set>
 
-
 namespace RevBayesCore {
+
+    class RandomNumberGenerator;
 
     #define GLOBAL_RNG RandomNumberFactory::randomNumberFactoryInstance().getGlobalRandomNumberGenerator()
 
@@ -44,6 +43,9 @@ namespace RevBayesCore {
     };
 
 } //-- End namespace
+
+
+#include "RandomNumberGenerator.h"
 
 
 /** Default constructor */
