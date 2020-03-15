@@ -5,9 +5,9 @@
 
 namespace RevBayesCore {
 
-    class RandomNumberGenerator;
-
     #define GLOBAL_RNG RandomNumberFactory::randomNumberFactoryInstance().getGlobalRandomNumberGenerator()
+
+    class RandomNumberGenerator;
 
     /**
      * @brief
@@ -21,61 +21,33 @@ namespace RevBayesCore {
     class RandomNumberFactory {
 
         public:
-            static RandomNumberFactory&    randomNumberFactoryInstance    ( void )                         //!< Return a reference to the singleton factory
-                {
-                    static RandomNumberFactory singleRandomNumberFactory;
-                    return singleRandomNumberFactory;
-                };
-            void                           deleteRandomNumberGenerator    ( RandomNumberGenerator* r );    //!< Return a random number object to the pool
-            RandomNumberGenerator*         getGlobalRandomNumberGenerator ( void );                        //!< Return a pointer to the global random number object
+            static RandomNumberFactory&       randomNumberFactoryInstance ( void )                        //!< Return a reference to the singleton factory
+                                              {
+                                                  static RandomNumberFactory singleRandomNumberFactory;
+                                                  return singleRandomNumberFactory;
+                                              }
+
+            void                              deleteRandomNumberGenerator ( RandomNumberGenerator* r );   //!< Return a random number object to the pool
+
+            RandomNumberGenerator*            getGlobalRandomNumberGenerator ( void )                     //!< Return a pointer to the global random number object
+                                              {
+                                                  return seedGenerator;
+                                              }
+
 
         private:
 
-            RandomNumberFactory            ( void );                                                       //!< Default constructor
-            RandomNumberFactory            ( const RandomNumberFactory& );                                 //!< Copy constructor
+            RandomNumberFactory  ( void );                                                                //!< Default constructor
+            RandomNumberFactory  ( const RandomNumberFactory& );                                          //!< Copy constructor
+            ~RandomNumberFactory ( void );                                                                //!< Destructor
 
-            ~RandomNumberFactory           ( void );                                                       //!< Destructor
+            RandomNumberFactory& operator= ( const RandomNumberFactory& );                                //!< Assignment operator
 
-            RandomNumberFactory& operator= ( const RandomNumberFactory& );                                 //!< Assignment operator
-
-            RandomNumberGenerator*             seedGenerator;                                              //!< A random number object that generates seeds
-            std::set<RandomNumberGenerator*>   allocatedRandomNumbers;                                     //!< The pool of random number objects
+            RandomNumberGenerator*            seedGenerator;                                                                         //!< A random number object that generates seeds
+            std::set<RandomNumberGenerator*>  allocatedRandomNumbers;                                                                //!< The pool of random number objects
     };
 
 } //-- End namespace
-
-
-#include "RandomNumberGenerator.h"
-
-
-/** Default constructor */
-RevBayesCore::RandomNumberFactory::RandomNumberFactory ( void )
-{
-    seedGenerator = new RandomNumberGenerator();
-}
-
-
-/** Destructor */
-RevBayesCore::RandomNumberFactory::~RandomNumberFactory ( void )
-{
-    delete seedGenerator;
-}
-
-
-RevBayesCore::RandomNumberGenerator*
-RevBayesCore::RandomNumberFactory::getGlobalRandomNumberGenerator ( void )
-{
-    return seedGenerator;
-}
-
-
-/** Delete a random number object (remove it from the pool too) */
-void
-RevBayesCore::RandomNumberFactory::deleteRandomNumberGenerator ( RandomNumberGenerator* r )
-{
-    allocatedRandomNumbers.erase( r );
-    delete r;
-}
 
 #endif   //-- RandomNumberFactory_H
 
