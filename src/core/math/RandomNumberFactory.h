@@ -2,6 +2,7 @@
 #define RandomNumberFactory_H
 
 #include <set>
+#include <math.h>
 
 namespace RevBayesCore {
 

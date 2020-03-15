@@ -1,6 +1,8 @@
 #include "RandomNumberFactory.h"
 #include "RandomNumberGenerator.h"
 
+#include "RbException.h"
+#include "RbOptions.h"
 
 using namespace RevBayesCore;
 

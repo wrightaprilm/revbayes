@@ -1,5 +1,6 @@
 #include "RandomNumberGenerator.h"
 #include "RbConstants.h"
+#include "RbException.h"
 
 #include <stdint.h>
 #include <math.h>
@@ -7,8 +8,8 @@
 
 
 //-- Anonymous namespace for private methods
-namespace
-{
+//namespace
+//{
     //-- Rotate operation for xoshiro generator internal use
     static inline uint64_t
     rotl( const uint64_t x, int k )
@@ -25,7 +26,7 @@ namespace
         z          = (z ^ (z >> 27)) * 0x94d049bb133111eb;
         return z ^ (z >> 31);
     }
-}
+//}
 
 
 using namespace RevBayesCore;
