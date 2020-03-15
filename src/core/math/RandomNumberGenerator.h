@@ -19,6 +19,10 @@ namespace RevBayesCore {
     *
     * More information can be found at http://prng.di.unimi.it.
     *
+    * Note that in the original generator we are able to use uint64_t seeds.
+    * To be compliant with the revbayes api, we instead use unsigned int seeds in this
+    * implementation. Everything internal still uses uint64_t types.
+    *
     */
 
     class RandomNumberGenerator {

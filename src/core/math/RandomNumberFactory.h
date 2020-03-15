@@ -22,6 +22,7 @@ namespace RevBayesCore {
     class RandomNumberFactory {
 
         public:
+
             static RandomNumberFactory&       randomNumberFactoryInstance ( void )                        //!< Return a reference to the singleton factory
                                               {
                                                   static RandomNumberFactory singleRandomNumberFactory;
@@ -44,8 +45,8 @@ namespace RevBayesCore {
 
             RandomNumberFactory& operator= ( const RandomNumberFactory& );                                //!< Assignment operator
 
-            RandomNumberGenerator*            seedGenerator;                                                                         //!< A random number object that generates seeds
-            std::set<RandomNumberGenerator*>  allocatedRandomNumbers;                                                                //!< The pool of random number objects
+            RandomNumberGenerator*            seedGenerator;                                              //!< A random number object that generates seeds
+            std::set<RandomNumberGenerator*>  allocatedRandomNumbers;                                     //!< The pool of random number objects
     };
 
 } //-- End namespace

@@ -5,21 +5,31 @@
 using namespace RevBayesCore;
 
 
-/** Default constructor */
+/**
+ * Default constructor
+ *
+ * Instantiates a new random number generator.
+ */
 RandomNumberFactory::RandomNumberFactory ( void )
 {
     seedGenerator = new RandomNumberGenerator();
 }
 
 
-/** Destructor */
+/**
+ * Default destructor
+ *
+ * Deallocates the internal random number generator.
+ */
 RandomNumberFactory::~RandomNumberFactory ( void )
 {
     delete seedGenerator;
 }
 
 
-/** Delete a random number object (remove it from the pool too) */
+/**
+ * Delete a random number generator instance.
+ */
 void
 RandomNumberFactory::deleteRandomNumberGenerator ( RandomNumberGenerator* r )
 {
