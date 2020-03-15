@@ -1,7 +1,7 @@
 #ifndef RandomNumberGenerator_H
 #define RandomNumberGenerator_H
 
-#include <stdint.h>
+#include <cstdint>
 
 namespace RevBayesCore {
 
