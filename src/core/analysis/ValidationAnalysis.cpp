@@ -2,7 +2,6 @@
 #include <cmath>
 #include <algorithm>
 #include <iostream>
-#include <map>
 #include <string>
 #include <utility>
 #include <vector>
@@ -214,7 +213,11 @@ ValidationAnalysis& ValidationAnalysis::operator=(const ValidationAnalysis &a)
 }
 
 
-/** Run burnin and autotune */
+/** Run burnin steps and autotune on all runs
+ *
+ * @param generations number of burnin generations
+ * @param tuningInterval frequency of tuning
+*/
 void ValidationAnalysis::burnin(size_t generations, size_t tuningInterval)
 {
     
@@ -271,7 +274,10 @@ ValidationAnalysis* ValidationAnalysis::clone( void ) const
     return new ValidationAnalysis( *this );
 }
 
-
+/** Run all analyses
+ *
+ * @param gen number of generations to run for
+ **/
 void ValidationAnalysis::runAll(size_t gen)
 {
     
@@ -298,7 +304,11 @@ void ValidationAnalysis::runAll(size_t gen)
 }
 
 
-
+/** Run a specific analysis
+ *
+ * @param idx index of the analysis
+ * @param gen number of generations to run for
+ **/
 void ValidationAnalysis::runSim(size_t idx, size_t gen)
 {
     // print some info
@@ -335,7 +345,10 @@ void ValidationAnalysis::runSim(size_t idx, size_t gen)
 }
 
 
-
+/** Summarize output from all analyses
+ *
+ * @param credible_interval_size size of the interval used to calculate coverage (e.g. 0.9 = 90% HPD)
+ **/
 void ValidationAnalysis::summarizeAll( double credible_interval_size )
 {
     
@@ -412,7 +425,11 @@ void ValidationAnalysis::summarizeAll( double credible_interval_size )
 }
 
 
-
+/** Summarize output from a specific analysis
+ *
+ * @param credible_interval_size size of the interval used to calculate coverage (e.g. 0.9 = 90% HPD)
+ * @param idx index of the analysis
+ **/
 void ValidationAnalysis::summarizeSim(double credible_interval_size, size_t idx)
 {
     
