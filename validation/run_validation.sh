@@ -1,15 +1,24 @@
 #!/bin/bash
 
-mkdir logs
+mkdir -p logs
 scripts=$(ls scripts/*.Rev)
+toterror=0
+totfail=0
+totsucc=0
 for s in $scripts
 do
 	sh=${s##*/}
-	../projects/cmake/rb $s > logs/$sh.log
+
+	if [[ ! -f logs/$sh.log ]]
+	then
+		mpirun -np 4 ../projects/cmake/rb-mpi $s > logs/$sh.log
+	fi
+
 	if [ $? -ne 0 ]
 	then
 		#echo $?
 		echo "Test failed : "$sh" errored during run"
+		toterror=$((toterror + 1))
 		continue
 	fi
 	
@@ -45,4 +54,11 @@ do
 	else
 		echo "Test passed : "$sh" with "$nsuccess" passed"
 	fi
+
+	totfail=$((totfail + nfail))
+	totsucc=$((totsucc + nsuccess))
 done
+
+echo "Total number of errors : "$toterror
+echo "Total number of failures : "$totfail
+echo "Total number of successes : "$totsucc
