@@ -953,8 +953,14 @@ void StateDependentSpeciationExtinctionProcess::drawStochasticCharacterMap(std::
         {
             throw RbException("After 100000 attempts a character history could not be sampled with a non-zero probability. Try increasing nTimeSlices.");
         }
+        
+        if (attempts > 1)
+        {
+            
+            std:cout << "attempts > 1\n";
+        }
 
-        for (size_t i = 0; i < num_states; i++) 
+        for (size_t i = 0; i < num_states; i++)
         {
             time_in_states[i] = 0.0;
         }
@@ -1065,335 +1071,355 @@ void StateDependentSpeciationExtinctionProcess::drawStochasticCharacterMap(std::
 
 bool StateDependentSpeciationExtinctionProcess::recursivelyDrawStochasticCharacterMap(const TopologyNode &node, size_t start_state, std::vector<std::string>& character_histories, bool set_amb_char_data)
 {
+    
     size_t node_index = node.getIndex();
+    double start_time = node.getParent().getAge();
+    double branch_length = node.getParent().getAge() - node.getAge();
+    
     std::vector<double> speciation_rates = calculateTotalSpeciationRatePerState();
     std::vector<double> extinction_rates = mu->getValue();
     
-    // reset the number of rate-shift events
-    num_shift_events[node_index] = 0;
-    
-    // sample characters by their probability conditioned on the branch's start state going to end states
-    
-    // initialize the conditional likelihoods for this branch
-    std::vector< double > branch_conditional_probs = std::vector<double>(2 * num_states, 0);
-    branch_conditional_probs[ num_states + start_state ] = 1.0;
-    
-    // first calculate extinction likelihoods via a backward time pass
-    double start_time = node.getParent().getAge();
-    numericallyIntegrateProcess(branch_conditional_probs, 0, start_time, true, true);
-    
-    // now calculate conditional likelihoods along branch in forward time
-    double branch_length = node.getParent().getAge() - node.getAge();
-    size_t current_dt = 0;
-    double current_dt_start = 0;
-    double current_dt_end = 0;
-    
-    size_t current_state = start_state;
-    
-    // set up vectors to hold the transition events
-    std::vector<size_t> transition_states;
-    std::vector<double> transition_times;
-    transition_states.push_back(current_state);
-    
-    int downpass_dt = int( branch_partial_likelihoods[node_index].size() ) - 1;
-   
-    // keep track of rates in each time interval so we can calculate per branch averages of each rate
-    double total_speciation_rate = 0.0;
-    double total_extinction_rate = 0.0;
-    double num_dts = 0.0;
-
-    // loop over every time slice, stopping before the last time slice
-    while ( downpass_dt >= 0 && ((current_dt + 1) * dt) < branch_length)
+    // redraw entire branch history if we encounter and invalid time slices
+    bool success = true;
+    int num_attempts = 100;
+    do
     {
-        current_dt_start = (current_dt * dt);
-        current_dt_end = ((current_dt + 1) * dt);
+        // reset the number of rate-shift events
+        num_shift_events[node_index] = 0;
         
-        numericallyIntegrateProcess(branch_conditional_probs, current_dt_start, current_dt_end, false, false);
+        // sample characters by their probability conditioned on the branch's start state going to end states
+        
+        // initialize the conditional likelihoods for this branch
+        std::vector< double > branch_conditional_probs = std::vector<double>(2 * num_states, 0);
+        branch_conditional_probs[ num_states + start_state ] = 1.0;
+        
+        // first calculate extinction likelihoods via a backward time pass
+        numericallyIntegrateProcess(branch_conditional_probs, 0, start_time, true, true);
+        
+        // now calculate conditional likelihoods along branch in forward time
+        size_t current_dt = 0;
+        double current_dt_start = 0;
+        double current_dt_end = 0;
+        size_t current_state = start_state;
+        
+        // set up vectors to hold the transition events
+        std::vector<size_t> transition_states;
+        std::vector<double> transition_times;
+        transition_states.push_back(current_state);
+        
+        int downpass_dt = int( branch_partial_likelihoods[node_index].size() ) - 1;
+        
+        // keep track of rates in each time interval so we can calculate per branch averages of each rate
+        double total_speciation_rate = 0.0;
+        double total_extinction_rate = 0.0;
+        double num_dts = 0.0;
+        
+        // loop over every time slice, stopping before the last time slice
+        while ( downpass_dt >= 0 && ((current_dt + 1) * dt) < branch_length)
+        {
+            current_dt_start = (current_dt * dt);
+            current_dt_end = ((current_dt + 1) * dt);
+            
+            numericallyIntegrateProcess(branch_conditional_probs, current_dt_start, current_dt_end, false, false);
 
-        // draw state for this time slice
-        size_t new_state = current_state;
-        double probs_sum = 0.0;
-        for (size_t i = 0; i < num_states; i++)
-        {
-            probs_sum += branch_conditional_probs[i + num_states] * branch_partial_likelihoods[node_index][downpass_dt][i];
-        }
-        if ( probs_sum == 0.0 )
-        {
-            return false;
-        }
-        else
-        {
-            RandomNumberGenerator* rng = GLOBAL_RNG;
-            double u = rng->uniform01() * probs_sum;
-
+            // draw state for this time slice
+            size_t new_state = current_state;
+            double probs_sum = 0.0;
             for (size_t i = 0; i < num_states; i++)
             {
-                u -= branch_conditional_probs[i + num_states] * branch_partial_likelihoods[node_index][downpass_dt][i];
-                if (u < 0.0)
-                {
-                    new_state = i;
-                    break;
-                }
+                probs_sum += branch_conditional_probs[i + num_states] * branch_partial_likelihoods[node_index][downpass_dt][i];
             }
-        }
-        
-        // check if there was a character state transition
-        if (new_state != current_state)
-        {
-            double time_since_last_transition = 0.0;
-            double transition_times_sum = 0.0;
-            for (size_t j = 0; j < transition_times.size(); j++)
+            if ( probs_sum == 0.0 )
             {
-                transition_times_sum += transition_times[j];
-            }
-            time_since_last_transition = current_dt_end - transition_times_sum;
-
-            transition_times.push_back(time_since_last_transition);
-            transition_states.push_back(new_state);
-            current_state = new_state;
-            
-            ++num_shift_events[node_index];
-        }
-        
-        // condition branch_conditional_probs on the sampled state
-        for (size_t i = 0; i < num_states; i++)
-        {
-            if (i == current_state)
-            {
-                branch_conditional_probs[ num_states + i ] = 1.0;
+                num_attempts -= 1;
+                success = false;
+                //return false;
             }
             else
             {
-                branch_conditional_probs[ num_states + i ] = 0.0;
-            }
-        }
-        
-        current_dt++;
-        downpass_dt--;
-        
-        // keep track of rates in this interal so we can calculate per branch averages of each rate
-        total_speciation_rate += speciation_rates[current_state];
-        total_extinction_rate += extinction_rates[current_state];
-        time_in_states[current_state] += dt;
-        num_dts += 1;
-    }
-    
-    if ( node.isTip() == true )
-    {
-        // the last time slice of the branch will be the observed state
-        
-        AbstractHomologousDiscreteCharacterData& data = static_cast<TreeDiscreteCharacterData*>(this->value)->getCharacterData();
-        AbstractDiscreteTaxonData& taxon_data = data.getTaxonData( node.getName() );
-        
-        DiscreteCharacterState &char_state = taxon_data.getCharacter(0);
-        size_t new_state = current_state;
-        
-        if ( char_state.isAmbiguous() == false )
-        {
-            new_state = char_state.getStateIndex();
-        }
-        else
-        {
-            // use the simulated state
-            new_state = current_state;
-            if (set_amb_char_data == true)
-            {
-                // overwrite the character data 
-                char_state.setStateByIndex(new_state);
-            }
-        }
-        
-        // keep track of rates in this interval so we can calculate per branch averages of each rate
-        total_speciation_rate += speciation_rates[new_state];
-        total_extinction_rate += extinction_rates[new_state];
-        time_in_states[new_state] += dt;
-        num_dts += 1;
-        
-        // check if there was a character state transition
-        if (new_state != current_state)
-        {
-            double time_since_last_transition = 0.0;
-            double transition_times_sum = 0.0;
-            for (size_t j = 0; j < transition_times.size(); j++)
-            {
-                transition_times_sum += transition_times[j];
-            }
-            time_since_last_transition = current_dt_end - transition_times_sum;
-            
-            transition_times.push_back(time_since_last_transition);
-            transition_states.push_back(new_state);
-            ++num_shift_events[node_index];
-        }
-        
-        // add the length of the final character state
-        double time_since_last_transition = 0.0;
-        double transition_times_sum = 0.0;
-        for (size_t j = 0; j < transition_times.size(); j++)
-        {
-            transition_times_sum += transition_times[j];
-        }
-        time_since_last_transition = branch_length - transition_times_sum;
-        transition_times.push_back(time_since_last_transition);
-        
-        // make SIMMAP string
-        std::string simmap_string = "{";
-        for (size_t i = transition_times.size(); i > 0; i--)
-        {
-            simmap_string = simmap_string + StringUtilities::toString(transition_states[i - 1]) + "," + StringUtilities::toString(transition_times[i - 1]);
-            if (i != 1)
-            {
-                simmap_string = simmap_string + ":";
-            }
-        }
-        simmap_string = simmap_string + "}";
-        
-        // calculate average diversification rates on this branch
-        average_speciation[node_index] = total_speciation_rate / num_dts;
-        average_extinction[node_index] = total_extinction_rate / num_dts;
+                RandomNumberGenerator* rng = GLOBAL_RNG;
+                double u = rng->uniform01() * probs_sum;
 
-        // save the character history for this branch
-        character_histories[node_index] = simmap_string;
-        
-    }
-    else
-    {
-        // the last time slice of the branch will be the state of the node before any cladogenetic events
-        
-        std::map<std::vector<unsigned>, double> event_map;
-        if ( use_cladogenetic_events == true )
-        {
-            // get cladogenesis event map (sparse speciation rate matrix)
-            event_map = cladogenesis_matrix->getValue().getEventMap();
-        }
-        
-        // get likelihoods of descendant nodes
-        const TopologyNode     &left                = node.getChild(0);
-        size_t                  left_index          = left.getIndex();
-        std::vector< double >   left_likelihoods    = node_partial_likelihoods[left_index][active_likelihood[left_index]];
-        const TopologyNode     &right               = node.getChild(1);
-        size_t                  right_index         = right.getIndex();
-        std::vector< double >   right_likelihoods   = node_partial_likelihoods[right_index][active_likelihood[right_index]];
-        
-        std::map<std::vector<unsigned>, double> sample_probs;
-        double sample_probs_sum = 0.0;
-        std::map<std::vector<unsigned>, double>::iterator it;
-        
-        // calculate probabilities for each state
-        if ( use_cladogenetic_events == true )
-        {
-            // iterate over each cladogenetic event possible
-            // and initialize probabilities for each clado event
-            for (it = event_map.begin(); it != event_map.end(); it++)
-            {
-                const std::vector<unsigned>& states = it->first;
-                double speciation_rate = it->second;
-                
-                // we need to sample from the ancestor, left, and right states jointly,
-                // so keep track of the probability of each clado event
-                double prob = left_likelihoods[num_states + states[1]] * right_likelihoods[num_states + states[2]];
-                prob *= speciation_rate * branch_conditional_probs[num_states + states[0]];
-                sample_probs[ states ] = prob;
-                sample_probs_sum += prob;
-            }
-        }
-        else
-        {
-            for (size_t i = 0; i < num_states; i++)
-            {
-                double prob = left_likelihoods[num_states + i] * right_likelihoods[num_states + i] * speciation_rates[i];
-                prob *= branch_conditional_probs[num_states + i];
-                std::vector<unsigned> states = boost::assign::list_of(i)(i)(i);
-                sample_probs[ states ] = prob;
-                sample_probs_sum += prob;
-            }
-        }
-        
-        // finally, sample ancestor, left, and right character states from probs
-        size_t a = 0;
-        size_t l = 0;
-        size_t r = 0;
-        
-        if (sample_probs_sum == 0)
-        {
-            return false;
-        }
-        else
-        {
-            RandomNumberGenerator* rng = GLOBAL_RNG;
-            double u = rng->uniform01() * sample_probs_sum;
-            
-            for (it = sample_probs.begin(); it != sample_probs.end(); it++)
-            {
-                u -= it->second;
-                if (u < 0.0)
+                for (size_t i = 0; i < num_states; i++)
                 {
-                    const std::vector<unsigned>& states = it->first;
-                    a = states[0];
-                    l = states[1];
-                    r = states[2];
-                    break;
+                    u -= branch_conditional_probs[i + num_states] * branch_partial_likelihoods[node_index][downpass_dt][i];
+                    if (u < 0.0)
+                    {
+                        new_state = i;
+                        break;
+                    }
                 }
             }
+            
+            // check if there was a character state transition
+            if (new_state != current_state)
+            {
+                double time_since_last_transition = 0.0;
+                double transition_times_sum = 0.0;
+                for (size_t j = 0; j < transition_times.size(); j++)
+                {
+                    transition_times_sum += transition_times[j];
+                }
+                time_since_last_transition = current_dt_end - transition_times_sum;
+
+                transition_times.push_back(time_since_last_transition);
+                transition_states.push_back(new_state);
+                current_state = new_state;
+                
+                ++num_shift_events[node_index];
+            }
+            
+            // condition branch_conditional_probs on the sampled state
+            for (size_t i = 0; i < num_states; i++)
+            {
+                if (i == current_state)
+                {
+                    branch_conditional_probs[ num_states + i ] = 1.0;
+                }
+                else
+                {
+                    branch_conditional_probs[ num_states + i ] = 0.0;
+                }
+            }
+            
+            current_dt++;
+            downpass_dt--;
+            
+            // keep track of rates in this interal so we can calculate per branch averages of each rate
+            total_speciation_rate += speciation_rates[current_state];
+            total_extinction_rate += extinction_rates[current_state];
+            time_in_states[current_state] += dt;
+            num_dts += 1;
         }
         
-        // keep track of rates in this interval so we can calculate per branch averages of each rate
-        total_speciation_rate += speciation_rates[a];
-        total_extinction_rate += extinction_rates[a];
-        time_in_states[a] += dt;
-        num_dts += 1;
-        
-        // check if there was a character state transition
-        if (a != current_state)
+        if ( node.isTip() == true )
         {
+            // the last time slice of the branch will be the observed state
+            
+            AbstractHomologousDiscreteCharacterData& data = static_cast<TreeDiscreteCharacterData*>(this->value)->getCharacterData();
+            AbstractDiscreteTaxonData& taxon_data = data.getTaxonData( node.getName() );
+            
+            DiscreteCharacterState &char_state = taxon_data.getCharacter(0);
+            size_t new_state = current_state;
+            
+            if ( char_state.isAmbiguous() == false )
+            {
+                new_state = char_state.getStateIndex();
+            }
+            else
+            {
+                // use the simulated state
+                new_state = current_state;
+                if (set_amb_char_data == true)
+                {
+                    // overwrite the character data
+                    char_state.setStateByIndex(new_state);
+                }
+            }
+            
+            // keep track of rates in this interval so we can calculate per branch averages of each rate
+            total_speciation_rate += speciation_rates[new_state];
+            total_extinction_rate += extinction_rates[new_state];
+            time_in_states[new_state] += dt;
+            num_dts += 1;
+            
+            // check if there was a character state transition
+            if (new_state != current_state)
+            {
+                double time_since_last_transition = 0.0;
+                double transition_times_sum = 0.0;
+                for (size_t j = 0; j < transition_times.size(); j++)
+                {
+                    transition_times_sum += transition_times[j];
+                }
+                time_since_last_transition = current_dt_end - transition_times_sum;
+                
+                transition_times.push_back(time_since_last_transition);
+                transition_states.push_back(new_state);
+                ++num_shift_events[node_index];
+            }
+            
+            // add the length of the final character state
             double time_since_last_transition = 0.0;
             double transition_times_sum = 0.0;
             for (size_t j = 0; j < transition_times.size(); j++)
             {
                 transition_times_sum += transition_times[j];
             }
-            time_since_last_transition = current_dt_end - transition_times_sum;
-
+            time_since_last_transition = branch_length - transition_times_sum;
             transition_times.push_back(time_since_last_transition);
-            transition_states.push_back(a);
-            ++num_shift_events[node_index];
-        }
-        
-        // add the length of the final character state
-        double time_since_last_transition = 0.0;
-        double transition_times_sum = 0.0;
-        for (size_t j = 0; j < transition_times.size(); j++)
-        {
-            transition_times_sum += transition_times[j];
-        }
-        time_since_last_transition = branch_length - transition_times_sum;
-
-        transition_times.push_back(time_since_last_transition);
-        
-        // make SIMMAP string
-        std::string simmap_string = "{";
-        for (size_t i = transition_times.size(); i > 0; i--)
-        {
-            simmap_string = simmap_string + StringUtilities::toString(transition_states[i - 1]) + "," + StringUtilities::toString(transition_times[i - 1]);
-            if (i != 1)
+            
+            // make SIMMAP string
+            std::string simmap_string = "{";
+            for (size_t i = transition_times.size(); i > 0; i--)
             {
-                simmap_string = simmap_string + ":";
+                simmap_string = simmap_string + StringUtilities::toString(transition_states[i - 1]) + "," + StringUtilities::toString(transition_times[i - 1]);
+                if (i != 1)
+                {
+                    simmap_string = simmap_string + ":";
+                }
+            }
+            simmap_string = simmap_string + "}";
+            
+            // calculate average diversification rates on this branch
+            average_speciation[node_index] = total_speciation_rate / num_dts;
+            average_extinction[node_index] = total_extinction_rate / num_dts;
+            
+            // save the character history for this branch
+            character_histories[node_index] = simmap_string;
+            
+            // the stochastic mapping for this branch encountered no errors
+            if (success) {
+                return true;
             }
         }
-        simmap_string = simmap_string + "}";
-        
-        // save the character history for this branch
-        character_histories[node_index] = simmap_string;
-        
-        // calculate average diversification rates on this branch
-        average_speciation[node_index] = total_speciation_rate / num_dts;
-        average_extinction[node_index] = total_extinction_rate / num_dts;
-        
-        // recurse towards tips
-        bool success_l = recursivelyDrawStochasticCharacterMap(left, l, character_histories, set_amb_char_data);
-        bool success_r = recursivelyDrawStochasticCharacterMap(right, r, character_histories, set_amb_char_data);
-        return success_l && success_r;
-    }
-    return true;
+        else
+        {
+            // the last time slice of the branch will be the state of the node before any cladogenetic events
+            
+            std::map<std::vector<unsigned>, double> event_map;
+            if ( use_cladogenetic_events == true )
+            {
+                // get cladogenesis event map (sparse speciation rate matrix)
+                event_map = cladogenesis_matrix->getValue().getEventMap();
+            }
+            
+            // get likelihoods of descendant nodes
+            const TopologyNode     &left                = node.getChild(0);
+            size_t                  left_index          = left.getIndex();
+            std::vector< double >   left_likelihoods    = node_partial_likelihoods[left_index][active_likelihood[left_index]];
+            const TopologyNode     &right               = node.getChild(1);
+            size_t                  right_index         = right.getIndex();
+            std::vector< double >   right_likelihoods   = node_partial_likelihoods[right_index][active_likelihood[right_index]];
+            
+            std::map<std::vector<unsigned>, double> sample_probs;
+            double sample_probs_sum = 0.0;
+            std::map<std::vector<unsigned>, double>::iterator it;
+            
+            // calculate probabilities for each state
+            if ( use_cladogenetic_events == true )
+            {
+                // iterate over each cladogenetic event possible
+                // and initialize probabilities for each clado event
+                for (it = event_map.begin(); it != event_map.end(); it++)
+                {
+                    const std::vector<unsigned>& states = it->first;
+                    double speciation_rate = it->second;
+                    
+                    // we need to sample from the ancestor, left, and right states jointly,
+                    // so keep track of the probability of each clado event
+                    double prob = left_likelihoods[num_states + states[1]] * right_likelihoods[num_states + states[2]];
+                    prob *= speciation_rate * branch_conditional_probs[num_states + states[0]];
+                    sample_probs[ states ] = prob;
+                    sample_probs_sum += prob;
+                }
+            }
+            else
+            {
+                for (size_t i = 0; i < num_states; i++)
+                {
+                    double prob = left_likelihoods[num_states + i] * right_likelihoods[num_states + i] * speciation_rates[i];
+                    prob *= branch_conditional_probs[num_states + i];
+                    std::vector<unsigned> states = boost::assign::list_of(i)(i)(i);
+                    sample_probs[ states ] = prob;
+                    sample_probs_sum += prob;
+                }
+            }
+            
+            // finally, sample ancestor, left, and right character states from probs
+            size_t a = 0;
+            size_t l = 0;
+            size_t r = 0;
+            
+            if (sample_probs_sum == 0)
+            {
+                success = false;
+//                return false;
+            }
+            else
+            {
+                RandomNumberGenerator* rng = GLOBAL_RNG;
+                double u = rng->uniform01() * sample_probs_sum;
+                
+                for (it = sample_probs.begin(); it != sample_probs.end(); it++)
+                {
+                    u -= it->second;
+                    if (u < 0.0)
+                    {
+                        const std::vector<unsigned>& states = it->first;
+                        a = states[0];
+                        l = states[1];
+                        r = states[2];
+                        break;
+                    }
+                }
+            }
+            
+            // keep track of rates in this interval so we can calculate per branch averages of each rate
+            total_speciation_rate += speciation_rates[a];
+            total_extinction_rate += extinction_rates[a];
+            time_in_states[a] += dt;
+            num_dts += 1;
+            
+            // check if there was a character state transition
+            if (a != current_state)
+            {
+                double time_since_last_transition = 0.0;
+                double transition_times_sum = 0.0;
+                for (size_t j = 0; j < transition_times.size(); j++)
+                {
+                    transition_times_sum += transition_times[j];
+                }
+                time_since_last_transition = current_dt_end - transition_times_sum;
+                
+                transition_times.push_back(time_since_last_transition);
+                transition_states.push_back(a);
+                ++num_shift_events[node_index];
+            }
+            
+            // add the length of the final character state
+            double time_since_last_transition = 0.0;
+            double transition_times_sum = 0.0;
+            for (size_t j = 0; j < transition_times.size(); j++)
+            {
+                transition_times_sum += transition_times[j];
+            }
+            time_since_last_transition = branch_length - transition_times_sum;
+            
+            transition_times.push_back(time_since_last_transition);
+            
+            // make SIMMAP string
+            std::string simmap_string = "{";
+            for (size_t i = transition_times.size(); i > 0; i--)
+            {
+                simmap_string = simmap_string + StringUtilities::toString(transition_states[i - 1]) + "," + StringUtilities::toString(transition_times[i - 1]);
+                if (i != 1)
+                {
+                    simmap_string = simmap_string + ":";
+                }
+            }
+            simmap_string = simmap_string + "}";
+            
+            // save the character history for this branch
+            character_histories[node_index] = simmap_string;
+            
+            // calculate average diversification rates on this branch
+            average_speciation[node_index] = total_speciation_rate / num_dts;
+            average_extinction[node_index] = total_extinction_rate / num_dts;
+            
+            // recurse towards tips
+            bool success_l = recursivelyDrawStochasticCharacterMap(left, l, character_histories, set_amb_char_data);
+            bool success_r = recursivelyDrawStochasticCharacterMap(right, r, character_histories, set_amb_char_data);
+            
+            // the stochastic mapping for this branch encountered no errors
+            if (success) {
+                return success_l && success_r;
+            }
+        }
+    } while (!success && num_attempts >= 0);
+    
+    // we failed to draw a valid stochastic mapping after num_attempts draws
+    return false;
 }
 
 
