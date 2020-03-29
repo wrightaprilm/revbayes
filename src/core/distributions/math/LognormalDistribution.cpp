@@ -78,6 +78,8 @@ void LognormalDistribution::redrawValue( void )
 }
 
 
+
+
 /** Swap a parameter of the distribution */
 void LognormalDistribution::swapParameterInternal(const DagNode *old_p, const DagNode *new_p)
 {
