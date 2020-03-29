@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env sh
 
 if [ -z "$1" ] ; then
     printf "Please supply the full path to rb as first argument.\n\n"
