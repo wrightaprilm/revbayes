@@ -251,6 +251,71 @@ void This::computeRootLikelihood ( size_t root, size_t left, size_t right, size_
     b_operation.child2Partials         = right_idx;
     this->b_ops.push_back(b_operation);
 
+    // get and flatten the root frequencies
+    std::vector<std::vector<double>> ff; this->getRootFrequencies(ff);
+    //this->b_inStateFrequencies = std::vector<double>(ff.size() * ff[0].size());
+    //for ( size_t i = 0; i < ff.size(); ++i )
+    //{
+    //    for ( size_t j = 0; j < ff[i].size(); ++j )
+    //    {
+    //        this->b_inStateFrequencies[i*j+j] = ff[i][j];
+    //    }
+    //}
+    this->b_inStateFrequencies = ff[0];
+
+    this->b_stateFrequenciesIndex = 0;
+    beagleSetStateFrequencies( this->beagle_instance
+                             , this->b_stateFrequenciesIndex
+                             , &this->b_inStateFrequencies[0]
+                             );
+
+
+    EigenSystem*        eigen_system;
+    size_t              model_idx;
+    std::vector<double> my_eigen_values;
+    std::vector<double> flat_eigen_vectors;
+    std::vector<double> flat_inv_eigen_vectors;
+
+    if ( this->num_site_mixtures < 2 )
+    {
+        eigen_system = this->homogeneous_rate_matrix->getValue().getEigenSystem();
+        model_idx    = 0 + this->active_eigen_system[0] * this->num_site_mixtures;
+
+        my_eigen_values        = eigen_system->getRealEigenvalues();
+        flat_eigen_vectors     = eigen_system->getEigenvectors().flattenMatrix();
+        flat_inv_eigen_vectors = eigen_system->getInverseEigenvectors().flattenMatrix();
+
+        beagleSetEigenDecomposition( this->beagle_instance
+                                   , model_idx
+                                   , &flat_eigen_vectors[0]
+                                   , &flat_inv_eigen_vectors[0]
+                                   , &my_eigen_values[0]
+                                   );
+
+        this->b_model_indices.push_back(model_idx);
+    }
+    else
+    {
+        for ( size_t i = 0; i < this->num_site_mixtures; ++i )
+        {
+            eigen_system = this->heterogeneous_rate_matrices->getValue()[i].getEigenSystem();
+            model_idx    = i + this->active_eigen_system[i] * this->num_site_mixtures;
+
+            my_eigen_values        = eigen_system->getRealEigenvalues();
+            flat_eigen_vectors     = eigen_system->getEigenvectors().flattenMatrix();
+            flat_inv_eigen_vectors = eigen_system->getInverseEigenvectors().flattenMatrix();
+
+            beagleSetEigenDecomposition( this->beagle_instance
+                                       , model_idx
+                                       , &flat_eigen_vectors[0]
+                                       , &flat_inv_eigen_vectors[0]
+                                       , &my_eigen_values[0]
+                                       );
+
+            this->b_model_indices.push_back(model_idx);
+        }
+    }
+
     //-- Calculate and update all transition matrix buffers
     beagleUpdateTransitionMatricesWithMultipleModels( this->beagle_instance
                                                     , &this->b_model_indices[0]
