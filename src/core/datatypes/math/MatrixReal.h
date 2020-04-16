@@ -27,12 +27,12 @@
 #include <vector>
 
 namespace RevBayesCore {
-    
+
     class EigenSystem;
     class CholeskyDecomposition;
-    
+
     class MatrixReal : public Cloneable, public MemberObject<RbVector<double> >, public MemberObject<MatrixReal> {
-        
+
     public:
         MatrixReal(void);                       //!< Default constructor required by revlanguage use of this class
         MatrixReal(size_t n);
@@ -40,8 +40,8 @@ namespace RevBayesCore {
         MatrixReal(size_t n, size_t k, double v);
         MatrixReal(const MatrixReal& m);
         virtual                                ~MatrixReal(void);
-        
-        
+
+
         // overloaded operators
         MatrixReal&                             operator=(const MatrixReal& m);
         RbVector<double>&                       operator[](size_t index);
@@ -53,26 +53,26 @@ namespace RevBayesCore {
         bool                                    operator<=(const MatrixReal &m) const { return operator<(m) || operator==(m); }
 
         // global operators
-        MatrixReal&                             operator+=(double b);                                               //!< operator += for scalar 
-        MatrixReal&                             operator-=(double b);                                               //!< operator -= for scalar 
-        MatrixReal&                             operator*=(double b);                                               //!< operator *= for scalar 
-        MatrixReal&                             operator+=(const MatrixReal& B);                                    //!< operator += 
-        MatrixReal&                             operator-=(const MatrixReal& B);                                    //!< operator -= 
+        MatrixReal&                             operator+=(double b);                                               //!< operator += for scalar
+        MatrixReal&                             operator-=(double b);                                               //!< operator -= for scalar
+        MatrixReal&                             operator*=(double b);                                               //!< operator *= for scalar
+        MatrixReal&                             operator+=(const MatrixReal& B);                                    //!< operator +=
+        MatrixReal&                             operator-=(const MatrixReal& B);                                    //!< operator -=
         MatrixReal&                             operator*=(const MatrixReal& B);                                    //!< operator *= (matrix multiplication)
-        MatrixReal                              operator+(double b) const;                                          //!< operator + for matrix + scalar 
-        MatrixReal                              operator-(double b) const;                                          //!< operator - for scalar 
-        MatrixReal                              operator*(double b) const;                                          //!< operator * for scalar 
-        MatrixReal                              operator+(const MatrixReal& B) const;                               //!< operator + 
-        MatrixReal                              operator-(const MatrixReal& B) const;                               //!< operator - 
-        MatrixReal                              operator*(const MatrixReal& B) const;                               //!< operator * (matrix multiplication) 
+        MatrixReal                              operator+(double b) const;                                          //!< operator + for matrix + scalar
+        MatrixReal                              operator-(double b) const;                                          //!< operator - for scalar
+        MatrixReal                              operator*(double b) const;                                          //!< operator * for scalar
+        MatrixReal                              operator+(const MatrixReal& B) const;                               //!< operator +
+        MatrixReal                              operator-(const MatrixReal& B) const;                               //!< operator -
+        MatrixReal                              operator*(const MatrixReal& B) const;                               //!< operator * (matrix multiplication)
         std::vector<double>                     operator*(const std::vector<double> &b) const;                      //!< operator * for vector
-        
+
 
 //        std::vector<std::vector<double> >::const_iterator       begin(void) const;
 //        std::vector<std::vector<double> >::iterator             begin(void);
 //        std::vector<std::vector<double> >::const_iterator       end(void) const;
 //        std::vector<std::vector<double> >::iterator             end(void);
-        
+
         // utility functions
         void                                    clear(void);
         MatrixReal*                             clone(void) const;
@@ -100,14 +100,16 @@ namespace RevBayesCore {
         bool                                    isSymmetric(void) const;
         bool                                    isUsingCholesky(void) const { return use_cholesky_decomp; }
         void                                    setCholesky(bool c) const;
-        
+
         size_t                                  size(void) const;
         void                                    resize(size_t r, size_t c);
-        
+
+        const std::vector<double>               flattenMatrix(void) const;
+
     protected:
         // helper methods
         void                                    update(void) const;
-        
+
         // members
         RbVector<RbVector<double> >             elements;
 
@@ -115,30 +117,30 @@ namespace RevBayesCore {
         size_t                                  n_cols;
         mutable EigenSystem*                    eigensystem;
         mutable bool                            eigen_needs_update;
-        
+
         mutable CholeskyDecomposition*          cholesky_decomp;
         mutable bool                            cholesky_needs_update;
         mutable bool                            use_cholesky_decomp;
 
     };
-    
+
     // Global functions using the class
     std::ostream&                       operator<<(std::ostream& o, const MatrixReal& x);                                           //!< Overloaded output operator
 
-    
-//    MatrixReal                            operator+(const MatrixReal& A);                                             //!< Unary operator + 
-//    MatrixReal                            operator-(const MatrixReal& A);                                             //!< Unary operator - 
-//    MatrixReal                            operator/(const MatrixReal& A, const MatrixReal& B);                        //!< operator / for matrix / matrix 
-//    MatrixReal                            operator+(double a, const MatrixReal& B);                            //!< operator + for scalar + matrix 
-//    MatrixReal                            operator-(double a, const MatrixReal& B);                            //!< operator - for scalar - matrix 
-//    MatrixReal                            operator*(double a, const MatrixReal& B);                            //!< operator * for scalar * matrix 
-//    MatrixReal                            operator/(double a, const MatrixReal& B);                            //!< operator / for scalar / matrix 
-//    MatrixReal                            operator*(const MatrixReal& A, double b);                            //!< operator * for matrix * scalar 
-//    MatrixReal                            operator/(const MatrixReal& A, double b);                            //!< operator / for matrix / scalar 
-//    MatrixReal&                           operator/=(MatrixReal& A, double b);                                 //!< operator /= for scalar 
+
+//    MatrixReal                            operator+(const MatrixReal& A);                                             //!< Unary operator +
+//    MatrixReal                            operator-(const MatrixReal& A);                                             //!< Unary operator -
+//    MatrixReal                            operator/(const MatrixReal& A, const MatrixReal& B);                        //!< operator / for matrix / matrix
+//    MatrixReal                            operator+(double a, const MatrixReal& B);                            //!< operator + for scalar + matrix
+//    MatrixReal                            operator-(double a, const MatrixReal& B);                            //!< operator - for scalar - matrix
+//    MatrixReal                            operator*(double a, const MatrixReal& B);                            //!< operator * for scalar * matrix
+//    MatrixReal                            operator/(double a, const MatrixReal& B);                            //!< operator / for scalar / matrix
+//    MatrixReal                            operator*(const MatrixReal& A, double b);                            //!< operator * for matrix * scalar
+//    MatrixReal                            operator/(const MatrixReal& A, double b);                            //!< operator / for matrix / scalar
+//    MatrixReal&                           operator/=(MatrixReal& A, double b);                                 //!< operator /= for scalar
 
     RbVector<double>                      operator*(const RbVector<double> &a, const MatrixReal& B);                            //!< operator * for scalar * matrix
-    
+
 }
 
 #endif

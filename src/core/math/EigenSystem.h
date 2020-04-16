@@ -32,7 +32,7 @@ namespace RevBayesCore {
 
     public:
                                                 EigenSystem(const MatrixReal* m);                                                                                     //!< Constructor from rate matrix
-    
+
         double                                  getDeterminant(void);                                                                                               //!< Return determinant
         const MatrixReal&                       getEigenvectors(void) const { return eigenvectors; }                                                                //!< Return the eigenvector matrix
         const MatrixReal&                       getInverseEigenvectors(void) const { return inverseEigenvectors; }                                                  //!< Return the inverse eigenvector matrix
@@ -40,13 +40,13 @@ namespace RevBayesCore {
         const std::vector<double>&              getImagEigenvalues(void) const { return imaginaryEigenvalues; }                                                     //!< Return the imaginary parts of the eigenvalues
         const MatrixComplex&                    getComplexEigenvectors(void) const { return complexEigenvectors; }                                                  //!< Return the eigenvector matrix
         const MatrixComplex&                    getComplexInverseEigenvectors() const { return complexInverseEigenvectors; }                                        //!< Return the inverse eigenvector matrix
-        bool                                    isComplex(void) const { return complex; } 
+        bool                                    isComplex(void) const { return complex; }
         void                                    setRateMatrixPtr(const MatrixReal* qp) { qPtr = qp; }
         void                                    update(void);                                                                                                       //!< Update the eigen system for the matrix q;
         void                                    updatePositiveEigenvalues(void);
-        
+
     private:
-        // functions used to calculate eigenvalues and eigenvectors 
+        // functions used to calculate eigenvalues and eigenvectors
         // @todo Note, we should change most of these and move them to RbMath functions
         void                                    balance(MatrixReal& A, std::vector<double>& scale, int* low, int* high);                                            //!< balances a matrix
         void                                    balback(int low, int high, std::vector<double>& scale, MatrixReal& eivec);                                          //!< reverses the balancing
@@ -72,7 +72,7 @@ namespace RevBayesCore {
         std::vector<double>                     imaginaryEigenvalues;                                                                                               //!< Vector for internal storage of the eigenvalues (imaginary part)
         bool                                    complex;                                                                                                            //!< Do we have imaginary eigenvectors
     };
-    
+
 }
 
 #endif
