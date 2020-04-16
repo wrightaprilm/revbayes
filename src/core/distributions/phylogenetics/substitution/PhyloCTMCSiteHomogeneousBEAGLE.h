@@ -251,23 +251,49 @@ void This::computeRootLikelihood ( size_t root, size_t left, size_t right, size_
     b_operation.child2Partials         = right_idx;
     this->b_ops.push_back(b_operation);
 
+
+
+
     // get and flatten the root frequencies
     std::vector<std::vector<double>> ff; this->getRootFrequencies(ff);
-    //this->b_inStateFrequencies = std::vector<double>(ff.size() * ff[0].size());
-    //for ( size_t i = 0; i < ff.size(); ++i )
-    //{
-    //    for ( size_t j = 0; j < ff[i].size(); ++j )
-    //    {
-    //        this->b_inStateFrequencies[i*j+j] = ff[i][j];
-    //    }
-    //}
-    this->b_inStateFrequencies = ff[0];
+    this->b_inStateFrequencies = std::vector<double>(ff.size() * ff[0].size());
+    for ( size_t i = 0; i < ff.size(); ++i )
+    {
+        for ( size_t j = 0; j < ff[i].size(); ++j )
+        {
+            this->b_inStateFrequencies[i*j+j] = ff[i][j];
+        }
+    }
 
     this->b_stateFrequenciesIndex = 0;
     beagleSetStateFrequencies( this->beagle_instance
                              , this->b_stateFrequenciesIndex
                              , &this->b_inStateFrequencies[0]
                              );
+
+
+    this->b_inPatternWeights = std::vector<double>(this->pattern_block_size);
+    for ( size_t b_pattern = 0; b_pattern < this->pattern_block_size; ++b_pattern )
+    {
+        this->b_inPatternWeights[b_pattern] = (double) this->pattern_counts[b_pattern];
+    }
+
+    beagleSetPatternWeights( this->beagle_instance
+                           , &this->b_inPatternWeights[0]
+                           );
+
+    // site rate categories not yet supported
+    this->b_categoryWeightsIndices = 0;
+    this->b_inCategoryWeights      = 1.0;
+    beagleSetCategoryWeights( this->beagle_instance
+                            , this->b_categoryWeightsIndices
+                            , &this->b_inCategoryWeights
+                            );
+
+    this->b_inCategoryRates = 1.0;
+    beagleSetCategoryRates( this->beagle_instance
+                          , &this->b_inCategoryRates
+                          );
 
 
     EigenSystem*        eigen_system;
@@ -316,16 +342,17 @@ void This::computeRootLikelihood ( size_t root, size_t left, size_t right, size_
         }
     }
 
-    //-- Calculate and update all transition matrix buffers
-    beagleUpdateTransitionMatricesWithMultipleModels( this->beagle_instance
-                                                    , &this->b_model_indices[0]
-                                                    , &this->b_categoryWeightsIndices
-                                                    , &b_probabilityIndices
-                                                    , b_firstDerivativeIndices
-                                                    , b_secondDerivativeIndices
-                                                    , &this->b_branch_lengths[0]
-                                                    , b_count
-                                                    );
+    for ( auto model : this->b_model_indices )
+    {
+        beagleUpdateTransitionMatrices( this->beagle_instance
+                                      , model
+                                      , &this->b_node_indices[0]
+                                      , NULL
+                                      , NULL
+                                      , &this->b_branch_lengths[0]
+                                      , this->b_branch_lengths.size()
+                                      );
+    }
 
     //-- Calculate and update all partial likelihood buffers
     beagleUpdatePartials( this->beagle_instance
@@ -353,10 +380,13 @@ void This::computeRootLikelihood ( size_t root, size_t left, size_t right, size_
     //-- Store the resulting likelihood
     this->ln_beagle_probability = b_outSumLogLikelihood;
 
-    // reset the beagle operations queue
+    // reset the beagle operations queues
     this->b_ops.clear();
     this->b_branch_lengths.clear();
     this->b_node_indices.clear();
+    this->b_model_indices.clear();
+    this->b_inStateFrequencies.clear();
+    this->b_inPatternWeights.clear();
 }
 
 

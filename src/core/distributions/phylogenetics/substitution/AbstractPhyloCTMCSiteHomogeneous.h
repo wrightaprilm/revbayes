@@ -3280,78 +3280,28 @@ void RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::setMcmcMode(bool 
                 delete[] b_inStates;
 
 
-                this->b_inPatternWeights = std::vector<double>(pattern_block_size);
-                for ( size_t b_pattern = 0; b_pattern < this->pattern_block_size; ++b_pattern )
-                {
-                    this->b_inPatternWeights[b_pattern] = (double) pattern_counts[b_pattern];
-                }
-
-                beagleSetPatternWeights( this->beagle_instance
-                                       , &this->b_inPatternWeights[0]
-                                       );
-
-                // site rate categories not yet supported
-                this->b_categoryWeightsIndices = 0;
-                this->b_inCategoryWeights      = 1.0;
-                beagleSetCategoryWeights( this->beagle_instance
-                                        , this->b_categoryWeightsIndices
-                                        , &this->b_inCategoryWeights
-                                        );
-
-                this->b_inCategoryRates = 1.0;
-                beagleSetCategoryRates( beagle_instance
-                                      , &this->b_inCategoryRates
-                                      );
-
-
-                //-- added stuff here
-
-//                // get and flatten the root frequencies
-//                std::vector<std::vector<double>> ff; this->getRootFrequencies(ff);
-//                //this->b_inStateFrequencies = std::vector<double>(ff.size() * ff[0].size());
-//                //for ( size_t i = 0; i < ff.size(); ++i )
-//                //{
-//                //    for ( size_t j = 0; j < ff[i].size(); ++j )
-//                //    {
-//                //        this->b_inStateFrequencies[i*j+j] = ff[i][j];
-//                //    }
-//                //}
-//                this->b_inStateFrequencies = ff[0];
-//
-//                this->b_stateFrequenciesIndex = 0;
-//                beagleSetStateFrequencies( this->beagle_instance
-//                                         , this->b_stateFrequenciesIndex
-//                                         , &this->b_inStateFrequencies[0]
-//                                         );
-//
-//
-//                // @TODO: Extend implementation to work on site mixtures
-//                EigenSystem* my_eigen_system = this->homogeneous_rate_matrix->getValue().getEigenSystem();
-//
-//                size_t              model_idx;
-//                std::vector<double> my_eigen_values;
-//                std::vector<double> flat_eigen_vectors;
-//                std::vector<double> flat_inv_eigen_vectors;
-//
-//                for ( size_t i = 0; i < num_site_mixtures; ++i )
+//                this->b_inPatternWeights = std::vector<double>(pattern_block_size);
+//                for ( size_t b_pattern = 0; b_pattern < this->pattern_block_size; ++b_pattern )
 //                {
-//                    model_idx              = i + this->active_eigen_system[i] * num_site_mixtures;
-//                    my_eigen_values        = my_eigen_system->getRealEigenvalues();
-//                    flat_eigen_vectors     = my_eigen_system->getEigenvectors().flattenMatrix();
-//                    flat_inv_eigen_vectors = my_eigen_system->getInverseEigenvectors().flattenMatrix();
-//
-//                    beagleSetEigenDecomposition( this->beagle_instance
-//                                               , model_idx
-//                                               , &flat_eigen_vectors[0]
-//                                               , &flat_inv_eigen_vectors[0]
-//                                               , &my_eigen_values[0]
-//                                               );
-//                    this->b_model_indices.push_back(model_idx);
-//                    std::string model_str = std::to_string(model_idx);
-//                    RBOUT(model_str);
+//                    this->b_inPatternWeights[b_pattern] = (double) pattern_counts[b_pattern];
 //                }
-
-                //-- end added stuff
+//
+//                beagleSetPatternWeights( this->beagle_instance
+//                                       , &this->b_inPatternWeights[0]
+//                                       );
+//
+//                // site rate categories not yet supported
+//                this->b_categoryWeightsIndices = 0;
+//                this->b_inCategoryWeights      = 1.0;
+//                beagleSetCategoryWeights( this->beagle_instance
+//                                        , this->b_categoryWeightsIndices
+//                                        , &this->b_inCategoryWeights
+//                                        );
+//
+//                this->b_inCategoryRates = 1.0;
+//                beagleSetCategoryRates( beagle_instance
+//                                      , &this->b_inCategoryRates
+//                                      );
 
             }
         }
