@@ -1421,7 +1421,7 @@ bool RevBayesCore::AbstractPhyloCTMCSiteHomogeneous<charType>::recursivelyDrawSt
 {
     // a dummy function if you don't need stochastic mapping likelihood computation
     std::vector<double> mapping_likelihoods(num_nodes);
-    bool success = recursivelyDrawStochasticCharacterMap(node,  character_histories, start_states, end_states, site, use_simmap_default);
+    bool success = recursivelyDrawStochasticCharacterMap(node,  character_histories, start_states, end_states, site, use_simmap_default, mapping_likelihoods);
     return success;
 }
 
